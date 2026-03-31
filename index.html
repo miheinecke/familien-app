@@ -1,0 +1,1258 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Familie Heinecke - Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;700&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-green: #57856F;
+            --button-green: #A1BFB0;
+            --dark-green: #3D6350;
+            --light-bg: #E8F0EB;
+            --text-dark: #3B3B3B;
+            --text-muted: #6b7b72;
+            --white: #FFFFFF;
+            --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        html, body {
+            height: 100%;
+            font-family: 'Comfortaa', sans-serif;
+            background-color: var(--light-bg);
+            color: var(--text-dark);
+            overflow: hidden;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Login Screen */
+        .login-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary-green) 0%, var(--dark-green) 100%);
+            padding: 20px;
+        }
+
+        .login-screen.hidden {
+            display: none;
+        }
+
+        .login-container {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 40px 30px;
+            box-shadow: var(--shadow-card);
+            text-align: center;
+            max-width: 300px;
+        }
+
+        .login-logo {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .login-title {
+            font-family: 'Oswald', sans-serif;
+            font-size: 28px;
+            color: var(--primary-green);
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .login-subtitle {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 30px;
+        }
+
+        .google-login-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            width: 100%;
+            padding: 14px;
+            background: var(--primary-green);
+            color: var(--white);
+            border: none;
+            border-radius: 10px;
+            font-family: 'Comfortaa', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .google-login-btn:hover {
+            background: var(--dark-green);
+        }
+
+        .google-icon {
+            font-size: 20px;
+        }
+
+        /* Main App */
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .app-container.hidden {
+            display: none;
+        }
+
+        /* Header */
+        header {
+            background: var(--primary-green);
+            color: var(--white);
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+            position: relative;
+        }
+
+        .header-title {
+            font-family: 'Oswald', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            flex: 1;
+        }
+
+        .sync-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 6px 12px;
+            border-radius: 20px;
+            margin: 0 12px;
+        }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background: #4CAF50;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+        }
+
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: var(--white);
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'Comfortaa', sans-serif;
+            font-size: 12px;
+            transition: background 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Content Area */
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding-bottom: 70px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .content-wrapper {
+            max-width: 480px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 20px;
+        }
+
+        /* Tabs */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Bottom Navigation */
+        nav.bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--white);
+            border-top: 1px solid #E0E0E0;
+            display: flex;
+            justify-content: space-around;
+            padding: max(12px, env(safe-area-inset-bottom, 12px)) 0 12px;
+            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.08);
+            max-width: 480px;
+            margin: 0 auto;
+            width: 100vw;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-size: 12px;
+            text-decoration: none;
+            border: none;
+            background: none;
+            font-family: 'Comfortaa', sans-serif;
+            transition: color 0.3s ease;
+        }
+
+        .nav-item.active {
+            color: var(--primary-green);
+        }
+
+        .nav-item-icon {
+            font-size: 24px;
+        }
+
+        /* Menu Tab */
+        .day-filter {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            margin-bottom: 20px;
+            padding-bottom: 8px;
+        }
+
+        .day-chip {
+            padding: 8px 14px;
+            border: 2px solid var(--button-green);
+            background: var(--white);
+            color: var(--primary-green);
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 700;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+            font-family: 'Oswald', sans-serif;
+        }
+
+        .day-chip.active {
+            background: var(--primary-green);
+            color: var(--white);
+            border-color: var(--primary-green);
+        }
+
+        .day-chip:hover {
+            border-color: var(--primary-green);
+        }
+
+        .day-card {
+            background: var(--white);
+            border-radius: 12px;
+            margin-bottom: 16px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .day-header {
+            background: var(--primary-green);
+            color: var(--white);
+            padding: 16px;
+            font-family: 'Oswald', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .day-header.weekend {
+            background: var(--dark-green);
+        }
+
+        .day-date {
+            font-size: 14px;
+            font-weight: 400;
+            opacity: 0.9;
+        }
+
+        .meals {
+            padding: 12px 0;
+        }
+
+        .meal {
+            padding: 12px 16px;
+            border-bottom: 1px solid #F0F0F0;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .meal:last-child {
+            border-bottom: none;
+        }
+
+        .meal:hover {
+            background: var(--light-bg);
+        }
+
+        .meal-type {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .meal-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--primary-green);
+            margin: 6px 0;
+        }
+
+        .meal-time {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .meal-details {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            background: var(--light-bg);
+            padding: 0 16px;
+        }
+
+        .meal-details.expanded {
+            max-height: 500px;
+            padding: 12px 16px;
+        }
+
+        .meal-details h4 {
+            font-family: 'Oswald', sans-serif;
+            font-size: 13px;
+            color: var(--primary-green);
+            margin: 12px 0 6px;
+            font-weight: 700;
+        }
+
+        .meal-details p, .meal-details ul {
+            font-size: 13px;
+            color: var(--text-dark);
+            line-height: 1.5;
+            margin-bottom: 8px;
+        }
+
+        .meal-details ul {
+            margin-left: 16px;
+        }
+
+        .meal-details li {
+            margin-bottom: 4px;
+        }
+
+        /* Shopping Tab */
+        .progress-section {
+            margin-bottom: 20px;
+        }
+
+        .progress-label {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #E0E0E0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary-green);
+            transition: width 0.3s ease;
+        }
+
+        .reset-btn {
+            padding: 8px 12px;
+            background: var(--button-green);
+            color: var(--white);
+            border: none;
+            border-radius: 6px;
+            font-family: 'Comfortaa', sans-serif;
+            font-size: 12px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .reset-btn:hover {
+            background: var(--primary-green);
+        }
+
+        .category {
+            margin-bottom: 20px;
+        }
+
+        .category-header {
+            font-family: 'Oswald', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--primary-green);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .category-emoji {
+            font-size: 20px;
+        }
+
+        .shopping-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: var(--white);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            box-shadow: var(--shadow);
+        }
+
+        .shopping-item.completed {
+            opacity: 0.6;
+        }
+
+        .shopping-item.completed .item-label {
+            text-decoration: line-through;
+            color: var(--text-muted);
+        }
+
+        .shopping-checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: var(--primary-green);
+        }
+
+        .item-label {
+            flex: 1;
+            font-size: 14px;
+            color: var(--text-dark);
+        }
+
+        /* Todos Tab */
+        .todo-form {
+            background: var(--white);
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        .form-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .todo-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid var(--light-bg);
+            border-radius: 8px;
+            font-family: 'Comfortaa', sans-serif;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .todo-input:focus {
+            outline: none;
+            border-color: var(--primary-green);
+        }
+
+        .who-selector {
+            display: flex;
+            gap: 8px;
+        }
+
+        .who-chip {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid var(--light-bg);
+            background: var(--white);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            font-family: 'Comfortaa', sans-serif;
+            text-align: center;
+            color: var(--text-dark);
+        }
+
+        .who-chip.selected {
+            background: var(--primary-green);
+            color: var(--white);
+            border-color: var(--primary-green);
+        }
+
+        .who-chip:hover {
+            border-color: var(--primary-green);
+        }
+
+        .add-todo-btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--primary-green);
+            color: var(--white);
+            border: none;
+            border-radius: 8px;
+            font-family: 'Comfortaa', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            margin-top: 12px;
+        }
+
+        .add-todo-btn:hover {
+            background: var(--dark-green);
+        }
+
+        .todos-section {
+            margin-bottom: 24px;
+        }
+
+        .todos-section-title {
+            font-family: 'Oswald', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--primary-green);
+            margin-bottom: 12px;
+        }
+
+        .todo-item {
+            background: var(--white);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            box-shadow: var(--shadow);
+        }
+
+        .todo-item.completed {
+            opacity: 0.6;
+        }
+
+        .todo-item.completed .todo-text {
+            text-decoration: line-through;
+            color: var(--text-muted);
+        }
+
+        .todo-checkbox {
+            width: 20px;
+            height: 20px;
+            margin-top: 2px;
+            cursor: pointer;
+            accent-color: var(--primary-green);
+            flex-shrink: 0;
+        }
+
+        .todo-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .todo-text {
+            font-size: 14px;
+            color: var(--text-dark);
+            font-weight: 700;
+        }
+
+        .todo-who {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .todo-delete {
+            background: none;
+            border: none;
+            color: #d32f2f;
+            cursor: pointer;
+            font-size: 20px;
+            padding: 0;
+            line-height: 1;
+            flex-shrink: 0;
+            transition: color 0.3s ease;
+        }
+
+        .todo-delete:hover {
+            color: #b71c1c;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-state-text {
+            font-size: 14px;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .login-container {
+                max-width: 100%;
+            }
+
+            nav.bottom-nav {
+                width: 100%;
+                left: 0;
+                right: 0;
+            }
+
+            .content-wrapper {
+                padding: 16px;
+            }
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--light-bg);
+            border-top-color: var(--primary-green);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div class="login-screen" id="loginScreen">
+        <div class="login-container">
+            <div class="login-logo">ğŸ‘¨â€ğŸ‘©â€ğŸ‘§â€ğŸ‘¦</div>
+            <h1 class="login-title">Familie Heinecke</h1>
+            <p class="login-subtitle">Family Dashboard</p>
+            <button class="google-login-btn" id="googleLoginBtn">
+                <span class="google-icon">ğŸ”</span>
+                Mit Google anmelden
+            </button>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div class="app-container" id="appContainer">
+        <!-- Header -->
+        <header>
+            <h1 class="header-title">Familie Heinecke</h1>
+            <div class="sync-badge">
+                <span class="pulse-dot"></span>
+                <span>Live-Sync aktiv</span>
+            </div>
+            <div class="user-section">
+                <span id="userName">Guest</span>
+                <button class="logout-btn" id="logoutBtn">Abmelden</button>
+            </div>
+        </header>
+
+        <!-- Content -->
+        <div class="content">
+            <div class="content-wrapper">
+                <!-- Menu Tab -->
+                <div class="tab-content active" id="menuTab">
+                    <div class="day-filter" id="dayFilter"></div>
+                    <div id="menuContent"></div>
+                </div>
+
+                <!-- Shopping Tab -->
+                <div class="tab-content" id="shoppingTab">
+                    <div class="progress-section">
+                        <div class="progress-label">
+                            <span id="progressLabel">0 von 0 erledigt</span>
+                            <button class="reset-btn" id="resetBtn">ZurÃ¼cksetzen</button>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                    <div id="shoppingContent"></div>
+                </div>
+
+                <!-- Todos Tab -->
+                <div class="tab-content" id="todosTab">
+                    <form class="todo-form" id="todoForm">
+                        <div class="form-group">
+                            <label class="form-label" for="todoInput">Neuer Todo</label>
+                            <input type="text" id="todoInput" class="todo-input" placeholder="Was muss getan werden?" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Wer?</label>
+                            <div class="who-selector" id="whoSelector">
+                                <button type="button" class="who-chip" data-who="MichÃ¨le">MichÃ¨le</button>
+                                <button type="button" class="who-chip" data-who="Alex">Alex</button>
+                                <button type="button" class="who-chip" data-who="Beide">Beide</button>
+                            </div>
+                        </div>
+                        <button type="submit" class="add-todo-btn">HinzufÃ¼gen</button>
+                    </form>
+                    <div id="todosContent"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <button class="nav-item active" data-tab="menuTab">
+                <span class="nav-item-icon">ğŸ³</span>
+                <span>MenÃ¼</span>
+            </button>
+            <button class="nav-item" data-tab="shoppingTab">
+                <span class="nav-item-icon">ğŸ›’</span>
+                <span>Einkauf</span>
+            </button>
+            <button class="nav-item" data-tab="todosTab">
+                <span class="nav-item-icon">âœ…</span>
+                <span>Todos</span>
+            </button>
+        </nav>
+    </div>
+
+    <script type="module">
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCVzWxj3jj2j4UYVWOt2L2lsYXHVYOk98s",
+            authDomain: "heinecke-family.firebaseapp.com",
+            databaseURL: "https://heinecke-family-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "heinecke-family",
+            storageBucket: "heinecke-family.firebasestorage.app",
+            messagingSenderId: "164552911106",
+            appId: "1:164552911106:web:a4c841ea77f7f77049fa1b"
+        };
+
+        // Import Firebase modules
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js';
+        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js';
+        import { getDatabase, ref, onValue, set, remove, update } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js';
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+        const provider = new GoogleAuthProvider();
+
+        // DOM Elements
+        const loginScreen = document.getElementById('loginScreen');
+        const appContainer = document.getElementById('appContainer');
+        const googleLoginBtn = document.getElementById('googleLoginBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const userName = document.getElementById('userName');
+        const navItems = document.querySelectorAll('.nav-item');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        // App State
+        let currentUser = null;
+        let selectedWho = 'MichÃ¨le';
+
+        // Menu Data (Static)
+        const menuData = {
+            'Monday': {
+                date: '8. April 2026',
+                weekend: false,
+                meals: {
+                    'Zmittag': {
+                        title: 'One-Pot Pasta mit Ruebli & Erbsen',
+                        time: '15 min',
+                        ingredients: 'Pasta, Ruebli, Erbsen, Zwiebel, Olivenoel, Bruehe, Salz, Pfeffer',
+                        babyTip: 'Lene: Weiche Pasta waehlen, in kleinere Stuecke brechen'
+                    },
+                    'Znacht': {
+                        title: 'Brot, Kaese & Rohkost',
+                        time: '5 min',
+                        ingredients: 'Vollkornbrot, Emmentaler, Tomate, Gurke, Salz',
+                        babyTip: 'Lene: Kaese in kleine Wuerfel schneiden, Gemuese klein hacken'
+                    }
+                }
+            },
+            'Tuesday': {
+                date: '9. April 2026',
+                weekend: false,
+                meals: {
+                    'Zmittag': {
+                        title: 'Reis mit Poulet-Gemuese-Pfanne',
+                        time: '20 min',
+                        ingredients: 'Basmati Reis, Poulet, Paprika, Zucchini, Zwiebel, Knoblauch, Olivenoel, Sojasauce',
+                        babyTip: 'Lene: Poulet ganz klein hacken, Gemuese weich kochen'
+                    },
+                    'Znacht': {
+                        title: 'Rueblisuppe mit Brot',
+                        time: '15 min',
+                        ingredients: 'Ruebli, Zwiebel, Bruehe, Sahne, Salz, Pfeffer, Brot',
+                        babyTip: 'Lene: Suppe puerieren fuer glaette Konsistenz, lauwarm servieren'
+                    }
+                }
+            },
+            'Wednesday': {
+                date: '10. April 2026',
+                weekend: false,
+                meals: {
+                    'Zmittag': {
+                        title: 'Kartoffelstock mit Spinat & Spiegelei',
+                        time: '20 min',
+                        ingredients: 'Kartoffeln, Spinat, Eier, Milch, Butter, Salz, Muskatnuss',
+                        babyTip: 'Lene: Kartoffeln extra weich kochen, Spinat gut zerkleinern'
+                    },
+                    'Znacht': {
+                        title: 'Birchermuuesli',
+                        time: '5 min',
+                        ingredients: 'Haferflocken, Aepfel, Zitrone, Milch, Honig, NÃ¼sse (gehackt)',
+                        babyTip: 'Lene: Aepfel reiben, NÃ¼sse weglassen oder pulverisieren'
+                    }
+                }
+            },
+            'Thursday': {
+                date: '11. April 2026',
+                weekend: false,
+                meals: {
+                    'Zmittag': {
+                        title: 'Risotto mit Lauch & Erbsen',
+                        time: '20 min',
+                        ingredients: 'Arborio Reis, Lauch, Erbsen, Bruehe, Wein, Parmesan, Butter',
+                        babyTip: 'Lene: Lauch sehr fein schneiden, Risotto extra cremig kochen'
+                    },
+                    'Znacht': {
+                        title: 'Omelette mit Kaese & Tomaten',
+                        time: '10 min',
+                        ingredients: 'Eier, Kaese, Tomate, Butter, Salz, Pfeffer',
+                        babyTip: 'Lene: Kaese klein hacken, gut durchgegart servieren'
+                    }
+                }
+            },
+            'Friday': {
+                date: '12. April 2026',
+                weekend: false,
+                meals: {
+                    'Zmittag': {
+                        title: 'Fischstaebchen mit Kartoffeln & Erbsen',
+                        time: '15 min',
+                        ingredients: 'Fischstaebchen, Kartoffeln, Erbsen, Zitrone, Olivenoel',
+                        babyTip: 'Lene: Fischstaebchen in kleine Stuecke teilen, auf Graten pruefen'
+                    },
+                    'Znacht': {
+                        title: 'Pizza-Toast',
+                        time: '10 min',
+                        ingredients: 'Brot, Tomatenmark, Mozzarella, Basilikum, Olivenoel',
+                        babyTip: 'Lene: Kaese in kleine Stuecke schneiden, nicht zu heiss servieren'
+                    }
+                }
+            },
+            'Saturday': {
+                date: '13. April 2026',
+                weekend: true,
+                meals: {
+                    'Zmittag': {
+                        title: 'Hoernli mit Apfelmus & Kaese',
+                        time: '15 min',
+                        ingredients: 'Hoernli Pasta, Apfelmus, Emmentaler, Butter, Salz',
+                        babyTip: 'Lene: Pasta gut weich kochen, Apfelmus selbstgemacht ohne Zucker'
+                    },
+                    'Znacht': {
+                        title: 'Flammkuchen vom Blech',
+                        time: '20 min',
+                        ingredients: 'Teigblatt, CrÃ¨me FraÃ®che, Zwiebel, Speck, Thymian',
+                        babyTip: 'Lene: Kleine Stuecke schneiden, Speck weglassen'
+                    }
+                }
+            },
+            'Sunday': {
+                date: '14. April 2026',
+                weekend: true,
+                meals: {
+                    'Zmittag': {
+                        title: 'Ofengemuese mit Pouletschenkel',
+                        time: '20+ Ofen',
+                        ingredients: 'Pouletschenkel, Zucchini, Aubergine, Paprika, Tomaten, Olivenoel, Kraeuter',
+                        babyTip: 'Lene: Poulet von Knochen loesen, Gemuese puerieren'
+                    },
+                    'Znacht': {
+                        title: 'Resten-Gemuesesuppe',
+                        time: '15 min',
+                        ingredients: 'Reste Gemuese, Bruehe, Zwiebel, Olive, Petersilie',
+                        babyTip: 'Lene: Suppe gut puerieren, Konsistenz anpassen'
+                    }
+                }
+            }
+        };
+
+        // Shopping Data
+        const shoppingDataInitial = {
+            'Gemuese & Fruechte': {
+                emoji: 'ğŸ¥¦',
+                items: [
+                    'Ruebli',
+                    'Erbsen',
+                    'Spinat',
+                    'Lauch',
+                    'Paprika',
+                    'Zucchini',
+                    'Aubergine',
+                    'Tomate',
+                    'Gurke',
+                    'Aepfel',
+                    'Zwiebel',
+                    'Knoblauch'
+                ]
+            },
+            'Fleisch & Fisch': {
+                emoji: 'ğŸ—',
+                items: [
+                    'Poulet',
+                    'Fischstaebchen',
+                    'Pouletschenkel',
+                    'Speck'
+                ]
+            },
+            'Milchprodukte & Eier': {
+                emoji: 'ğŸ§€',
+                items: [
+                    'Eier',
+                    'Milch',
+                    'Sahne',
+                    'Butter',
+                    'Emmentaler',
+                    'Mozzarella',
+                    'CrÃ¨me FraÃ®che'
+                ]
+            },
+            'Teigwaren & Vorraete': {
+                emoji: 'ğŸ',
+                items: [
+                    'Pasta',
+                    'Reis',
+                    'Arborio Reis',
+                    'Haferflocken',
+                    'Brot',
+                    'Vollkornbrot',
+                    'Teigblatt',
+                    'Tomatenmark',
+                    'Bruehe',
+                    'Wein'
+                ]
+            },
+            'Saucen & Gewuerze': {
+                emoji: 'ğŸ§º',
+                items: [
+                    'Olivenoel',
+                    'Sojasauce',
+                    'Apfelmus',
+                    'Honig',
+                    'Salz',
+                    'Pfeffer',
+                    'Muskatnuss',
+                    'Zitrone',
+                    'Basilikum',
+                    'Thymian',
+                    'Petersilie',
+                    'NÃ¼sse'
+                ]
+            }
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', initializeApp);
+
+        async function initializeApp() {
+            // Setup auth listener
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    currentUser = user;
+                    userName.textContent = user.displayName?.split(' ')[0] || 'User';
+                    loginScreen.classList.add('hidden');
+                    appContainer.classList.remove('hidden');
+                    initializeContent();
+                } else {
+                    currentUser = null;
+                    loginScreen.classList.remove('hidden');
+                    appContainer.classList.add('hidden');
+                }
+            });
+
+            // Google Login
+            googleLoginBtn.addEventListener('click', async () => {
+                try {
+                    await signInWithPopup(auth, provider);
+                } catch (error) {
+                    console.error('Login error:', error);
+                    alert('Login fehlgeschlagen');
+                }
+            });
+
+            // Logout
+            logoutBtn.addEventListener('click', async () => {
+                try {
+                    await signOut(auth);
+                } catch (error) {
+                    console.error('Logout error:', error);
+                }
+            });
+
+            // Tab Navigation
+            navItems.forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const tabId = item.getAttribute('data-tab');
+                    switchTab(tabId);
+                });
+            });
+        }
+
+        function initializeContent() {
+            renderMenu();
+            initializeShopping();
+            initializeTodos();
+        }
+
+        function switchTab(tabId) {
+            tabContents.forEach(tab => tab.classList.remove('active'));
+            navItems.forEach(item => item.classList.remove('active'));
+
+            document.getElementById(tabId).classList.add('active');
+            document.querySelector(`[data-tab="${tabId}"]`).classList.add('active');
+        }
+
+        // MENU TAB
+        function renderMenu() {
+            const dayFilter = document.getElementById('dayFilter');
+            const menuContent = document.getElementById('menuContent');
+
+            // Day filter
+            const days = Object.keys(menuData);
+            dayFilter.innerHTML = '';
+            days.forEach((day, index) => {
+                const chip = document.createElement('button');
+                chip.className = 'day-chip' + (index === 0 ? ' active' : '');
+                chip.textContent = day.slice(0, 2);
+                chip.addEventListener('click', () => {
+                    document.querySelectorAll('.day-chip').forEach(c => c.classList.remove('active'));
+                    chip.classList.add('active');
+                    renderDayCard(day, menuContent);
+                });
+                dayFilter.appendChild(chip);
+            });
+
+            // Initial render
+            renderDayCard(days[0], menuContent);
+        }
+
+        function renderDayCard(day, container) {
+            const dayInfo = menuData[day];
+            const card = document.createElement('div');
+            card.className = 'day-card';
+
+            const headerClass = dayInfo.weekend ? 'day-header weekend' : 'day-header';
+            card.innerHTML = `
+                <div class="${headerClass}">
+                    <div>${day}</div>
+                    <div class="day-date">${dayInfo.date}</div>
+                </div>
+                <div class="meals"></div>
+            `;
+
+            const mealsContainer = card.querySelector('.meals');
+            Object.entries(dayInfo.meals).forEach(([type, meal]) => {
+                const mealEl = document.createElement('div');
+                mealEl.className = 'meal';
+                mealEl.innerHTML = `
+                    <div class="meal-type">${type}</div>
+                    <div class="meal-title">${meal.title}</div>
+                    <div class="meal-time">â±ï¸ ${meal.time}</div>
+                    <div class="meal-details">
+                        <h4>Zutaten:</h4>
+                        <p>${meal.ingredients}</p>
+                        <h4>ğŸ‘¶ Baby-Tipp fÃ¼r Lene:</h4>
+                        <p>${meal.babyTip}</p>
+                    </div>
+                `;
+
+                mealEl.addEventListener('click', () => {
+                    const details = mealEl.querySelector('.meal-details');
+                    details.classList.toggle('expanded');
+                });
+
+                mealsContainer.appendChild(mealEl);
+            });
+
+            container.innerHTML = '';
+            container.appendChild(card);
+        }
+
+        // SHOPPING TAB
+        function initializeShopping() {
+            const shoppingRef = ref(db, 'shopping');
+            onValue(shoppingRef, (snapshot) => {
+                let shoppingState = snapshot.val() || {};
+
+                // Initialize if empty
+                if (Object.keys(shoppingState).length === 0) {
+                    shoppingState = {};
+                    Object.entries(shoppingDataInitial).forEach((catEntry, catIndex) => {
+                        catEntry[1].items.forEach((item, itemIndex) => {
+                            shoppingState[`${catIndex}-${itemIndex}`] = false;
+                        });
+                    });
+                    set(shoppingRef, shoppingState);
+                }
+
+                renderShopping(shoppingState);
+            });
+        }
+
+        function renderShopping(shoppingState) {
+            const container = document.getElementById('shoppingContent');
+            container.innerHTML = '';
+
+            let totalItems = 0;
+            let completedItems = 0;
+
+            Object.entries(shoppingDataInitial).forEach((catEntry, catIndex) => {
+                const [catName, catData] = catEntry;
+                const category = document.createElement('div');
+                category.className = 'category';
+
+                const header = document.createElement('div');
+                header.className = 'category-header';
+                header.innerHTML = `<span class="category-emoji">${catData.emoji}</span><span>${catName}</span>`;
+                category.appendChild(header);
+
+                catData.items.forEach((item, itemIndex) => {
+                    const key = `${catIndex}-${itemIndex}`;
+                    const isChecked = shoppingState[key] || false;
+                    totalItems++;
+                    if (isChecked) completedItems++;
+
+                    const itemEl = document.createElement('div');
+                    itemEl.className = 'shopping-item' + (isChecked ? ' completed' : '');
+
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.className = 'shopping-checkbox';
+                    checkbox.checked = isChecked;
+                    checkbox.addEventListener('change', () => {
+                        updateShopping(key, checkbox.checked);
+                    });
+
+                    const label = document.createElement('div');
+                    label.className = 'item-label';
+                    label.textContent = item;
+
+                    itemEl.appendChild(checkbox);
+                    itemEl.appendChild(label);
+                    category.appendChild(itemEl);
+                });
+
+                container.appendChild(category);
+            });
+
+            // Update progress
+            const progressLabel = document.getElementById('progressLabel');
+            const progressFill = document.getElementById('progressFill');
+            progressLabel.textContent = `${completedItems} von ${totalItems} erledigt`;
+            progressFill.style.width = totalItems > 0 ? `${(completedItems / totalItems) * 100}%` : '0%';
+
+            // Reset button
+            document.getElementById('resetBtn').onclick = () => {
+                const shoppingRef = ref(db, 'shopping');
+                set(shoppingRef, {});
+            };
+        }
+
+        function updateShopping(key, checked) {
+            const shoppingRef = ref(db, `shopping/${key}`);
+            set(shoppingRef, checked);
+        }
+
+        // TODOS TAB
+        const todoForm = document.getElementById('todoForm');
+        const todoInput = document.getElementById('todoInput');
+        const whoSelector = document.getElementById('whoSelector');
+
+        whoSelector.querySelectorAll('.who-chip').forEach(chip => {
+            chip.addEventListener('click', (e) => {
+                e.preventDefault();
+                whoSelector.querySelectorAll('.who-chip').forEach(c => c.classList.remove('selected'));
+                chip.classList.add('selected');
+                selectedWho = chip.getAttribute('data-who');
+            });
+        });
+
+        // Initialize first whnğ‰±ÄƒŠ	|…ÌÍ•±•Ñ•(€€€€€€€İ¡½M•±•Ñ½È¹ÅÕ•ÉåM•±•Ñ½È m‘…Ñ„µİ¡¼ô‰5¥£¡±”‰tœ¤¹±…ÍÍ1¥ÍĞ¹…‘ Í•±•Ñ•œ¤ì((€€€€€€€Ñ½‘½½É´¹…‘‘Ù•¹Ñ1¥ÍÑ•¹•È ÍÕ‰µ¥Ğœ°…Íå¹Œ€¡”¤€ôøì(€€€€€€€€€€€”¹ÁÉ•Ù•¹Ñ•™…Õ±Ğ ¤ì(€€€€€€€€€€€½¹ÍĞÑ•áĞ€ôÑ½‘½%¹ÁÕĞ¹Ù…±Õ”¹ÑÉ¥´ ¤ì(€€€€€€€€€€€¥˜€ …Ñ•áĞ¤É•ÑÕÉ¸ì((€€€€€€€€€€€½¹ÍĞÑ½‘½ÍI•˜€ôÉ•˜¡‘ˆ°€Ñ½‘½Ìœ¤ì(€€€€€€€€€€€½¹ÍĞ¹•İQ½‘¼€ôì(€€€€€€€€€€€€€€€Ñ•áĞ°(€€€€€€€€€€€€€€€İ¡¼èÍ•±•Ñ•‘]¡¼°(€€€€€€€€€€€€€€€½µÁ±•Ñ•è™…±Í”°(€€€€€€€€€€€€€€€É•…Ñ•‘Ğè¹•Ü…Ñ” ¤¹Ñ½%M=MÑÉ¥¹œ ¤(€€€€€€€€€€€ôì((€€€€€€€€€€€ÑÉäì(€€€€€€€€€€€€€€€½¹ÍĞÍ¹…ÁÍ¡½Ğ€ô…İ…¥Ğ¹•ÜAÉ½µ¥Í” ¡É•Í½±Ù”¤€ôøì(€€€€€€€€€€€€€€€€€€€½¹Y…±Õ”¡Ñ½‘½ÍI•˜°É•Í½±Ù”°ì½¹±å=¹”èÑÉÕ”ô¤ì(€€€€€€€€€€€€€€€ô¤ì((€€€€€€€€€€€€€€€½¹ÍĞ•á¥ÍÑ¥¹Q½‘½Ì€ôÍ¹…ÁÍ¡½Ğ¹Ù…° ¤ñğíôì(€€€€€€€€€€€€€€€½¹ÍĞ¹•İ-•ä€ôQ½‘½|‘í…Ñ”¹¹½Ü ¥õ€ì(€€€€€€€€€€€€€€€•á¥ÍÑ¥¹Q½‘½Ím¹•İ-•åt€ô¹•İQ½‘¼ì((€€€€€€€€€€€€€€€Í•Ğ¡Ñ½‘½ÍI•˜°•á¥ÍÑ¥¹Q½‘½Ì¤ì(€€€€€€€€€€€€€€€Ñ½‘½%¹ÁÕĞ¹Ù…±Õ”€ô€œœì(€€€€€€€€€€€€€€€Ñ½‘½%¹ÁÕĞ¹™½ÕÌ ¤ì(€€€€€€€€€€€ô…Ñ €¡•ÉÉ½È¤ì(€€€€€€€€€€€€€€€½¹Í½±”¹•ÉÉ½È ÉÉ½È…‘‘¥¹œÑ½‘¼èœ°•ÉÉ½È¤ì(€€€€€€€€€€€ô(€€€€€€€ô¤ì((€€€€€€€™Õ¹Ñ¥½¸¥¹¥Ñ¥…±¥é•Q½‘½Ì ¤ì(€€€€€€€€€€€½¹ÍĞÑ½‘½ÍI•˜€ôÉ•˜¡‘ˆ°€Ñ½‘½Ìœ¤ì(€€€€€€€€€€€½¹Y…±Õ”¡Ñ½‘½ÍI•˜°€¡Í¹…ÁÍ¡½Ğ¤€ôøì(€€€€€€€€€€€€€€€±•ĞÑ½‘½Ì€ôÍ¹…ÁÍ¡½Ğ¹Ù…° ¤ñğíôì((€€€€€€€€€€€€€€€€¼¼%¹¥Ñ¥…±¥é”¥˜•µÁÑä(€€€€€€€€€€€€€€€¥˜€¡=‰©•Ğ¹­•åÌ¡Ñ½‘½Ì¤¹±•¹Ñ €ôôô€À¤ì(€€€€€€€€€€€€€€€€€€€Ñ½‘½Ì€ôì(€€€€€€€€€€€€€€€€€€€€€€€€Ñ½‘½|Äœèì(€€€€€€€€€€€€€€€€€€€€€€€€€€€Ñ•áĞè€-¥¹‘•É…ÉéĞµQ•Éµ¥¸™Õ•È1•¹”Ù•É•¥¹‰…É•¸œ°(€€€€€€€€€€€€€€€€€€€€€€€€€€€İ¡¼è€5¥£¡±”œ°(€€€€€€€€€€€€€€€€€€€€€€€€€€€½µÁ±•Ñ•è™…±Í”°(€€€€€€€€€€€€€€€€€€€€€€€€€€€É•…Ñ•‘Ğè¹•Ü…Ñ” ¤¹Ñ½%M=MÑÉ¥¹œ ¤(€€€€€€€€€€€€€€€€€€€€€€€ô°(€€€€€€€€€€€€€€€€€€€€€€€€Ñ½‘½|Èœèì(€€€€€€€€€€€€€€€€€€€€€€€€€€€Ñ•áĞè€]¥¹Ñ•ÉÉ•¥™•¸İ•¡Í•±¸±…ÍÍ•¸œ°(€€€€€€€€€€€€€€€€€€€€€€€€€€€İ¡¼è€±•àœ°(€€€€€€€€€€€€€€€€€€€€€€€€€€€½µÁ±•Ñ•è™…±Í”°(€€€€€€€€€€€€€€€€€€€€€€€€€€€É•…Ñ•‘Ğè¹•Ü…Ñ” ¤¹Ñ½%M=MÑÉ¥¹œ ¤(€€€€€€€€€€€€€€€€€€€€€€€ô°(€€€€€€€€€€€€€€€€€€€€€€€€Ñ½‘½|Ìœèì(€€€€€€€€€€€€€€€€€€€€€€€€€€€Ñ•áĞè€•‰ÕÉÑÍÑ…Í•Í¡•¹¬™Õ•È=µ„½É…¹¥Í¥•É•¸œ°(€€€€€€€€€€€€€€€€€€€€€€€€€€€İ¡¼è€5¥£¡±”œ°(€€€€€€€€€€€€€€€€€€€€€€€€€€€½µÁ±•Ñ•è™…±Í”°(€€€€€€€€€€€€€€€€€€€€€€€€€€€É•…Ñ•‘Ğè¹•Ü…Ñ” ¤¹Ñ½%M=MÑÉ¥¹œ ¤(€€€€€€€€€€€€€€€€€€€€€€€ô(€€€€€€€€€€€€€€€€€€€ôì(€€€€€€€€€€€€€€€€€€€Í•Ğ¡Ñ½‘½ÍI•˜°Ñ½‘½Ì¤ì(€€€€€€€€€€€€€€€ô((€€€€€€€€€€€€€€€É•¹‘•ÉQ½‘½Ì¡Ñ½‘½Ì¤ì(€€€€€€€€€€€ô¤ì(€€€€€€€ô((€€€€€€€™Õ¹Ñ¥½¸É•¹‘•ÉQ½‘½Ì¡Ñ½‘½Ì¤ì(€€€€€€€€€€€½¹ÍĞ½¹Ñ…¥¹•È€ô‘½Õµ•¹Ğ¹•Ñ±•µ•¹Ñ	å% Ñ½‘½Í½¹Ñ•¹Ğœ¤ì(€€€€€€€€€€€½¹Ñ…¥¹•È¹¥¹¹•É!Q50€ô€œœì((€€€€€€€€€€€½¹ÍĞÁ•¹‘¥¹œ€ômtì(€€€€€€€€€€€½¹ÍĞ½µÁ±•Ñ•€ômtì((€€€€€€€€€€€=‰©•Ğ¹•¹ÑÉ¥•Ì¡Ñ½‘½Ì¤¹™½É…  ¡m¥°Ñ½‘½t¤€ôøì(€€€€€€€€€€€€€€€¥˜€¡Ñ½‘¼¹½µÁ±•Ñ•¤ì(€€€€€€€€€€€€€€€€€€€½µÁ±•Ñ•¹ÁÕÍ ¡m¥°Ñ½‘½t¤ì(€€€€€€€€€€€€€€€ô•±Í”ì(€€€€€€€€€€€€€€€€€€€Á•¹‘¥¹œ¹ÁÕÍ ¡m¥°Ñ½‘½t¤ì(€€€€€€€€€€€€€€€ô(€€€€€€€€€€€ô¤ì((€€€€€€€€€€€¥˜€¡Á•¹‘¥¹œ¹±•¹Ñ €ôôô€À€˜˜½µÁ±•Ñ•¹±•¹Ñ €ôôô€À¤ì(€€€€€€€€€€€€€€€½¹Ñ…¥¹•È¹¥¹¹•É!Q50€ô€œñ‘¥Ø±…ÍÌô‰•µÁÑäµÍÑ…Ñ”ˆøñ‘¥Ø±…ÍÌô‰•µÁÑäµÍÑ…Ñ”µ¥½¸ˆûŠrğ½‘¥Øøñ‘¥Ø±…ÍÌô‰•µÁÑäµÍÑ…Ñ”µÑ•áĞˆù-•¥¹”Q½‘½Ì€´…±±•Ì•É±•‘¥Ğ„ğ½‘¥Øøğ½‘¥Øøœì(€€€€€€€€€€€€€€€É•ÑÕÉ¸ì(€€€€€€€€€€€ô((€€€€€€€€€€€€¼¼A•¹‘¥¹œÍ•Ñ¥½¸(€€€€€€€€€€€¥˜€¡Á•¹‘¥¹œ¹±•¹Ñ €ø€À¤ì(€€€€€€€€€€€€€€€½¹ÍĞÍ•Ñ¥½¸€ô‘½Õµ•¹Ğ¹É•…Ñ•±•µ•¹Ğ ‘¥Øœ¤ì(€€€€€€€€€€€€€€€Í•Ñ¥½¸¹±…ÍÍ9…µ”€ô€Ñ½‘½ÌµÍ•Ñ¥½¸œì(€€€€€€€€€€€€€€€½¹ÍĞÑ¥Ñ±”€ô‘½Õµ•¹Ğ¹É•…Ñ•±•µ•¹Ğ ‘¥Øœ¤ì(€€€€€€€€€€€€€€€Ñ¥Ñ±”¹±…ÍÍ9…µ”€ô€Ñ½‘½ÌµÍ•Ñ¥½¸µÑ¥Ñ±”œì(€€€€€€€€€€€€€€€Ñ¥Ñ±”¹Ñ•áÑ½¹Ñ•¹Ğ€ô€ÕÍÍÑ•¡•¹œì(€€€€€€€€€€€€€€€Í•Ñ¥½¸¹…ÁÁ•¹‘¡¥±¡Ñ¥Ñ±”¤ì((€€€€€€€€€€€€€€€Á•¹‘¥¹œ¹™½É…  ¡m¥°Ñ½‘½t¤€ôøì(€€€€€€€€€€€€€€€€€€€½¹ÍĞ¥Ñ•´€ôÉ•…Ñ•Q½‘½%Ñ•´¡¥°Ñ½‘¼°™…±Í”¤ì(€€€€€€€€€€€€€€€€€€€Í•Ñ¥½¸¹…ÁÁ•¹‘¡¥±¡¥Ñ•´¤ì(€€€€€€€€€€€€€€€ô¤ì((€€€€€€€€€€€€€€€½¹Ñ…¥¹•È¹…ÁÁ•¹‘¡¥±¡Í•Ñ¥½¸¤ì(€€€€€€€€€€€ô((€€€€€€€€€€€€¼¼½µÁ±•Ñ•Í•Ñ¥½¸(€€€€€€€€€€€¥˜€¡½µÁ±•Ñ•¹±•¹Ñ €ø€À¤ì(€€€€€€€€€€€€€€€½¹ÍĞÍ•Ñ¥½¸€ô‘½Õµ•¹Ğ¹É•…Ñ•±•µ•¹Ğ ‘¥Øœ¤ì(€€€€€€€€€€€€€€€Í•Ñ¥½¸¹±…ÍÍ9…µ”€ô€Ñ½‘½ÌµÍ•Ñ¥½¸œì(€€€€€€€€€€€€€€€½¹ÍĞÑ¥Ñ±”€ô‘½Õµ•¹Ğ¹É•…Ñ•±•µ•¹Ğ ‘¥Øœ¤ì(€€€€€€€€€€€€€€€Ñ¥Ñ±”¹±…ÍÍ9…µ”€ô€Ñ½‘½ÌµÍ•Ñ¥½¸µÑ¥Ñ±”œì(€€€€€€€€€€€€€€€Ñ¥Ñ±”¹Ñ•áÑ½¹Ñ•¹Ğ€ô€É±•‘¥Ğœì(€€€€€€€€€€€€€€€Í•Ñ¥½¸¹…ÁÁ•¹‘¡¥±¡Ñ¥Ñ±”¤ì((€€€€€€€€€€€€€€€½µÁ±•Ñ•¹™½É…  ¡m¥°Ñ½‘½t¤€ôøì(€€€€€€€€€€€€€€€€€€€½¹ÍĞ¥Ñ•´€ôÉ•…Ñ•Q½‘½%Ñ•´¡¥°Ñ½‘¼°ÑÉÕ”¤ì(€€€€€€€€€€€€€€€€€€€Í•Ñ¥½¸¹…ÁÁ•¹‘¡¥±¡¥Ñ•´¤ì(€€€€€€€€€€€€€€€ô¤ì((€€€€€€€€€€€€€€€½¹Ñ…¥¹•È¹…ÁÁ•¹‘¡¥±¡Í•Ñ¥½¸¤ì(€€€€€€€€€€€ô(€€€€€€€ô((€€€€€€€™Õ¹Ñ¥½¸É•…Ñ•Q½‘½%Ñ•´¡¥°Ñ½‘¼°¥Í½µÁ±•Ñ•¤ì(€€€€€€€€€€€½¹ÍĞ¥Ñ•´€ô‘½Õµ•¹Ğ¹É•…Ñ•±•µ•¹Ğ ‘¥Øœ¤ì(€€€€€€€€€€€¥Ñ•´¹±…ÍÍ9…µ”€ô€Ñ½‘¼µ¥Ñ•´œ€¬€¡¥Í½µÁ±•Ñ•€ü€œ½µÁ±•Ñ•œ€è€œœ¤ì((€€€€€€€€€€€½¹ÍĞ¡•­‰½à€ô‘½Õµ•¹Ğ¹É•…Ñ•±•µ•¹Ğ ¥¹ÁÕĞœ¤ì(€€€€€€€€€€€¡•­‰½à¹ÑåÁ”€ô€¡•­‰½àœì(€€€€€€€€€€€¡•­‰½à¹±…ÍÍ9…µ”€ô€Ñ½‘¼µ¡•­‰½àœì(€€€€€€€€€€€¡•­‰½à¹¡•­•€ô¥Í½µÁ±•Ñ•ì(€€€€€€€€€€€¡•­‰½à¹…‘‘Ù•¹Ñ1¥ÍÑ•¹•È ¡…¹”œ°€ ¤€ôøì(€€€€€€€€€€€€€€€ÕÁ‘…Ñ•Q½‘¼¡¥°ì€¸¸¹Ñ½‘¼°½µÁ±•Ñ•è€…¥Í½µÁ±•Ñ•ô¤ì(€€€€€€€€€€€ô¤ì((€€€€€€€€€€€½¹ÍĞ½¹Ñ•¹Ğ€ô‘½Õµ•¹Ğ¹É•…Ñ•±•µ•¹Ğ ‘¥Øœ¤ì(€€€€€€€€€€€½¹Ñ•¹Ğ¹±…ÍÍ9…µ”€ô€Ñ½‘¼µ½¹Ñ•¹Ğœì((€€€€€€€€€€€½¹ÍĞÑ•áĞ€ô‘½Õµ•¹Ğ¹É•…Ñ•±•µ•¹Ğ ‘¥Øœ¤ì(€€€€€€€€€€€Ñ•áĞ¹±…ÍÍ9…µ”€ô€Ñ½‘¼µÑ•áĞœì(€€€€€€€€€€€Ñ•áĞ¹Ñ•áÑ½¹Ñ•¹Ğ€ôÑ½‘¼¹Ñ•áĞì((€€€€€€€€€€€½¹ÍĞİ¡¼€ô‘½Õµ•¹Ğ¹É•…Ñ•±•µ•¹Ğ ‘¥Øœ¤ì(€€€€€€€€€€€İ¡¼¹±…ÍÍ9…µ”€ô€Ñ½‘¼µİ¡¼œì(€€€€€€€€€€€İ¡¼¹Ñ•áÑ½¹Ñ•¹Ğ€ôÑ½‘¼¹İ¡¼¬((€€€€€€€€€€€½¹Ñ•¹Ğ¹…ÁÁ•¹‘¡¥±¡Ñ•áĞ¤ì(€€€€€€€€€€€½¹Ñ•¹Ğ¹…ÁÁ•¹‘¡¥±¡İ¡¼¤ì((€€€€€€€€€€€½¹ÍĞ‘•±•Ñ•	Ñ¸€ô‘½Õµ•¹Ğ¹É•…Ñ•±•µ•¹Ğ ‰ÕÑÑ½¸œ¤ì(€€€€€€€€€€€‘•±•Ñ•	Ñ¸¹±…ÍÍ9…µ”€ô€Ñ½‘¼µ‘•±•Ñ”œì(€€€€€€€€€€€‘•±•Ñ•	Ñ¸¹Ñ•áÑ½¹Ñ•¹Ğ€ô€Ÿ\œì(€€€€€€€€€€€‘•±•Ñ•	Ñ¸¹…‘‘Ù•¹Ñ1¥ÍÑ•¹•È ±¥¬œ°€ ¤€ôøì(€€€€€€€€€€€€€€€‘•±•Ñ•Q½‘¼¡¥¤ì(€€€€€€€€€€€ô¤ì((€€€€€€€€€€€¥Ñ•´¹…ÁÁ•¹‘¡¥±¡¡•­‰½à¤ì(€€€€€€€€€€€¥Ñ•´¹…ÁÁ•¹‘¡¥±¡½¹Ñ•¹Ğ¤ì(€€€€€€€€€€€¥Ñ•´¹…ÁÁ•¹‘¡¥±¡‘•±•Ñ•	Ñ¸¤ì((€€€€€€€€€€€É•ÑÕÉ¸¥Ñ•´ì(€€€€€€€ô((€€€€€€€™Õ¹Ñ¥½¸ÕÁ‘…Ñ•Q½‘¼¡¥°ÕÁ‘…Ñ•‘Q½‘¼¤ì(€€€€€€€€€€€½¹ÍĞÑ½‘½I•˜€ôÉ•˜¡‘ˆ°Ñ½‘½Ì¼‘í¥‘õ€¤ì(€€€€€€€€€€€Í•Ğ¡Ñ½‘½I•˜°ÕÁ‘…Ñ•‘Q½‘¼¤ì(€€€€€€€ô((€€€€€€€™Õ¹Ñ¥½¸‘•±•Ñ•Q½‘¼¡¥¤ì(€€€€€€€€€€€½¹ÍĞÑ½‘½I•˜€ôÉ•˜¡‘ˆ°Ñ½‘½Ì¼‘í¥‘õ€¤ì(€€€€€€€€€€€É•µ½Ù”¡Ñ½‘½I•˜¤ì(€€€€€€€ô(€€€€ğ½ÍÉ¥ÁĞø(ğ½‰½‘äø(ğ½¡Ñµ°ø(
