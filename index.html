@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Familie Heinecke â Dashboard</title>
+    <title>Familie Heinecke – Dashboard</title>
     <link rel="manifest" href="data:application/json,{}">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="#57856F">
@@ -278,7 +278,7 @@
             border-color: var(--primary-green);
         }
         .checkbox.checked::after {
-            content: 'â';
+            content: '✓';
             color: white;
             font-size: 14px;
             font-weight: bold;
@@ -574,9 +574,9 @@
     <!-- Setup Overlay (shown when no Firebase config) -->
     <div class="setup-overlay" id="setup-overlay" style="display:none;">
         <div class="setup-card">
-            <h2>ð Willkommen!</h2>
+            <h2>👋 Willkommen!</h2>
             <p>Wer bist du?</p>
-            <button class="setup-btn" onclick="selectUser('MichÃ¨le')" style="margin-bottom:8px;">MichÃ¨le</button>
+            <button class="setup-btn" onclick="selectUser('Michèle')" style="margin-bottom:8px;">Michèle</button>
             <button class="setup-btn" onclick="selectUser('Alex')" style="background:var(--button-green);color:var(--dark-green);">Alex</button>
         </div>
     </div>
@@ -590,18 +590,18 @@
 
     <!-- Dashboard Section -->
     <div class="section active" id="section-dashboard">
-        <h2 class="section-title" id="greeting">Hallo! ð</h2>
+        <h2 class="section-title" id="greeting">Hallo! 👋</h2>
 
         <div class="today-card" id="today-menu-card" onclick="switchTab('menu')" style="cursor:pointer;"></div>
 
         <div class="overview-grid">
             <div class="overview-card" onclick="switchTab('shopping')">
-                <div class="overview-icon">ð</div>
+                <div class="overview-icon">🛒</div>
                 <div class="overview-number" id="overview-shopping">0</div>
-                <div class="overview-label">EinkÃ¤ufe offen</div>
+                <div class="overview-label">Einkäufe offen</div>
             </div>
             <div class="overview-card" onclick="switchTab('todos')">
-                <div class="overview-icon">â</div>
+                <div class="overview-icon">✅</div>
                 <div class="overview-number" id="overview-todos">0</div>
                 <div class="overview-label">Meine Todos</div>
             </div>
@@ -610,10 +610,10 @@
 
     <!-- Menu Plan Section -->
     <div class="section" id="section-menu">
-        <h2 class="section-title">ð½ï¸ WochenmenÃ¼</h2>
+        <h2 class="section-title">🍽️ Wochenmenü</h2>
         <div class="week-toggle" id="week-toggle">
             <button class="week-btn active" onclick="selectWeek('current')">Diese Woche</button>
-            <button class="week-btn" onclick="selectWeek('next')">NÃ¤chste Woche</button>
+            <button class="week-btn" onclick="selectWeek('next')">Nächste Woche</button>
         </div>
         <div class="day-chips" id="day-chips"></div>
         <div id="menu-content"></div>
@@ -621,20 +621,20 @@
 
     <!-- Shopping Section -->
     <div class="section" id="section-shopping">
-        <h2 class="section-title">ð Einkaufsliste</h2>
+        <h2 class="section-title">🛒 Einkaufsliste</h2>
         <div class="progress-container" id="shopping-progress">
             <div class="progress-bar"><div class="progress-fill" id="shopping-progress-fill"></div></div>
             <div class="progress-text" id="shopping-progress-text"></div>
         </div>
         <div class="add-form">
-            <input type="text" class="add-input" id="shopping-input" placeholder="Artikel hinzufÃ¼gen...">
+            <input type="text" class="add-input" id="shopping-input" placeholder="Artikel hinzufügen...">
             <select class="category-select" id="shopping-category">
-                <option value="GemÃ¼se">GemÃ¼se</option>
-                <option value="FrÃ¼chte">FrÃ¼chte</option>
+                <option value="Gemüse">Gemüse</option>
+                <option value="Früchte">Früchte</option>
                 <option value="Milchprodukte">Milchprodukte</option>
                 <option value="Fleisch & Fisch">Fleisch & Fisch</option>
-                <option value="Brot & GebÃ¤ck">Brot & GebÃ¤ck</option>
-                <option value="GetrÃ¤nke">GetrÃ¤nke</option>
+                <option value="Brot & Gebäck">Brot & Gebäck</option>
+                <option value="Getränke">Getränke</option>
                 <option value="Haushalt">Haushalt</option>
                 <option value="Sonstiges">Sonstiges</option>
             </select>
@@ -645,7 +645,7 @@
 
     <!-- Todos Section -->
     <div class="section" id="section-todos">
-        <h2 class="section-title">â Todos</h2>
+        <h2 class="section-title">✅ Todos</h2>
         <div class="progress-container" id="todo-progress">
             <div class="progress-bar"><div class="progress-fill" id="todo-progress-fill"></div></div>
             <div class="progress-text" id="todo-progress-text"></div>
@@ -660,7 +660,7 @@
             <input type="text" class="add-input" id="todo-input" placeholder="Neues Todo...">
             <select class="assignee-select" id="todo-assignee">
                 <option value="beide">Beide</option>
-                <option value="MichÃ¨le">MichÃ¨le</option>
+                <option value="Michèle">Michèle</option>
                 <option value="Alex">Alex</option>
             </select>
             <button class="add-btn" onclick="addTodo()">+</button>
@@ -676,7 +676,7 @@
         </button>
         <button class="nav-item" onclick="switchTab('menu')" data-tab="menu">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8h1a4 4 0 010 8h-1"/><path d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
-            <span>MenÃ¼</span>
+            <span>Menü</span>
         </button>
         <button class="nav-item" onclick="switchTab('shopping')" data-tab="shopping">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
@@ -733,20 +733,20 @@
         const defaultData = {
             menu: {},
             shopping: [
-                { id: 1, text: 'RÃ¼ebli', category: 'GemÃ¼se', checked: false },
-                { id: 2, text: 'Spinat', category: 'GemÃ¼se', checked: false },
-                { id: 3, text: 'Tomaten', category: 'GemÃ¼se', checked: false },
-                { id: 4, text: 'Zwiebeln', category: 'GemÃ¼se', checked: false },
-                { id: 5, text: 'Ãpfel', category: 'FrÃ¼chte', checked: false },
+                { id: 1, text: 'Rüebli', category: 'Gemüse', checked: false },
+                { id: 2, text: 'Spinat', category: 'Gemüse', checked: false },
+                { id: 3, text: 'Tomaten', category: 'Gemüse', checked: false },
+                { id: 4, text: 'Zwiebeln', category: 'Gemüse', checked: false },
+                { id: 5, text: 'Äpfel', category: 'Früchte', checked: false },
                 { id: 6, text: 'Poulet', category: 'Fleisch & Fisch', checked: false },
                 { id: 7, text: 'Eier', category: 'Milchprodukte', checked: false },
                 { id: 8, text: 'Milch', category: 'Milchprodukte', checked: false },
-                { id: 9, text: 'Brot', category: 'Brot & GebÃ¤ck', checked: false }
+                { id: 9, text: 'Brot', category: 'Brot & Gebäck', checked: false }
             ],
             todos: [
                 { id: 1, text: 'Altpapier rausbringen', checked: false, priority: 'high', assignee: 'beide' },
-                { id: 2, text: 'Zahnarzttermin vereinbaren', checked: false, priority: 'medium', assignee: 'MichÃ¨le' },
-                { id: 3, text: 'WÃ¤sche aufhÃ¤ngen', checked: false, priority: 'low', assignee: 'beide' },
+                { id: 2, text: 'Zahnarzttermin vereinbaren', checked: false, priority: 'medium', assignee: 'Michèle' },
+                { id: 3, text: 'Wäsche aufhängen', checked: false, priority: 'low', assignee: 'beide' },
                 { id: 4, text: 'Elternabend Schule', checked: false, priority: 'high', assignee: 'beide' },
                 { id: 5, text: 'Velo-Pneu aufpumpen', checked: false, priority: 'low', assignee: 'Alex' }
             ]
@@ -756,13 +756,13 @@
         (function() {
             const weekKey = getWeekKey(0);
             defaultData.menu[weekKey] = {
-                'Montag':     { zmittag: 'Resten-GemÃ¼sesuppe', znacht: 'Brot & KÃ¤se' },
+                'Montag':     { zmittag: 'Resten-Gemüsesuppe', znacht: 'Brot & Käse' },
                 'Dienstag':   { zmittag: 'Pouletgeschnetzeltes mit Reis', znacht: 'Omeletten' },
-                'Mittwoch':   { zmittag: 'Pizza-Toast', znacht: 'BirchermÃ¼esli' },
+                'Mittwoch':   { zmittag: 'Pizza-Toast', znacht: 'Birchermüesli' },
                 'Donnerstag': { zmittag: 'Spaghetti Bolognese', znacht: 'Salatteller' },
-                'Freitag':    { zmittag: 'FischstÃ¤bchen & RÃ¼ebli', znacht: 'Reste-Abend' },
-                'Samstag':    { zmittag: 'Pouletschenkel & GemÃ¼se', znacht: 'Flammkuchen' },
-                'Sonntag':    { zmittag: 'Sonntagsbraten', znacht: 'Znacht-PlÃ¤ttli' }
+                'Freitag':    { zmittag: 'Fischstäbchen & Rüebli', znacht: 'Reste-Abend' },
+                'Samstag':    { zmittag: 'Pouletschenkel & Gemüse', znacht: 'Flammkuchen' },
+                'Sonntag':    { zmittag: 'Sonntagsbraten', znacht: 'Znacht-Plättli' }
             };
         })();
 
@@ -814,7 +814,7 @@
         function initFirebase() {
             try {
                 if (FIREBASE_CONFIG.apiKey === 'FIREBASE_API_KEY') {
-                    // Not configured yet â run in local-only mode
+                    // Not configured yet – run in local-only mode
                     document.getElementById('sync-status').textContent = 'Offline-Modus';
                     document.getElementById('sync-status').className = 'sync-status offline';
                     return;
@@ -840,17 +840,17 @@
                         renderCurrentTab();
                     }
                     firebaseReady = true;
-                    document.getElementById('sync-status').textContent = 'â Synchronisiert';
+                    document.getElementById('sync-status').textContent = '● Synchronisiert';
                     document.getElementById('sync-status').className = 'sync-status online';
                 });
 
                 // Connection state
                 db.ref('.info/connected').on('value', (snap) => {
                     if (snap.val() === true) {
-                        document.getElementById('sync-status').textContent = 'â Synchronisiert';
+                        document.getElementById('sync-status').textContent = '● Synchronisiert';
                         document.getElementById('sync-status').className = 'sync-status online';
                     } else {
-                        document.getElementById('sync-status').textContent = 'â Offline';
+                        document.getElementById('sync-status').textContent = '● Offline';
                         document.getElementById('sync-status').className = 'sync-status offline';
                     }
                 });
@@ -876,7 +876,7 @@
             currentUser = name;
             localStorage.setItem(USER_KEY, name);
             document.getElementById('setup-overlay').style.display = 'none';
-            document.getElementById('greeting').textContent = `Hallo ${name}! ð`;
+            document.getElementById('greeting').textContent = `Hallo ${name}! 👋`;
             renderCurrentTab();
         }
 
@@ -884,7 +884,7 @@
             if (!currentUser) {
                 document.getElementById('setup-overlay').style.display = 'flex';
             } else {
-                document.getElementById('greeting').textContent = `Hallo ${currentUser}! ð`;
+                document.getElementById('greeting').textContent = `Hallo ${currentUser}! 👋`;
             }
         }
 
@@ -911,17 +911,17 @@
             const today = days[new Date().getDay()];
             const weekKey = getWeekKey(0);
             const weekMenu = appData.menu[weekKey] || {};
-            const todayMenu = weekMenu[today] || { zmittag: 'â', znacht: 'â' };
+            const todayMenu = weekMenu[today] || { zmittag: '–', znacht: '–' };
 
             document.getElementById('today-menu-card').innerHTML = `
-                <h3>ð Heute â ${today}</h3>
+                <h3>📅 Heute – ${today}</h3>
                 <div class="today-meal">
                     <span class="today-meal-label">Zmittag</span>
-                    <span>${todayMenu.zmittag || 'â'}</span>
+                    <span>${todayMenu.zmittag || '–'}</span>
                 </div>
                 <div class="today-meal">
                     <span class="today-meal-label">Znacht</span>
-                    <span>${todayMenu.znacht || 'â'}</span>
+                    <span>${todayMenu.znacht || '–'}</span>
                 </div>
             `;
 
@@ -978,7 +978,7 @@
             const weekMenu = appData.menu[weekKey] || {};
             const meals = weekMenu[day] || { zmittag: '', znacht: '' };
 
-            const weekLabel = selectedWeekOffset === 0 ? 'Diese Woche' : 'NÃ¤chste Woche';
+            const weekLabel = selectedWeekOffset === 0 ? 'Diese Woche' : 'Nächste Woche';
 
             document.getElementById('menu-content').innerHTML = `
                 <div class="meal-card">
@@ -1046,7 +1046,7 @@
                 categories[item.category].push(item);
             });
 
-            const categoryOrder = ['GemÃ¼se', 'FrÃ¼chte', 'Milchprodukte', 'Fleisch & Fisch', 'Brot & GebÃ¤ck', 'GetrÃ¤nke', 'Haushalt', 'Sonstiges'];
+            const categoryOrder = ['Gemüse', 'Früchte', 'Milchprodukte', 'Fleisch & Fisch', 'Brot & Gebäck', 'Getränke', 'Haushalt', 'Sonstiges'];
             let html = '';
             categoryOrder.forEach(cat => {
                 const items = categories[cat];
@@ -1057,14 +1057,14 @@
                         <div class="shopping-item">
                             <div class="checkbox ${item.checked ? 'checked' : ''}" onclick="toggleShopping(${item.id})"></div>
                             <span class="item-text ${item.checked ? 'checked' : ''}">${item.text}</span>
-                            <button class="delete-btn" onclick="deleteShopping(${item.id})">Ã</button>
+                            <button class="delete-btn" onclick="deleteShopping(${item.id})">×</button>
                         </div>
                     `;
                 });
             });
 
             if (total === 0) {
-                html = '<div class="empty-state"><div class="empty-state-icon">ð</div>Die Einkaufsliste ist leer.<br>FÃ¼ge Artikel hinzu!</div>';
+                html = '<div class="empty-state"><div class="empty-state-icon">🛒</div>Die Einkaufsliste ist leer.<br>Füge Artikel hinzu!</div>';
             }
 
             document.getElementById('shopping-list').innerHTML = html;
@@ -1114,7 +1114,7 @@
             );
 
             const priorityLabels = { high: 'Hoch', medium: 'Mittel', low: 'Tief' };
-            const assigneeClass = { 'MichÃ¨le': 'assignee-michele', 'Alex': 'assignee-alex', 'beide': 'assignee-beide' };
+            const assigneeClass = { 'Michèle': 'assignee-michele', 'Alex': 'assignee-alex', 'beide': 'assignee-beide' };
 
             let html = '';
             filtered.forEach(todo => {
@@ -1126,15 +1126,15 @@
                         <span class="item-text ${todo.checked ? 'checked' : ''}">${todo.text}</span>
                         <div class="todo-meta">
                             <span class="todo-assignee ${aClass}">${aLabel}</span>
-                            <button class="delete-btn" onclick="deleteTodo(${todo.id})">Ã</button>
+                            <button class="delete-btn" onclick="deleteTodo(${todo.id})">×</button>
                         </div>
                     </div>
                 `;
             });
 
             if (filtered.length === 0) {
-                const msg = todoFilter === 'meine' ? 'Keine Todos fÃ¼r dich!' : 'Keine Todos hier!';
-                html = `<div class="empty-state"><div class="empty-state-icon">ð</div>${msg}</div>`;
+                const msg = todoFilter === 'meine' ? 'Keine Todos für dich!' : 'Keine Todos hier!';
+                html = `<div class="empty-state"><div class="empty-state-icon">🎉</div>${msg}</div>`;
             }
 
             document.getElementById('todo-list').innerHTML = html;
