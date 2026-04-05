@@ -533,7 +533,7 @@
         <div class="setup-card">
             <h2>Willkommen!</h2>
             <p>Wer bist du?</p>
-            <button class="setup-btn" onclick="selectUser('Mich\u00e8le')" style="margin-bottom:8px;">Mich\u00e8le</button>
+            <button class="setup-btn" onclick="selectUser('Mich\u00e8le')" style="margin-bottom:8px;">Mich&#232;le</button>
             <button class="setup-btn" onclick="selectUser('Alex')" style="background:var(--button-green);color:var(--dark-green);">Alex</button>
         </div>
     </div>
@@ -543,15 +543,13 @@
         <h1>Familie Heinecke</h1>
         <p>Unser Familien-Dashboard</p>
         <div class="sync-status" id="sync-status">Verbinde...</div>
-        <div style="font-size:0.5rem;opacity:0.4;margin-top:2px;">v2.2</div>
+        <div style="font-size:0.5rem;opacity:0.4;margin-top:2px;">v2.3</div>
     </div>
 
     <!-- Dashboard Section -->
     <div class="section active" id="section-dashboard">
+        <div id="dashboard-date" style="font-size:0.8rem;color:var(--text-muted);margin-bottom:4px;"></div>
         <h2 class="section-title" id="greeting">Hallo!</h2>
-        <div class="weather-card" id="weather-card">
-            <div style="font-size:0.75rem;color:var(--text-muted);">Wetter wird geladen...</div>
-        </div>
         <div class="today-card" id="today-menu-card" onclick="switchTab('menu')" style="cursor:pointer;"></div>
         <div class="overview-grid">
             <div class="overview-card" onclick="switchTab('shopping')">
@@ -564,6 +562,9 @@
                 <div class="overview-number" id="overview-todos">0</div>
                 <div class="overview-label">Meine Todos</div>
             </div>
+        </div>
+        <div class="weather-card" id="weather-card">
+            <div style="font-size:0.75rem;color:var(--text-muted);">Wetter wird geladen...</div>
         </div>
     </div>
 
@@ -704,7 +705,7 @@
         ],
         todos: [
             { id: 1, text: 'Altpapier rausbringen', checked: false, priority: 'high', assignee: 'beide' },
-            { id: 2, text: 'Zahnarzttermin vereinbaren', checked: false, priority: 'medium', assignee: 'Mich\u00e8le' },
+            { id: 2, text: 'Zahnarzttermin vereinbaren', checked: false, priority: 'medium', assignee: 'Mich\u00E8le' },
             { id: 3, text: 'W\u00e4sche aufh\u00e4ngen', checked: false, priority: 'low', assignee: 'beide' },
             { id: 4, text: 'Elternabend Schule', checked: false, priority: 'high', assignee: 'beide' },
             { id: 5, text: 'Velo-Pneu aufpumpen', checked: false, priority: 'low', assignee: 'Alex' }
@@ -928,7 +929,12 @@
     // ============================================================
     function renderDashboard() {
         var days = ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
-        var today = days[new Date().getDay()];
+        var months = ['Januar','Februar','M\u00e4rz','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+        var now = new Date();
+        var today = days[now.getDay()];
+        var dateStr = today + ', ' + now.getDate() + '. ' + months[now.getMonth()] + ' ' + now.getFullYear();
+        document.getElementById('dashboard-date').textContent = dateStr;
+
         var weekKey = getWeekKey(0);
         var weekMenu = appData.menu[weekKey] || {};
         var todayMenu = weekMenu[today] || { zmittag: '\u2013', znacht: '\u2013' };
@@ -1117,7 +1123,7 @@
             return !t.checked && (t.assignee === 'beide' || t.assignee === currentUser);
         });
 
-        var assigneeClass = { 'Mich\u00e8le': 'assignee-michele', 'Alex': 'assignee-alex', 'beide': 'assignee-beide' };
+        var assigneeClass = { 'Mich\u00E8le': 'assignee-michele', 'Alex': 'assignee-alex', 'beide': 'assignee-beide' };
 
         var html = '';
         filtered.forEach(function(todo) {
