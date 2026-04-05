@@ -486,6 +486,7 @@
         <h1>Familie Heinecke</h1>
         <p>Unser Familien-Dashboard</p>
         <div class="sync-status" id="sync-status">Verbinde...</div>
+        <div style="font-size:0.5rem;opacity:0.4;margin-top:2px;">v2.1</div>
     </div>
 
     <!-- Dashboard Section -->
@@ -509,6 +510,7 @@
     <!-- Menu Plan Section -->
     <div class="section" id="section-menu">
         <h2 class="section-title">&#x1F37D;&#xFE0F; Wochenmen&uuml;</h2>
+        <p style="font-size:0.7rem;color:var(--text-muted);margin-bottom:10px;">Tippe auf ein Gericht, um es zu &auml;ndern &#x270F;&#xFE0F;</p>
         <div class="week-toggle" id="week-toggle">
             <button class="week-btn active" onclick="selectWeek('current')">Diese Woche</button>
             <button class="week-btn" onclick="selectWeek('next')">N&auml;chste Woche</button>
@@ -934,9 +936,11 @@
             '<div class="meal-card">' +
             '<div class="card-header"><span class="card-title">' + day + '</span><span style="font-size:0.7rem;color:var(--text-muted);">' + weekLabel + '</span></div>' +
             '<div class="meal-section"><div class="meal-label">Zmittag</div>' +
-            '<div class="meal-name ' + (!meals.zmittag ? 'empty' : '') + '" onclick="editMeal(\'' + day + '\', \'zmittag\')">' + (meals.zmittag || 'Tippe zum Eintragen...') + '</div></div>' +
+            '<div class="meal-name ' + (!meals.zmittag ? 'empty' : '') + '" onclick="editMeal(\'' + day + '\', \'zmittag\')" style="display:flex;justify-content:space-between;align-items:center;">' +
+            '<span>' + (meals.zmittag || 'Tippe zum Eintragen...') + '</span><span style="font-size:0.7rem;opacity:0.4;">&#9998;</span></div></div>' +
             '<div class="meal-section"><div class="meal-label">Znacht</div>' +
-            '<div class="meal-name ' + (!meals.znacht ? 'empty' : '') + '" onclick="editMeal(\'' + day + '\', \'znacht\')">' + (meals.znacht || 'Tippe zum Eintragen...') + '</div></div>' +
+            '<div class="meal-name ' + (!meals.znacht ? 'empty' : '') + '" onclick="editMeal(\'' + day + '\', \'znacht\')" style="display:flex;justify-content:space-between;align-items:center;">' +
+            '<span>' + (meals.znacht || 'Tippe zum Eintragen...') + '</span><span style="font-size:0.7rem;opacity:0.4;">&#9998;</span></div></div>' +
             '</div>';
     }
 
@@ -954,11 +958,18 @@
 
     function saveMeal(day, meal, value) {
         var weekKey = getWeekKey(selectedWeekOffset);
+        if (!appData.menu) appData.menu = {};
         if (!appData.menu[weekKey]) appData.menu[weekKey] = {};
         if (!appData.menu[weekKey][day]) appData.menu[weekKey][day] = {};
         appData.menu[weekKey][day][meal] = value.trim();
         saveData();
         renderMenuDay(day);
+        // Update dashboard if showing today's menu
+        if (selectedWeekOffset === 0) {
+            var days = ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
+            var today = days[new Date().getDay()];
+            if (day === today) renderDashboard();
+        }
     }
 
     // ============================================================
@@ -1003,12 +1014,12 @@
 
     function toggleShopping(id) {
         var item = (appData.shopping || []).find(function(i) { return i.id === id; });
-        if (item) { item.checked = !item.checked; saveData(); renderShopping(); }
+        if (item) { item.checked = !item.checked; saveData(); renderShopping(); renderDashboard(); }
     }
 
     function deleteShopping(id) {
         appData.shopping = (appData.shopping || []).filter(function(i) { return i.id !== id; });
-        saveData(); renderShopping();
+        saveData(); renderShopping(); renderDashboard();
     }
 
     function addShoppingItem() {
@@ -1021,7 +1032,7 @@
         var maxId = appData.shopping.reduce(function(max, i) { return Math.max(max, i.id); }, 0);
         appData.shopping.push({ id: maxId + 1, text: text, category: category, checked: false });
         input.value = '';
-        saveData(); renderShopping();
+        saveData(); renderShopping(); renderDashboard();
     }
 
     // ============================================================
@@ -1076,12 +1087,12 @@
 
     function toggleTodo(id) {
         var todo = (appData.todos || []).find(function(t) { return t.id === id; });
-        if (todo) { todo.checked = !todo.checked; saveData(); renderTodos(); }
+        if (todo) { todo.checked = !todo.checked; saveData(); renderTodos(); renderDashboard(); }
     }
 
     function deleteTodo(id) {
         appData.todos = (appData.todos || []).filter(function(t) { return t.id !== id; });
-        saveData(); renderTodos();
+        saveData(); renderTodos(); renderDashboard();
     }
 
     function addTodo() {
@@ -1094,7 +1105,7 @@
         var maxId = appData.todos.reduce(function(max, t) { return Math.max(max, t.id); }, 0);
         appData.todos.push({ id: maxId + 1, text: text, checked: false, priority: 'medium', assignee: assignee });
         input.value = '';
-        saveData(); renderTodos();
+        saveData(); renderTodos(); renderDashboard();
     }
 
     // ============================================================
@@ -1118,6 +1129,9 @@
     }
 
     startApp();
+    </script>
+</body>
+</html>    startApp();
     </script>
 </body>
 </html>
