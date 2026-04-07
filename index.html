@@ -520,6 +520,118 @@
             margin-top: 6px;
         }
 
+        /* Packliste */
+        .packlist-trip-card {
+            background: linear-gradient(135deg, var(--primary-green), var(--dark-green));
+            color: var(--white);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 14px;
+            box-shadow: var(--shadow-card);
+        }
+        .packlist-trip-card h3 {
+            font-family: 'Oswald', sans-serif;
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .packlist-trip-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+        }
+        .packlist-badge {
+            background: rgba(255,255,255,0.2);
+            border-radius: 16px;
+            padding: 3px 10px;
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+        .packlist-edit-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: var(--white);
+            border-radius: 10px;
+            padding: 4px 10px;
+            font-size: 0.65rem;
+            font-family: 'Comfortaa', sans-serif;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+        .packlist-edit-btn:hover { background: rgba(255,255,255,0.3); }
+        .packlist-edit-form {
+            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .packlist-edit-form input {
+            padding: 6px 10px;
+            border: 1px solid rgba(255,255,255,0.4);
+            border-radius: 8px;
+            background: rgba(255,255,255,0.15);
+            color: var(--white);
+            font-family: 'Comfortaa', sans-serif;
+            font-size: 0.75rem;
+            outline: none;
+        }
+        .packlist-edit-form input::placeholder { color: rgba(255,255,255,0.6); }
+        .packlist-cat-header {
+            font-family: 'Oswald', sans-serif;
+            font-size: 0.85rem;
+            color: var(--primary-green);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 10px 0 6px;
+            border-bottom: 1px solid var(--light-bg);
+            margin-top: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .packlist-cat-count {
+            font-family: 'Comfortaa', sans-serif;
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            font-weight: 400;
+            text-transform: none;
+            letter-spacing: 0;
+        }
+        .packlist-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f4f2;
+        }
+        .packlist-item:last-child { border-bottom: none; }
+        .packlist-item-info { flex: 1; }
+        .packlist-item-text { font-size: 0.85rem; }
+        .packlist-item-text.checked { text-decoration: line-through; color: var(--text-muted); }
+        .packlist-item-note { font-size: 0.65rem; color: var(--text-muted); margin-top: 2px; }
+        .packlist-tag {
+            display: inline-block;
+            font-size: 0.6rem;
+            font-weight: 700;
+            border-radius: 8px;
+            padding: 1px 7px;
+            margin-left: 4px;
+            vertical-align: middle;
+        }
+        .tag-person-0 { background: #e8f0fb; color: #2b6cb0; }
+        .tag-person-1 { background: #fef3e2; color: #c05621; }
+        .tag-person-2 { background: #fde8f5; color: #b0609a; }
+        .tag-person-3 { background: #d8edf7; color: #4a7fa8; }
+        .tag-person-alle { background: #e8f5e9; color: #276749; }
+        .packlist-add-cat {
+            margin-top: 12px;
+            display: flex;
+            gap: 8px;
+        }
+
         /* Responsive */
         @media (min-width: 768px) {
             .section { padding: 24px; }
@@ -543,7 +655,7 @@
         <h1>Familie Heinecke</h1>
         <p>Unser Familien-Dashboard</p>
         <div class="sync-status" id="sync-status">Verbinde...</div>
-        <div style="font-size:0.5rem;opacity:0.4;margin-top:2px;">v2.3</div>
+        <div style="font-size:0.5rem;opacity:0.4;margin-top:2px;">v2.4</div>
     </div>
 
     <!-- Dashboard Section -->
@@ -561,6 +673,11 @@
                 <div class="overview-icon">&#x2705;</div>
                 <div class="overview-number" id="overview-todos">0</div>
                 <div class="overview-label">Meine Todos</div>
+            </div>
+            <div class="overview-card" onclick="switchTab('packliste')" id="overview-packliste-card" style="grid-column:1/-1;">
+                <div class="overview-icon">&#x1F9F3;</div>
+                <div class="overview-number" id="overview-packliste">0%</div>
+                <div class="overview-label" id="overview-packliste-label">Packliste</div>
             </div>
         </div>
         <div class="weather-card" id="weather-card">
@@ -629,6 +746,26 @@
         <div id="todo-list"></div>
     </div>
 
+    <!-- Packliste Section -->
+    <div class="section" id="section-packliste">
+        <h2 class="section-title">&#x1F9F3; Packliste</h2>
+        <div class="packlist-trip-card" id="packlist-trip-card"></div>
+        <div class="progress-container" id="packlist-progress">
+            <div class="progress-bar"><div class="progress-fill" id="packlist-progress-fill"></div></div>
+            <div class="progress-text" id="packlist-progress-text"></div>
+        </div>
+        <div class="add-form">
+            <input type="text" class="add-input" id="packlist-input" placeholder="Neuer Gegenstand...">
+            <select class="category-select" id="packlist-category"></select>
+            <button class="add-btn" onclick="addPacklistItem()">+</button>
+        </div>
+        <div class="add-form packlist-add-cat" style="margin-top:4px;margin-bottom:14px;">
+            <input type="text" class="add-input" id="packlist-new-cat" placeholder="Neue Kategorie...">
+            <button class="add-btn" onclick="addPacklistCategory()" style="background:var(--button-green);color:var(--dark-green);">+ Kat.</button>
+        </div>
+        <div id="packlist-list"></div>
+    </div>
+
     <!-- Bottom Navigation -->
     <nav class="bottom-nav">
         <button class="nav-item active" onclick="switchTab('dashboard')" data-tab="dashboard">
@@ -646,6 +783,10 @@
         <button class="nav-item" onclick="switchTab('todos')" data-tab="todos">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
             <span>Todos</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('packliste')" data-tab="packliste">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 7V5a4 4 0 00-8 0v2"/><line x1="12" y1="11" x2="12" y2="15"/><line x1="10" y1="13" x2="14" y2="13"/></svg>
+            <span>Packen</span>
         </button>
     </nav>
 
@@ -692,6 +833,132 @@
 
     const defaultData = {
         menu: {},
+        packliste: {
+            trip: {
+                name: 'Camperreise Wien',
+                destination: 'Wien, \u00d6sterreich',
+                duration: '10+ Tage',
+                people: ['Frau', 'Mann', 'Kleinkind 2\u00bd', 'Baby 7 Mt.']
+            },
+            categories: {
+                '\uD83D\uDCC4 Dokumente': [
+                    { id: 1, text: 'Reisep\u00e4sse / Ausweise f\u00fcr alle', checked: false, tag: '', note: 'Kinder brauchen eigenen Pass/ID' },
+                    { id: 2, text: 'Krankenversicherungskarten', checked: false, tag: '', note: '' },
+                    { id: 3, text: 'Europ\u00e4ische Krankenversicherungskarte (EHIC)', checked: false, tag: '', note: '' },
+                    { id: 4, text: 'Fahrzeugausweis & F\u00fchrerausweis', checked: false, tag: '', note: '' },
+                    { id: 5, text: 'Campingplatz-Buchungsbest\u00e4tigungen', checked: false, tag: '', note: '' },
+                    { id: 6, text: 'Notfallnummern-Liste', checked: false, tag: '', note: 'Kinderarzt, Pannendienst, Eltern' },
+                    { id: 7, text: 'Euro-Bargeld', checked: false, tag: '', note: 'Maut, Markt, Campingplatz-Bar' },
+                    { id: 8, text: 'Kredit- & EC-Karte', checked: false, tag: '', note: '' },
+                    { id: 9, text: 'Impfausweis Kinder', checked: false, tag: '', note: '' }
+                ],
+                '\uD83D\uDC57 Kleidung Erwachsene': [
+                    { id: 10, text: 'T-Shirts (je 7\u20138 St\u00fcck)', checked: false, tag: '', note: '' },
+                    { id: 11, text: 'Hosen / Shorts (3\u20134)', checked: false, tag: '', note: '' },
+                    { id: 12, text: 'Langarmshirts (2\u20133)', checked: false, tag: '', note: '' },
+                    { id: 13, text: 'Leichter Pulli / Hoodie', checked: false, tag: '', note: '' },
+                    { id: 14, text: 'Regenjacke (je eine)', checked: false, tag: '', note: '' },
+                    { id: 15, text: 'W\u00e4rmere Jacke', checked: false, tag: '', note: 'Abende k\u00f6nnen k\u00fchl sein' },
+                    { id: 16, text: 'Pyjamas', checked: false, tag: '', note: '' },
+                    { id: 17, text: 'Unterw\u00e4sche (8\u201310)', checked: false, tag: '', note: '' },
+                    { id: 18, text: 'Socken (8\u201310 Paar)', checked: false, tag: '', note: '' },
+                    { id: 19, text: 'Badezeug', checked: false, tag: '', note: '' },
+                    { id: 20, text: 'Schuhe, Sandalen & Hausschuhe', checked: false, tag: '', note: '' },
+                    { id: 21, text: 'Sonnenhut / Cap', checked: false, tag: '', note: '' }
+                ],
+                '\uD83D\uDC76 Kleidung Kinder': [
+                    { id: 22, text: 'T-Shirts Kleinkind (8 St\u00fcck)', checked: false, tag: 'Kleinkind 2\u00bd', note: '' },
+                    { id: 23, text: 'Strampler / Bodies Baby (12)', checked: false, tag: 'Baby 7 Mt.', note: '' },
+                    { id: 24, text: 'Hosen Kleinkind (5\u20136)', checked: false, tag: 'Kleinkind 2\u00bd', note: '' },
+                    { id: 25, text: 'Hosen Baby (5)', checked: false, tag: 'Baby 7 Mt.', note: '' },
+                    { id: 26, text: 'L\u00e4tzchen Baby (8)', checked: false, tag: 'Baby 7 Mt.', note: '' },
+                    { id: 27, text: 'Pullover / Strickjacke (2\u20133)', checked: false, tag: '', note: '' },
+                    { id: 28, text: 'Regenjacke & Regenhose', checked: false, tag: 'Kleinkind 2\u00bd', note: '' },
+                    { id: 29, text: 'Schlafanz\u00fcge & Schlafsa\u0308cke', checked: false, tag: '', note: '' },
+                    { id: 30, text: 'Socken (8\u201310 Paar)', checked: false, tag: '', note: '' },
+                    { id: 31, text: 'Badezeug + Schwimm-Windeln', checked: false, tag: '', note: '' },
+                    { id: 32, text: 'Sonnenhut', checked: false, tag: '', note: '' }
+                ],
+                '\uD83C\uDF7C Baby & Kleinkind': [
+                    { id: 33, text: 'Stilleinlagen & Stilldecke', checked: false, tag: 'Baby 7 Mt.', note: '' },
+                    { id: 34, text: 'Milchpumpe + Netzteil', checked: false, tag: 'Baby 7 Mt.', note: '' },
+                    { id: 35, text: 'Flaschen & Sauger (3 Stk.)', checked: false, tag: 'Baby 7 Mt.', note: '' },
+                    { id: 36, text: 'Beikost / Gl\u00e4schen / Breipulver', checked: false, tag: 'Baby 7 Mt.', note: '' },
+                    { id: 37, text: 'Schnuller (3) + Schnullerkette', checked: false, tag: 'Baby 7 Mt.', note: '' },
+                    { id: 38, text: 'Snacks Kleinkind', checked: false, tag: 'Kleinkind 2\u00bd', note: 'Reiswaffeln, Fr\u00fcchte, Riegel' },
+                    { id: 39, text: 'Windeln Baby (90\u2013100 St.)', checked: false, tag: 'Baby 7 Mt.', note: 'ca. 6\u20138 / Tag' },
+                    { id: 40, text: 'Nacht-Windeln Kleinkind', checked: false, tag: 'Kleinkind 2\u00bd', note: '' },
+                    { id: 41, text: 'Feuchtt\u00fccher (6\u20137 Packungen)', checked: false, tag: '', note: '' },
+                    { id: 42, text: 'Wickelunterlage (faltbar)', checked: false, tag: 'Baby 7 Mt.', note: '' },
+                    { id: 43, text: 'Reise-T\u00f6pfchen / Toilettensitz', checked: false, tag: 'Kleinkind 2\u00bd', note: '' }
+                ],
+                '\uD83D\uDE34 Schlafen': [
+                    { id: 44, text: 'Reisebett Baby', checked: false, tag: 'Baby 7 Mt.', note: '' },
+                    { id: 45, text: 'Bettw\u00e4sche Reisebett (2 Sets)', checked: false, tag: 'Baby 7 Mt.', note: '' },
+                    { id: 46, text: 'Schlafsack / Decke Kleinkind', checked: false, tag: 'Kleinkind 2\u00bd', note: '' },
+                    { id: 47, text: 'Babyphon', checked: false, tag: 'Baby 7 Mt.', note: '' },
+                    { id: 48, text: 'Nachtlicht', checked: false, tag: '', note: '' },
+                    { id: 49, text: 'Schn\u00fcff / Lieblingstier', checked: false, tag: '', note: '' }
+                ],
+                '\uD83C\uDFA8 Spielen & Besch\u00e4ftigung': [
+                    { id: 50, text: 'Lieblingsbilderb\u00fccher (3\u20134)', checked: false, tag: 'Kleinkind 2\u00bd', note: '' },
+                    { id: 51, text: 'Malzeug / Stifte & Malbuch', checked: false, tag: 'Kleinkind 2\u00bd', note: '' },
+                    { id: 52, text: 'Tablet + Kinderkopfh\u00f6rer', checked: false, tag: 'Kleinkind 2\u00bd', note: 'F\u00fcr lange Fahrstrecken' },
+                    { id: 53, text: 'Greifling / Knisterbuch Baby', checked: false, tag: 'Baby 7 Mt.', note: '' },
+                    { id: 54, text: 'Sandspielzeug', checked: false, tag: 'Kleinkind 2\u00bd', note: '' }
+                ],
+                '\uD83D\uDE97 Transport': [
+                    { id: 55, text: 'Kindersitze (beide)', checked: false, tag: '', note: '' },
+                    { id: 56, text: 'Tragetuch / Ergobaby', checked: false, tag: 'Baby 7 Mt.', note: '' },
+                    { id: 57, text: 'Buggy (leicht, klappbar)', checked: false, tag: 'Kleinkind 2\u00bd', note: '' },
+                    { id: 58, text: 'Sonnensegel Buggy & Auto', checked: false, tag: '', note: '' }
+                ],
+                '\uD83C\uDF73 K\u00fcche & Verpflegung': [
+                    { id: 59, text: 'Pasta, Reis, Couscous', checked: false, tag: '', note: '' },
+                    { id: 60, text: 'Saucen, \u00d6l, Gew\u00fcrze', checked: false, tag: '', note: '' },
+                    { id: 61, text: 'M\u00fcesli / Haferflocken', checked: false, tag: '', note: '' },
+                    { id: 62, text: 'Brot & Aufstriche', checked: false, tag: '', note: '' },
+                    { id: 63, text: 'Kaffee / Tee', checked: false, tag: '', note: '' },
+                    { id: 64, text: 'Kinder-Snacks', checked: false, tag: '', note: '' },
+                    { id: 65, text: 'Geschirrt\u00fccher, Schwamm, Sp\u00fclmittel', checked: false, tag: '', note: '' },
+                    { id: 66, text: 'Kinderbesteck & -teller', checked: false, tag: 'Kleinkind 2\u00bd', note: '' },
+                    { id: 67, text: 'Thermoskanne', checked: false, tag: '', note: '' }
+                ],
+                '\uD83E\uDDF4 Hygiene': [
+                    { id: 68, text: 'Zahnb\u00fcrsten & Zahnpasta', checked: false, tag: '', note: '' },
+                    { id: 69, text: 'Shampoo & Duschgel', checked: false, tag: '', note: '' },
+                    { id: 70, text: 'Sonnencreme LSF 50+', checked: false, tag: '', note: '' },
+                    { id: 71, text: 'Handt\u00fccher (schnelltrocknend)', checked: false, tag: '', note: '' },
+                    { id: 72, text: 'Kinder-Shampoo & -Zahnpflege', checked: false, tag: '', note: '' },
+                    { id: 73, text: 'Baby-Sonnencreme LSF 50+', checked: false, tag: '', note: '' },
+                    { id: 74, text: 'Babypflegeset (B\u00fcrste, Nagelschere)', checked: false, tag: 'Baby 7 Mt.', note: '' }
+                ],
+                '\uD83D\uDC8A Reiseapotheke': [
+                    { id: 75, text: 'Paracetamol Kinder', checked: false, tag: '', note: 'Z\u00e4pfchen Baby, Saft Kleinkind' },
+                    { id: 76, text: 'Ibuprofen Erwachsene & Kinder', checked: false, tag: '', note: '' },
+                    { id: 77, text: 'Fieberthermometer', checked: false, tag: '', note: '' },
+                    { id: 78, text: 'Nasenspray Baby & Kinder', checked: false, tag: '', note: '' },
+                    { id: 79, text: 'Pflaster & Verbandmaterial', checked: false, tag: '', note: '' },
+                    { id: 80, text: 'Wundsalbe / Bepanthen', checked: false, tag: '', note: '' },
+                    { id: 81, text: 'Sonnenbrand-Gel', checked: false, tag: '', note: '' },
+                    { id: 82, text: 'Desinfektionsmittel', checked: false, tag: '', note: '' },
+                    { id: 83, text: 'Pinzette & Zeckenzange', checked: false, tag: '', note: '' }
+                ],
+                '\u26A1 Technik & Outdoor': [
+                    { id: 84, text: 'Handy-Ladekabel (alle)', checked: false, tag: '', note: '' },
+                    { id: 85, text: 'Powerbank', checked: false, tag: '', note: '' },
+                    { id: 86, text: 'Steckdosenleiste', checked: false, tag: '', note: '' },
+                    { id: 87, text: 'Bluetooth-Lautsprecher', checked: false, tag: '', note: '' },
+                    { id: 88, text: 'Kamera + Ladekabel', checked: false, tag: '', note: '' },
+                    { id: 89, text: 'W\u00e4scheleine & Klammern', checked: false, tag: '', note: '' },
+                    { id: 90, text: 'Stirnlampe / Taschenlampe', checked: false, tag: '', note: '' },
+                    { id: 91, text: 'Campingst\u00fchle', checked: false, tag: '', note: '' },
+                    { id: 92, text: 'Picknicktuch', checked: false, tag: '', note: '' },
+                    { id: 93, text: 'Pop-Up-Sonnenzelt Baby', checked: false, tag: 'Baby 7 Mt.', note: '' },
+                    { id: 94, text: 'Wasserflaschen (wiederverwendbar)', checked: false, tag: '', note: '' }
+                ]
+            }
+        },
         shopping: [
             { id: 1, text: 'R\u00fcebli', category: 'Gem\u00fcse', checked: false },
             { id: 2, text: 'Spinat', category: 'Gem\u00fcse', checked: false },
@@ -788,6 +1055,25 @@
                 category: i.category || 'Sonstiges',
                 checked: !!i.checked
             };
+        });
+        // Ensure packliste exists
+        if (!appData.packliste || typeof appData.packliste !== 'object') {
+            appData.packliste = defaultData.packliste ? JSON.parse(JSON.stringify(defaultData.packliste)) : { trip: {}, categories: {} };
+        }
+        if (!appData.packliste.trip) appData.packliste.trip = {};
+        if (!appData.packliste.categories || typeof appData.packliste.categories !== 'object') {
+            appData.packliste.categories = {};
+        }
+        // If Firebase turns arrays into objects, convert back
+        Object.keys(appData.packliste.categories).forEach(function(cat) {
+            var items = appData.packliste.categories[cat];
+            if (!Array.isArray(items)) {
+                if (items && typeof items === 'object') {
+                    appData.packliste.categories[cat] = Object.values(items);
+                } else {
+                    appData.packliste.categories[cat] = [];
+                }
+            }
         });
     }
 
@@ -888,6 +1174,7 @@
         if (currentTab === 'menu') renderMenu();
         if (currentTab === 'shopping') renderShopping();
         if (currentTab === 'todos') renderTodos();
+        if (currentTab === 'packliste') renderPackliste();
     }
 
     // ============================================================
@@ -952,6 +1239,19 @@
 
         document.getElementById('overview-shopping').textContent = openShopping;
         document.getElementById('overview-todos').textContent = myTodos;
+
+        // Packliste overview
+        var plCats = (appData.packliste && appData.packliste.categories) ? appData.packliste.categories : {};
+        var plTotal = 0, plChecked = 0;
+        Object.keys(plCats).forEach(function(cat) {
+            var items = plCats[cat] || [];
+            plTotal += items.length;
+            items.forEach(function(i) { if (i.checked) plChecked++; });
+        });
+        var plPct = plTotal > 0 ? Math.round((plChecked / plTotal) * 100) : 0;
+        document.getElementById('overview-packliste').textContent = plPct + '%';
+        var plTripName = (appData.packliste && appData.packliste.trip && appData.packliste.trip.name) ? appData.packliste.trip.name : 'Packliste';
+        document.getElementById('overview-packliste-label').textContent = plTripName + ' \u2013 ' + plChecked + '/' + plTotal;
     }
 
     // ============================================================
@@ -1175,12 +1475,166 @@
     }
 
     // ============================================================
+    // PACKLISTE
+    // ============================================================
+    var packlistEditMode = false;
+
+    function renderPackliste() {
+        var pl = appData.packliste || {};
+        var trip = pl.trip || { name: 'Neue Reise', destination: '', duration: '', people: [] };
+        var categories = pl.categories || {};
+
+        // Trip card
+        var peopleHtml = (trip.people || []).map(function(p) {
+            return '<span class="packlist-badge">' + p + '</span>';
+        }).join('');
+        var tripHtml = '<h3>\u2708\uFE0F ' + (trip.name || 'Neue Reise') + '</h3>';
+        if (trip.destination) tripHtml += '<div style="font-size:0.8rem;opacity:0.9;">\uD83D\uDCCD ' + trip.destination + '</div>';
+        if (trip.duration) tripHtml += '<div style="font-size:0.75rem;opacity:0.8;">\uD83D\uDCC5 ' + trip.duration + '</div>';
+        if (peopleHtml) tripHtml += '<div class="packlist-trip-info">' + peopleHtml + '</div>';
+        tripHtml += '<button class="packlist-edit-btn" onclick="togglePacklistTripEdit()">\u270F\uFE0F Reise bearbeiten</button>';
+
+        if (packlistEditMode) {
+            tripHtml += '<div class="packlist-edit-form">' +
+                '<input id="pl-trip-name" value="' + (trip.name || '') + '" placeholder="Reisename...">' +
+                '<input id="pl-trip-dest" value="' + (trip.destination || '') + '" placeholder="Reiseziel...">' +
+                '<input id="pl-trip-dur" value="' + (trip.duration || '') + '" placeholder="Dauer (z.B. 10 Tage)...">' +
+                '<input id="pl-trip-people" value="' + (trip.people || []).join(', ') + '" placeholder="Personen (kommagetrennt)...">' +
+                '<button class="packlist-edit-btn" onclick="savePacklistTrip()" style="background:rgba(255,255,255,0.35);font-weight:700;">\u2714 Speichern</button>' +
+                '</div>';
+        }
+        document.getElementById('packlist-trip-card').innerHTML = tripHtml;
+
+        // Progress
+        var totalItems = 0;
+        var checkedItems = 0;
+        var catKeys = Object.keys(categories);
+        catKeys.forEach(function(cat) {
+            var items = categories[cat] || [];
+            totalItems += items.length;
+            items.forEach(function(item) { if (item.checked) checkedItems++; });
+        });
+        var pct = totalItems > 0 ? Math.round((checkedItems / totalItems) * 100) : 0;
+        document.getElementById('packlist-progress-fill').style.width = pct + '%';
+        document.getElementById('packlist-progress-text').textContent = checkedItems + ' von ' + totalItems + ' eingepackt';
+
+        // Category dropdown
+        var catSelect = document.getElementById('packlist-category');
+        var currentVal = catSelect.value;
+        catSelect.innerHTML = catKeys.map(function(cat) {
+            return '<option value="' + cat + '">' + cat + '</option>';
+        }).join('');
+        if (currentVal && catKeys.indexOf(currentVal) >= 0) catSelect.value = currentVal;
+
+        // Items list
+        var html = '';
+        if (catKeys.length === 0) {
+            html = '<div class="empty-state"><div class="empty-state-icon">\uD83E\uDDF3</div>Noch keine Packliste.<br>Erstelle eine Kategorie und f\u00fcge Gegenst\u00e4nde hinzu!</div>';
+        } else {
+            catKeys.forEach(function(cat) {
+                var items = categories[cat] || [];
+                var catChecked = items.filter(function(i) { return i.checked; }).length;
+                html += '<div class="packlist-cat-header"><span>' + cat + '</span><span class="packlist-cat-count">' + catChecked + '/' + items.length + '</span></div>';
+                items.forEach(function(item) {
+                    var tagHtml = '';
+                    if (item.tag) {
+                        var tagClass = 'tag-person-alle';
+                        var people = (trip.people || []);
+                        for (var pi = 0; pi < people.length; pi++) {
+                            if (item.tag === people[pi]) { tagClass = 'tag-person-' + pi; break; }
+                        }
+                        tagHtml = '<span class="packlist-tag ' + tagClass + '">' + item.tag + '</span>';
+                    }
+                    var noteHtml = item.note ? '<div class="packlist-item-note">' + item.note + '</div>' : '';
+                    html += '<div class="packlist-item">' +
+                        '<div class="checkbox ' + (item.checked ? 'checked' : '') + '" onclick="togglePacklistItem(\'' + cat.replace(/'/g, "\\'") + '\',' + item.id + ')"></div>' +
+                        '<div class="packlist-item-info"><span class="packlist-item-text ' + (item.checked ? 'checked' : '') + '">' + item.text + tagHtml + '</span>' + noteHtml + '</div>' +
+                        '<button class="delete-btn" onclick="deletePacklistItem(\'' + cat.replace(/'/g, "\\'") + '\',' + item.id + ')">\u00d7</button></div>';
+                });
+            });
+        }
+        document.getElementById('packlist-list').innerHTML = html;
+    }
+
+    function togglePacklistTripEdit() {
+        packlistEditMode = !packlistEditMode;
+        renderPackliste();
+    }
+
+    function savePacklistTrip() {
+        if (!appData.packliste) appData.packliste = { trip: {}, categories: {} };
+        appData.packliste.trip = {
+            name: document.getElementById('pl-trip-name').value.trim() || 'Neue Reise',
+            destination: document.getElementById('pl-trip-dest').value.trim(),
+            duration: document.getElementById('pl-trip-dur').value.trim(),
+            people: document.getElementById('pl-trip-people').value.split(',').map(function(s) { return s.trim(); }).filter(Boolean)
+        };
+        packlistEditMode = false;
+        saveData();
+        renderPackliste();
+    }
+
+    function togglePacklistItem(cat, id) {
+        var items = (appData.packliste.categories[cat] || []);
+        var item = items.find(function(i) { return i.id === id; });
+        if (item) { item.checked = !item.checked; saveData(); renderPackliste(); renderDashboard(); }
+    }
+
+    function deletePacklistItem(cat, id) {
+        appData.packliste.categories[cat] = (appData.packliste.categories[cat] || []).filter(function(i) { return i.id !== id; });
+        if (appData.packliste.categories[cat].length === 0) {
+            delete appData.packliste.categories[cat];
+        }
+        saveData(); renderPackliste(); renderDashboard();
+    }
+
+    function addPacklistItem() {
+        var input = document.getElementById('packlist-input');
+        var cat = document.getElementById('packlist-category').value;
+        var text = input.value.trim();
+        if (!text || !cat) return;
+        if (!appData.packliste) appData.packliste = { trip: {}, categories: {} };
+        if (!appData.packliste.categories[cat]) appData.packliste.categories[cat] = [];
+        var allItems = [];
+        Object.keys(appData.packliste.categories).forEach(function(c) {
+            allItems = allItems.concat(appData.packliste.categories[c]);
+        });
+        var maxId = allItems.reduce(function(max, i) { return Math.max(max, i.id || 0); }, 0);
+        appData.packliste.categories[cat].push({ id: maxId + 1, text: text, checked: false, tag: '', note: '' });
+        input.value = '';
+        saveData(); renderPackliste(); renderDashboard();
+    }
+
+    function addPacklistCategory() {
+        var input = document.getElementById('packlist-new-cat');
+        var name = input.value.trim();
+        if (!name) return;
+        if (!appData.packliste) appData.packliste = { trip: {}, categories: {} };
+        if (!appData.packliste.categories[name]) {
+            appData.packliste.categories[name] = [];
+        }
+        input.value = '';
+        saveData(); renderPackliste();
+    }
+
+    function resetPackliste() {
+        if (!confirm('Packliste wirklich zur\u00fccksetzen? Alle Items werden auf unchecked gesetzt.')) return;
+        var cats = appData.packliste.categories || {};
+        Object.keys(cats).forEach(function(cat) {
+            cats[cat].forEach(function(item) { item.checked = false; });
+        });
+        saveData(); renderPackliste(); renderDashboard();
+    }
+
+    // ============================================================
     // HELPERS
     // ============================================================
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Enter') {
             if (e.target.id === 'shopping-input') addShoppingItem();
             if (e.target.id === 'todo-input') addTodo();
+            if (e.target.id === 'packlist-input') addPacklistItem();
+            if (e.target.id === 'packlist-new-cat') addPacklistCategory();
         }
     });
 
