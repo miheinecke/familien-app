@@ -661,7 +661,7 @@
         .cleaning-item-info { flex: 1; }
         .cleaning-item-text { font-size: 0.85rem; }
         .cleaning-item-text.checked { text-decoration: line-through; color: var(--text-muted); }
-        .cleaning-last-done { font-size: 0.6rem; color: var(--text-muted); margin-top: 2px; }
+        .cleaning-last-done { font-size: 0.65rem; color: var(--text-muted); margin-top: 2px; }
         .cleaning-note { font-size: 0.55rem; color: var(--button-green); font-style: italic; }
 
         /* Password Screen */
@@ -1301,6 +1301,21 @@
         if (!appData.packliste.categories || typeof appData.packliste.categories !== 'object') {
             appData.packliste.categories = {};
         }
+        // Migrate old generic people names to real names
+        if (appData.packliste.trip && appData.packliste.trip.people) {
+            var nameMap = {'Frau': 'Mich\u00e8le', 'Mann': 'Alex', 'Kleinkind 2\u00bd': 'Mila', 'Baby 7 Mt.': 'Lene'};
+            appData.packliste.trip.people = appData.packliste.trip.people.map(function(p) {
+                return nameMap[p] || p;
+            });
+            // Also migrate tags in all packlist items
+            Object.keys(appData.packliste.categories).forEach(function(cat) {
+                (appData.packliste.categories[cat] || []).forEach(function(item) {
+                    if (item.tag && nameMap[item.tag]) {
+                        item.tag = nameMap[item.tag];
+                    }
+                });
+            });
+        }
         // If Firebase turns arrays into objects, convert back
         Object.keys(appData.packliste.categories).forEach(function(cat) {
             var items = appData.packliste.categories[cat];
@@ -1930,7 +1945,7 @@
             html += '<div class="cleaning-frequency-header"><span>' + freqLabel + '</span><span class="cleaning-frequency-badge freq-' + freq + '">' + freqChecked + '/' + items.length + '</span></div>';
             items.forEach(function(item) {
                 var noteHtml = item.note ? '<div class="cleaning-note">' + item.note + '</div>' : '';
-                var lastDoneHtml = item.lastDone ? '<div class="cleaning-last-done">Zuletzt: ' + item.lastDone + '</div>' : '';
+                var lastDoneHtml = item.lastDone ? '<div class="cleaning-last-done">Zuletzt erledigt: ' + item.lastDone + '</div>' : '';
                 html += '<div class="cleaning-item">' +
                     '<div class="checkbox ' + (item.checked ? 'checked' : '') + '" onclick="toggleCleaning(' + item.id + ')"></div>' +
                     '<div class="cleaning-item-info"><span class="cleaning-item-text ' + (item.checked ? 'checked' : '') + '">' + item.text + '</span>' + noteHtml + lastDoneHtml + '</div>' +
