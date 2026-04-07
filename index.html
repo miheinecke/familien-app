@@ -591,7 +591,20 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            cursor: pointer;
+            user-select: none;
+            -webkit-user-select: none;
         }
+        .packlist-cat-header:active { opacity: 0.7; }
+        .packlist-cat-toggle {
+            font-size: 0.7rem;
+            margin-right: 6px;
+            transition: transform 0.2s;
+            display: inline-block;
+        }
+        .packlist-cat-toggle.collapsed { transform: rotate(-90deg); }
+        .packlist-cat-items { overflow: hidden; transition: max-height 0.3s ease; }
+        .packlist-cat-items.collapsed { max-height: 0 !important; }
         .packlist-cat-count {
             font-family: 'Comfortaa', sans-serif;
             font-size: 0.6rem;
@@ -1316,6 +1329,35 @@
                 });
             });
         }
+        // Migrate old category names to new personal names
+        var catRenameMap = {
+            '\uD83D\uDC76 Kleidung Kinder': '\uD83D\uDC57 Kleider Mila & Lene',
+            '\uD83D\uDC57 Kleidung Erwachsene': '\uD83D\uDC57 Kleider Mich\u00e8le & Alex',
+            '\uD83C\uDF7C Baby & Kleinkind': '\uD83C\uDF7C Mila & Lene'
+        };
+        Object.keys(catRenameMap).forEach(function(oldName) {
+            if (appData.packliste.categories[oldName]) {
+                var newName = catRenameMap[oldName];
+                if (!appData.packliste.categories[newName]) {
+                    appData.packliste.categories[newName] = appData.packliste.categories[oldName];
+                }
+                delete appData.packliste.categories[oldName];
+            }
+        });
+        // Ensure 'Vor Abreise' category exists
+        var vorAbreiseKey = '\u2705 Vor Abreise';
+        if (!appData.packliste.categories[vorAbreiseKey]) {
+            appData.packliste.categories[vorAbreiseKey] = [
+                { id: 921, text: 'Gas pr\u00fcfen', checked: false, tag: '', note: '' },
+                { id: 922, text: 'Luftdruck Reifen pr\u00fcfen', checked: false, tag: '', note: '' },
+                { id: 923, text: 'K\u00fchlschrank leeren', checked: false, tag: '', note: '' },
+                { id: 924, text: 'Pflanzen giessen / organisieren', checked: false, tag: '', note: '' },
+                { id: 925, text: 'H\u00fchner f\u00fcttern / alles bereitstellen', checked: false, tag: '', note: '' },
+                { id: 926, text: 'Wasser auff\u00fcllen (Camper)', checked: false, tag: '', note: '' },
+                { id: 927, text: 'Wasserflaschen f\u00fcllen', checked: false, tag: '', note: '' },
+                { id: 928, text: 'M\u00fcll rausbringen', checked: false, tag: '', note: '' }
+            ];
+        }
         // If Firebase turns arrays into objects, convert back
         Object.keys(appData.packliste.categories).forEach(function(cat) {
             var items = appData.packliste.categories[cat];
@@ -1777,6 +1819,13 @@
     // ============================================================
     // PACKLISTE
     // ============================================================
+    var packlistCollapsed = {};
+
+    function togglePacklistCat(cat) {
+        packlistCollapsed[cat] = !packlistCollapsed[cat];
+        renderPackliste();
+    }
+
     function renderPackliste() {
         var trip = appData.packliste.trip || {};
         var cats = appData.packliste.categories || {};
@@ -1814,10 +1863,15 @@
         });
 
         var listHtml = '';
+        var catIndex = 0;
         Object.keys(cats).forEach(function(cat) {
             var items = cats[cat] || [];
             var catChecked = items.filter(function(i) { return i.checked; }).length;
-            listHtml += '<div class="packlist-cat-header"><span>' + cat + '</span><span class="packlist-cat-count">' + catChecked + '/' + items.length + '</span></div>';
+            var isCollapsed = packlistCollapsed[cat] || false;
+            var allDone = items.length > 0 && catChecked === items.length;
+            var doneStyle = allDone ? ' style="opacity:0.5;"' : '';
+            listHtml += '<div class="packlist-cat-header" onclick="togglePacklistCat(\'' + cat.replace(/'/g, "\\'") + '\')"' + doneStyle + '><span><span class="packlist-cat-toggle ' + (isCollapsed ? 'collapsed' : '') + '">\u25BC</span>' + cat + '</span><span class="packlist-cat-count">' + catChecked + '/' + items.length + '</span></div>';
+            listHtml += '<div class="packlist-cat-items ' + (isCollapsed ? 'collapsed' : '') + '">';
             items.forEach(function(item) {
                 var tagClass = item.tag ? 'tag-person-' + (trip.people.indexOf(item.tag) >= 0 ? trip.people.indexOf(item.tag) : 'alle') : '';
                 var tagHtml = item.tag ? '<span class="packlist-item-tag ' + tagClass + '">' + item.tag + '</span>' : '';
@@ -1827,6 +1881,8 @@
                     (item.note ? '<div class="packlist-item-tag" style="background:none;padding:0;margin:0;margin-top:2px;">' + item.note + '</div>' : '') + '</div>' +
                     '<button class="delete-btn" onclick="deletePacklist(' + item.id + ',\'' + cat + '\')">×</button></div>';
             });
+            listHtml += '</div>';
+            catIndex++;
         });
 
         document.getElementById('packlist-list').innerHTML = listHtml;
