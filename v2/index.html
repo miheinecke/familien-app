@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="de" data-theme="light">
 <head>
@@ -1016,6 +1017,260 @@
             display: none;
         }
 
+        /* ==================== AI / SMART FEATURES ==================== */
+        /* Settings Overlay */
+        .settings-overlay {
+            position: fixed;
+            inset: 0;
+            background: var(--overlay-bg);
+            z-index: 1500;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .settings-overlay.show { display: flex; }
+        .settings-card {
+            background: var(--card);
+            color: var(--text);
+            border-radius: 20px;
+            padding: 24px;
+            max-width: 460px;
+            width: 100%;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .settings-card h2 {
+            font-family: 'Oswald', sans-serif;
+            color: var(--dark-green);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        [data-theme="dark"] .settings-card h2 { color: var(--primary-green); }
+        .settings-card p { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 14px; line-height: 1.5; }
+        .settings-card label { font-size: 0.78rem; font-weight: 700; color: var(--text); display: block; margin: 14px 0 6px; }
+        .settings-card input[type=password], .settings-card input[type=text], .settings-card textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid var(--button-green);
+            border-radius: 10px;
+            font-family: 'Comfortaa', sans-serif;
+            font-size: 0.85rem;
+            background: var(--card-alt);
+            color: var(--text);
+            outline: none;
+        }
+        .settings-card input:focus, .settings-card textarea:focus { border-color: var(--primary-green); }
+        .settings-row {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+        }
+        .settings-row button { flex: 1; }
+        .ai-link { font-size: 0.7rem; color: var(--primary-green); text-decoration: underline; }
+        .ai-status {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 8px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            margin-left: 6px;
+        }
+        .ai-status.on { background: var(--success-bg); color: var(--success); }
+        .ai-status.off { background: var(--danger-bg); color: var(--danger); }
+
+        /* AI Action Buttons (innerhalb Sections) */
+        .ai-action-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+        }
+        .ai-btn {
+            flex: 1;
+            min-width: 130px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 10px 14px;
+            background: linear-gradient(135deg, #7AC4F0, #4a7fa8);
+            color: #ffffff;
+            border: none;
+            border-radius: 12px;
+            font-family: 'Comfortaa', sans-serif;
+            font-size: 0.78rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.1s, box-shadow 0.2s;
+            box-shadow: 0 2px 6px rgba(74,127,168,0.3);
+        }
+        .ai-btn:active { transform: scale(0.96); }
+        .ai-btn[disabled] { opacity: 0.5; cursor: not-allowed; }
+        .ai-btn.purple { background: linear-gradient(135deg, #b39ddb, #7e57c2); box-shadow: 0 2px 6px rgba(126,87,194,0.3); }
+        .ai-btn.green { background: linear-gradient(135deg, #A1BFB0, #57856F); box-shadow: 0 2px 6px rgba(87,133,111,0.3); }
+        .ai-btn svg { width: 16px; height: 16px; }
+
+        /* Floating Mic Button */
+        .fab-mic {
+            position: fixed;
+            bottom: calc(96px + env(safe-area-inset-bottom));
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff6b9d, #c44ec7);
+            color: #ffffff;
+            border: none;
+            box-shadow: 0 6px 18px rgba(196,78,199,0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 150;
+            transition: transform 0.15s, box-shadow 0.2s;
+        }
+        .fab-mic:active { transform: scale(0.92); }
+        .fab-mic.listening {
+            background: linear-gradient(135deg, #ff5252, #c4194e);
+            animation: pulse 1.2s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255,82,82,0.5); }
+            50% { transform: scale(1.06); box-shadow: 0 0 0 14px rgba(255,82,82,0); }
+        }
+        .fab-mic svg { width: 26px; height: 26px; }
+
+        /* Voice transcript bubble */
+        .voice-bubble {
+            position: fixed;
+            bottom: calc(170px + env(safe-area-inset-bottom));
+            right: 16px;
+            left: 16px;
+            max-width: 480px;
+            margin: 0 auto;
+            background: var(--card);
+            color: var(--text);
+            border: 2px solid var(--primary-green);
+            border-radius: 16px;
+            padding: 14px 18px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+            z-index: 151;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            display: none;
+        }
+        .voice-bubble.show { display: block; animation: slideInUp 0.25s ease-out; }
+        .voice-bubble .vb-label {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Photo OCR result panel */
+        .ocr-panel {
+            background: var(--card-alt);
+            border: 2px dashed var(--button-green);
+            border-radius: 14px;
+            padding: 14px;
+            margin-bottom: 14px;
+            font-size: 0.85rem;
+        }
+        .ocr-panel-title {
+            font-family: 'Oswald', sans-serif;
+            font-size: 0.85rem;
+            color: var(--dark-green);
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        [data-theme="dark"] .ocr-panel-title { color: var(--primary-green); }
+        .ocr-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .ocr-item:last-child { border-bottom: none; }
+        .ocr-item input[type=text] {
+            flex: 1;
+            padding: 4px 8px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: var(--card);
+            color: var(--text);
+            font-family: 'Comfortaa', sans-serif;
+            font-size: 0.82rem;
+            outline: none;
+        }
+        .ocr-item select {
+            padding: 4px 6px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: var(--card);
+            color: var(--text);
+            font-family: 'Comfortaa', sans-serif;
+            font-size: 0.7rem;
+            outline: none;
+        }
+        .ocr-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        .ocr-loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 18px;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+        .ocr-loading svg { animation: spin 1s linear infinite; width: 22px; height: 22px; }
+
+        /* Menu suggestion result */
+        .suggest-result {
+            background: var(--card-alt);
+            border: 2px dashed var(--button-green);
+            border-radius: 14px;
+            padding: 14px;
+            margin-bottom: 14px;
+        }
+        .suggest-day {
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .suggest-day:last-child { border-bottom: none; }
+        .suggest-day-name {
+            font-family: 'Oswald', sans-serif;
+            font-size: 0.8rem;
+            color: var(--primary-green);
+            margin-bottom: 4px;
+        }
+        .suggest-meal {
+            font-size: 0.82rem;
+            color: var(--text);
+            padding: 2px 0;
+        }
+        .suggest-meal-label {
+            font-weight: 700;
+            color: var(--text-muted);
+            font-size: 0.7rem;
+        }
+
         /* ==================== RESPONSIVE ==================== */
         @media (min-width: 768px) {
             .section { padding: 24px; }
@@ -1065,11 +1320,11 @@
     </div>
 
     <!-- ==================== HEADER ==================== -->
-    <div class="header">
+    <div class="header" style="grid-template-columns: 44px 1fr 44px 44px;">
         <button class="icon-btn" id="install-btn" onclick="triggerInstall()" title="App installieren" style="display:none;">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         </button>
-        <div class="header-title">
+        <div class="header-title" style="grid-column: 2;">
             <h1>Familie Heinecke</h1>
             <p>Unser Familien-Dashboard</p>
             <div class="sync-status" id="sync-status">Verbinde...</div>
@@ -1078,6 +1333,53 @@
             <svg id="theme-icon-light" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
             <svg id="theme-icon-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
         </button>
+        <button class="icon-btn" onclick="openSettings()" title="Einstellungen / KI">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </button>
+    </div>
+
+    <!-- ==================== SETTINGS OVERLAY ==================== -->
+    <div class="settings-overlay" id="settings-overlay" onclick="if(event.target===this) closeSettings()">
+        <div class="settings-card">
+            <h2>⚙️ Einstellungen</h2>
+            <p>Hier richtest du die KI-Funktionen ein. API-Key wird nur lokal auf diesem Gerät gespeichert (im Browser, nicht synchronisiert).</p>
+
+            <label>Anthropic API-Key <span class="ai-status" id="ai-status">…</span></label>
+            <input type="password" id="api-key-input" placeholder="sk-ant-…" autocomplete="off">
+            <p style="margin-top:6px;margin-bottom:0;">
+                <a class="ai-link" href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">→ Key erstellen auf console.anthropic.com</a>
+            </p>
+
+            <label style="margin-top:18px;">Wer bist du?</label>
+            <select id="settings-user" style="width:100%;padding:10px 12px;border:2px solid var(--button-green);border-radius:10px;font-family:'Comfortaa',sans-serif;font-size:0.85rem;background:var(--card-alt);color:var(--text);">
+                <option value="Michèle">Michèle</option>
+                <option value="Alex">Alex</option>
+            </select>
+
+            <div class="settings-row">
+                <button class="ghost-btn" onclick="closeSettings()" style="border-color:var(--text-muted);">Schliessen</button>
+                <button class="add-btn" onclick="saveSettings()">Speichern</button>
+            </div>
+
+            <details style="margin-top:18px;font-size:0.75rem;color:var(--text-muted);">
+                <summary style="cursor:pointer;">Über die KI-Features</summary>
+                <p style="margin-top:8px;font-size:0.75rem;">
+                    <strong>🎤 Mikrofon (gratis):</strong> Diktieren über Web Speech API. Wird im richtigen Bereich abgelegt.<br><br>
+                    <strong>📷 Foto → Einkauf (mit API-Key):</strong> Kassenzettel oder Liste fotografieren, Claude liest die Items aus und schlägt Einträge vor.<br><br>
+                    <strong>✨ Menü-Vorschlag (mit API-Key):</strong> Claude generiert einen Wochenplan basierend auf Saison und schon geplanten Mahlzeiten.<br><br>
+                    Kosten pro Anfrage: ~1-3 Rappen. API-Key wird nur lokal gespeichert.
+                </p>
+            </details>
+        </div>
+    </div>
+
+    <!-- Hidden Photo Input für Foto-OCR -->
+    <input type="file" id="photo-input" accept="image/*" capture="environment" style="display:none;" onchange="handlePhotoSelected(event)">
+
+    <!-- Voice transcript bubble -->
+    <div class="voice-bubble" id="voice-bubble">
+        <div class="vb-label">Höre zu… sprich jetzt</div>
+        <div id="voice-text">…</div>
     </div>
 
     <!-- ==================== INSTALL BANNER ==================== -->
@@ -1139,6 +1441,13 @@
     <div class="section" id="section-menu">
         <h2 class="section-title">&#x1F37D;&#xFE0F; Wochenmenu</h2>
         <p style="font-size:0.7rem;color:var(--text-muted);margin-bottom:10px;">Tippe auf ein Gericht, um es zu ändern &#x270F;&#xFE0F;</p>
+        <div class="ai-action-bar">
+            <button class="ai-btn purple" onclick="suggestMenu()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                Wochenplan vorschlagen
+            </button>
+        </div>
+        <div id="suggest-result"></div>
         <div class="week-toggle" id="week-toggle">
             <button class="week-btn active" onclick="selectWeek('current')">Diese Woche</button>
             <button class="week-btn" onclick="selectWeek('next')">Nächste Woche</button>
@@ -1150,6 +1459,13 @@
     <!-- ==================== SHOPPING ==================== -->
     <div class="section" id="section-shopping">
         <h2 class="section-title">&#x1F6D2; Einkaufsliste</h2>
+        <div class="ai-action-bar">
+            <button class="ai-btn green" onclick="triggerPhoto()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                Foto → Liste
+            </button>
+        </div>
+        <div id="ocr-result"></div>
         <div class="progress-container" id="shopping-progress">
             <div class="progress-bar"><div class="progress-fill" id="shopping-progress-fill"></div></div>
             <div class="progress-text" id="shopping-progress-text"></div>
@@ -1281,6 +1597,11 @@
         </button>
     </nav>
 
+    <!-- ==================== FLOATING MIC BUTTON ==================== -->
+    <button class="fab-mic" id="fab-mic" onclick="toggleVoice()" title="Sprach-Eingabe" aria-label="Mikrofon" style="display:none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+    </button>
+
     <!-- ==================== TOAST CONTAINER ==================== -->
     <div class="toast-container" id="toast-container"></div>
 
@@ -1304,8 +1625,10 @@
     const THEME_KEY = 'familieHeineckeThemeV2';
     const SORT_KEY = 'familieHeineckeSortV2';      // saved manual sort orders
     const INSTALL_DISMISS_KEY = 'familieHeineckeInstallDismissedV2';
-    const FIREBASE_REF = 'familyAppV2';
-    const FIREBASE_REF_V1 = 'familyApp'; // Quelle für einmalige Migration beim ersten Start
+    // Shared Firebase-Pfad mit v1: beide Apps lesen/schreiben dieselben Daten.
+    // → v1 läuft weiter, v2 hat sofort aktuelle Daten, keine Migration nötig.
+    const FIREBASE_REF = 'familyApp';
+    const API_KEY_STORAGE = 'familieHeineckeApiKeyV2';
 
     const FIREBASE_CONFIG = {
         apiKey: "AIzaSyCVzWxj3jj2j4UYVW0t2L2lsYXHVYOk98s",
@@ -1732,57 +2055,20 @@
             db = firebase.database();
             dbRef = db.ref(FIREBASE_REF);
 
-            // Einmalige Migration: wenn v2 noch leer ist, kopiere v1-Daten ins v2-Path.
-            // v1 bleibt komplett unangetastet – wir lesen dort nur einmal.
-            const hasLocalV2 = !!localStorage.getItem(STORAGE_KEY);
-            const migrationDone = localStorage.getItem(STORAGE_KEY + '_migrated') === 'true';
-            const startListener = () => {
-                dbRef.on('value', snapshot => {
-                    const remoteData = snapshot.val();
-                    if (remoteData) {
-                        appData = remoteData;
-                        ensureDataIntegrity();
-                        localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
-                        renderCurrentTab();
-                    }
-                    firebaseReady = true;
-                    setSyncStatus('online');
-                });
-                db.ref('.info/connected').on('value', snap => {
-                    setSyncStatus(snap.val() === true ? 'online' : 'offline');
-                });
-            };
-
-            if (!hasLocalV2 && !migrationDone) {
-                setSyncStatus('online', 'Migriere…');
-                dbRef.once('value').then(snap => {
-                    if (snap.val()) {
-                        // v2-Pfad existiert bereits → keine Migration nötig
-                        localStorage.setItem(STORAGE_KEY + '_migrated', 'true');
-                        startListener();
-                        return;
-                    }
-                    // v2 ist leer → einmalig v1 lesen und kopieren
-                    return db.ref(FIREBASE_REF_V1).once('value').then(v1snap => {
-                        const v1data = v1snap.val();
-                        if (v1data) {
-                            return dbRef.set(v1data).then(() => {
-                                localStorage.setItem(STORAGE_KEY + '_migrated', 'true');
-                                startListener();
-                            });
-                        } else {
-                            // Auch v1 leer → mit Defaults starten
-                            localStorage.setItem(STORAGE_KEY + '_migrated', 'true');
-                            startListener();
-                        }
-                    });
-                }).catch(err => {
-                    console.warn('Migration fehlgeschlagen, fahre normal fort:', err);
-                    startListener();
-                });
-            } else {
-                startListener();
-            }
+            dbRef.on('value', snapshot => {
+                const remoteData = snapshot.val();
+                if (remoteData) {
+                    appData = remoteData;
+                    ensureDataIntegrity();
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+                    renderCurrentTab();
+                }
+                firebaseReady = true;
+                setSyncStatus('online');
+            });
+            db.ref('.info/connected').on('value', snap => {
+                setSyncStatus(snap.val() === true ? 'online' : 'offline');
+            });
         } catch (e) {
             console.warn('Firebase init fehlgeschlagen:', e);
             setSyncStatus('offline', 'Sync-Fehler');
@@ -2918,6 +3204,435 @@
     }
 
     // ============================================================
+    // SETTINGS PANEL
+    // ============================================================
+    function openSettings() {
+        document.getElementById('api-key-input').value = localStorage.getItem(API_KEY_STORAGE) || '';
+        document.getElementById('settings-user').value = currentUser || 'Michèle';
+        updateAiStatusBadge();
+        document.getElementById('settings-overlay').classList.add('show');
+    }
+    function closeSettings() {
+        document.getElementById('settings-overlay').classList.remove('show');
+    }
+    function saveSettings() {
+        const key = document.getElementById('api-key-input').value.trim();
+        if (key) {
+            localStorage.setItem(API_KEY_STORAGE, key);
+        } else {
+            localStorage.removeItem(API_KEY_STORAGE);
+        }
+        const user = document.getElementById('settings-user').value;
+        if (user && user !== currentUser) {
+            currentUser = user;
+            localStorage.setItem(USER_KEY, user);
+            document.getElementById('greeting').textContent = 'Hallo ' + user + '! 👋';
+        }
+        updateAiStatusBadge();
+        closeSettings();
+        showToast('Gespeichert ✓', null, 1500);
+        renderCurrentTab();
+    }
+    function updateAiStatusBadge() {
+        const badge = document.getElementById('ai-status');
+        if (!badge) return;
+        const hasKey = !!localStorage.getItem(API_KEY_STORAGE);
+        badge.textContent = hasKey ? 'aktiv' : 'fehlt';
+        badge.className = 'ai-status ' + (hasKey ? 'on' : 'off');
+    }
+    function getApiKey() {
+        return localStorage.getItem(API_KEY_STORAGE);
+    }
+    function requireApiKey(action) {
+        if (!getApiKey()) {
+            showToast('API-Key fehlt – ⚙️ oben rechts', () => openSettings(), 6000);
+            return false;
+        }
+        return true;
+    }
+
+    // ============================================================
+    // ANTHROPIC API CLIENT
+    // ============================================================
+    async function callClaude({ system, messages, maxTokens = 1024, model }) {
+        const key = getApiKey();
+        if (!key) throw new Error('Kein API-Key konfiguriert');
+        const body = {
+            model: model || 'claude-haiku-4-5-20251001',
+            max_tokens: maxTokens,
+            messages: messages
+        };
+        if (system) body.system = system;
+        const res = await fetch('https://api.anthropic.com/v1/messages', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': key,
+                'anthropic-version': '2023-06-01',
+                'anthropic-dangerous-direct-browser-access': 'true'
+            },
+            body: JSON.stringify(body)
+        });
+        if (!res.ok) {
+            const errText = await res.text();
+            throw new Error('API-Fehler ' + res.status + ': ' + errText.slice(0, 200));
+        }
+        const data = await res.json();
+        return data.content && data.content[0] && data.content[0].text || '';
+    }
+
+    function extractJson(text) {
+        // Versucht JSON aus einer Claude-Antwort zu extrahieren (auch wenn Markdown drum)
+        const codeBlock = text.match(/```(?:json)?\s*([\s\S]*?)```/);
+        const candidate = codeBlock ? codeBlock[1] : text;
+        const firstBrace = Math.min(...['{','['].map(c => candidate.indexOf(c)).filter(i => i >= 0));
+        const lastBrace = Math.max(candidate.lastIndexOf('}'), candidate.lastIndexOf(']'));
+        if (firstBrace < 0 || lastBrace < 0) throw new Error('Kein JSON in Antwort gefunden');
+        return JSON.parse(candidate.slice(firstBrace, lastBrace + 1));
+    }
+
+    // ============================================================
+    // VOICE QUICK-ADD (Web Speech API – nativ, kein API-Key nötig)
+    // ============================================================
+    let voiceRecognition = null;
+    let voiceListening = false;
+
+    function initVoice() {
+        const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const fab = document.getElementById('fab-mic');
+        if (!SR || !fab) {
+            return; // Nicht unterstützt → FAB bleibt versteckt
+        }
+        fab.style.display = 'flex';
+        voiceRecognition = new SR();
+        voiceRecognition.lang = 'de-CH';
+        voiceRecognition.continuous = false;
+        voiceRecognition.interimResults = true;
+        voiceRecognition.maxAlternatives = 1;
+
+        let lastTranscript = '';
+        voiceRecognition.onresult = (e) => {
+            let text = '';
+            for (let i = e.resultIndex; i < e.results.length; i++) {
+                text += e.results[i][0].transcript;
+            }
+            lastTranscript = text;
+            const txtEl = document.getElementById('voice-text');
+            if (txtEl) txtEl.textContent = text || '…';
+        };
+        voiceRecognition.onerror = (e) => {
+            console.warn('Voice error:', e.error);
+            stopVoice();
+            if (e.error === 'not-allowed') {
+                showToast('Mikrofon-Zugriff verweigert', null, 4000);
+            } else if (e.error !== 'no-speech' && e.error !== 'aborted') {
+                showToast('Spracherkennung-Fehler: ' + e.error, null, 3000);
+            }
+        };
+        voiceRecognition.onend = () => {
+            stopVoice();
+            if (lastTranscript && lastTranscript.trim()) {
+                processVoiceText(lastTranscript.trim());
+            }
+            lastTranscript = '';
+        };
+    }
+
+    function toggleVoice() {
+        if (!voiceRecognition) {
+            showToast('Spracherkennung nicht unterstützt', null, 3000);
+            return;
+        }
+        if (voiceListening) {
+            voiceRecognition.stop();
+        } else {
+            startVoice();
+        }
+    }
+    function startVoice() {
+        try {
+            voiceRecognition.start();
+            voiceListening = true;
+            document.getElementById('fab-mic').classList.add('listening');
+            document.getElementById('voice-text').textContent = '…';
+            document.getElementById('voice-bubble').classList.add('show');
+            buzz(20);
+        } catch (e) {
+            console.warn('Voice start failed:', e);
+        }
+    }
+    function stopVoice() {
+        voiceListening = false;
+        document.getElementById('fab-mic').classList.remove('listening');
+        document.getElementById('voice-bubble').classList.remove('show');
+    }
+
+    function processVoiceText(text) {
+        // Entscheide basierend auf aktivem Tab + Keywords, wo das Item hingehört.
+        const lower = text.toLowerCase();
+        let target = currentTab;
+
+        // Keywords als Override
+        if (/\b(kauf|einkauf|liste|migros|coop|brot|milch|gemüse|früchte)\b/.test(lower)) target = 'shopping';
+        else if (/\b(todo|aufgabe|erinnern|nicht vergess|muss noch)\b/.test(lower)) target = 'todos';
+        else if (/\b(putzen|reinig|saugen|wischen)\b/.test(lower)) target = 'reinigung';
+        else if (/\b(packen|kofferpacken)\b/.test(lower)) target = 'packliste';
+        else if (target === 'menu' || target === 'dashboard') target = 'shopping'; // Default-Fallback
+
+        // Kommas/und-Trennung → mehrere Items
+        const items = text.split(/,| und | sowie /i).map(s => s.trim()).filter(s => s.length > 0);
+
+        let added = 0;
+        items.forEach(item => {
+            // Sätze "ich brauche / kauf mir" → bereinigen
+            let clean = item.replace(/^(ich (brauche|will|möchte)|kauf(?: mir)?|notier(?: mir)?|merk(?: dir)?|bitte|noch)\s+/i, '').trim();
+            if (!clean) return;
+            // Erstes Wort gross
+            clean = clean.charAt(0).toUpperCase() + clean.slice(1);
+
+            if (target === 'shopping') {
+                appData.shopping.push({ id: Date.now() + added, text: clean, category: guessCategory(clean), checked: false });
+            } else if (target === 'todos') {
+                appData.todos.push({ id: Date.now() + added, text: clean, checked: false, priority: 'medium', assignee: currentUser || 'beide' });
+            } else if (target === 'reinigung') {
+                if (!Array.isArray(appData.reinigung)) appData.reinigung = [];
+                const maxId = appData.reinigung.reduce((m, i) => Math.max(m, i.id || 0), 0);
+                appData.reinigung.push({ id: maxId + 1 + added, text: clean, checked: false, frequency: 'weekly', lastDone: '', note: '' });
+            }
+            added++;
+        });
+
+        if (added > 0) {
+            saveData();
+            switchTab(target);
+            buzz(15);
+            const labels = { shopping: 'Einkauf', todos: 'Todos', reinigung: 'Reinigung', packliste: 'Packliste' };
+            showToast('✓ ' + added + ' Eintrag/Einträge in ' + (labels[target] || target), null, 2500);
+        } else {
+            showToast('Konnte nichts erkennen 🤔', null, 2500);
+        }
+    }
+
+    function guessCategory(text) {
+        const t = text.toLowerCase();
+        if (/\b(rüebli|tomate|salat|gurke|spinat|zwiebel|knoblauch|kartoffel|peperoni|broccoli|blumenkohl|gemüse|aubergine|zucchini|kürbis|pilz|champignon)\b/.test(t)) return 'Gemüse';
+        if (/\b(apfel|äpfel|banane|orange|zitrone|beere|trauben|kirsch|pfirsich|melon|frucht|birne|mango|himbeer|erdbeer|heidelbeer)\b/.test(t)) return 'Früchte';
+        if (/\b(milch|butter|käse|joghurt|rahm|quark|sahne|ei|eier|frischkäse|mozzarella)\b/.test(t)) return 'Milchprodukte';
+        if (/\b(poulet|fleisch|wurst|schinken|speck|fisch|lachs|thon|hähn|huhn|rind|hack|cervelat)\b/.test(t)) return 'Fleisch & Fisch';
+        if (/\b(brot|gipfeli|brötli|zopf|baguette|toast|brötchen|knäcke)\b/.test(t)) return 'Brot & Gebäck';
+        if (/\b(saft|wasser|cola|sirup|wein|bier|tee|kaffee|getränk)\b/.test(t)) return 'Getränke';
+        if (/\b(seife|wasch|wc|toiletten|spüli|putz|reinig|spül|haushalt|alu|tasche|sack|abfall|müll)\b/.test(t)) return 'Haushalt';
+        return 'Sonstiges';
+    }
+
+    // ============================================================
+    // PHOTO → SHOPPING (Claude Vision)
+    // ============================================================
+    function triggerPhoto() {
+        if (!requireApiKey()) return;
+        document.getElementById('photo-input').click();
+    }
+
+    async function handlePhotoSelected(event) {
+        const file = event.target.files && event.target.files[0];
+        event.target.value = ''; // Reset
+        if (!file) return;
+        if (!requireApiKey()) return;
+
+        const resultEl = document.getElementById('ocr-result');
+        resultEl.innerHTML = '<div class="ocr-panel"><div class="ocr-loading"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3.51-7.13"/><polyline points="21 4 21 12 13 12"/></svg>Foto wird ausgewertet…</div></div>';
+
+        try {
+            const base64 = await fileToBase64(file);
+            const mediaType = file.type || 'image/jpeg';
+            const response = await callClaude({
+                model: 'claude-sonnet-4-6',
+                maxTokens: 2048,
+                system: 'Du analysierst Fotos von Einkaufslisten oder Kassenzetteln. Antworte AUSSCHLIESSLICH mit einem JSON-Array von Objekten {"text": "Artikelname", "category": "Gemüse|Früchte|Milchprodukte|Fleisch & Fisch|Brot & Gebäck|Getränke|Haushalt|Sonstiges"}. Schweizerdeutsche Begriffe verwenden wenn passend (Rüebli, Poulet, Gipfeli). Mengenangaben weglassen. Keine Erklärungen.',
+                messages: [{
+                    role: 'user',
+                    content: [
+                        { type: 'image', source: { type: 'base64', media_type: mediaType, data: base64 } },
+                        { type: 'text', text: 'Lies die Artikel aus diesem Bild und gib sie als JSON-Array zurück.' }
+                    ]
+                }]
+            });
+            const items = extractJson(response);
+            if (!Array.isArray(items) || items.length === 0) {
+                throw new Error('Keine Artikel erkannt');
+            }
+            renderOcrResult(items);
+            buzz(12);
+        } catch (e) {
+            console.error(e);
+            resultEl.innerHTML = '<div class="ocr-panel" style="border-color:var(--danger);"><div class="ocr-panel-title">⚠️ Fehler</div><div style="color:var(--danger);font-size:0.78rem;">' + escapeHtml(e.message) + '</div><div class="ocr-actions"><button class="ghost-btn" onclick="document.getElementById(\'ocr-result\').innerHTML=\'\'">Schliessen</button></div></div>';
+        }
+    }
+
+    function renderOcrResult(items) {
+        const cats = ['Gemüse','Früchte','Milchprodukte','Fleisch & Fisch','Brot & Gebäck','Getränke','Haushalt','Sonstiges'];
+        let html = '<div class="ocr-panel"><div class="ocr-panel-title"><span>📷 ' + items.length + ' erkannte Artikel</span><span style="font-size:0.65rem;color:var(--text-muted);">Anpassen + übernehmen</span></div>';
+        items.forEach((item, i) => {
+            const cat = cats.includes(item.category) ? item.category : 'Sonstiges';
+            const catOpts = cats.map(c => '<option value="' + c + '"' + (c === cat ? ' selected' : '') + '>' + c + '</option>').join('');
+            html += '<div class="ocr-item"><input type="checkbox" id="ocr-cb-' + i + '" checked style="width:18px;height:18px;accent-color:var(--primary-green);"><input type="text" id="ocr-text-' + i + '" value="' + escapeHtml(item.text || '') + '"><select id="ocr-cat-' + i + '">' + catOpts + '</select></div>';
+        });
+        html += '<div class="ocr-actions"><button class="ghost-btn" onclick="document.getElementById(\'ocr-result\').innerHTML=\'\'">Verwerfen</button><button class="add-btn" onclick="applyOcrItems(' + items.length + ')">Übernehmen</button></div></div>';
+        document.getElementById('ocr-result').innerHTML = html;
+    }
+
+    function applyOcrItems(count) {
+        let added = 0;
+        for (let i = 0; i < count; i++) {
+            const cb = document.getElementById('ocr-cb-' + i);
+            if (!cb || !cb.checked) continue;
+            const text = (document.getElementById('ocr-text-' + i).value || '').trim();
+            const cat = document.getElementById('ocr-cat-' + i).value;
+            if (!text) continue;
+            appData.shopping.push({ id: Date.now() + added, text: text, category: cat, checked: false });
+            added++;
+        }
+        document.getElementById('ocr-result').innerHTML = '';
+        if (added > 0) {
+            saveData();
+            renderShopping();
+            buzz(15);
+            showToast('✓ ' + added + ' Artikel hinzugefügt', null, 2500);
+        }
+    }
+
+    function fileToBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => {
+                const result = reader.result;
+                const comma = result.indexOf(',');
+                resolve(comma >= 0 ? result.slice(comma + 1) : result);
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+    }
+
+    // ============================================================
+    // MENU SUGGESTION (Claude Text)
+    // ============================================================
+    async function suggestMenu() {
+        if (!requireApiKey()) return;
+        const resultEl = document.getElementById('suggest-result');
+        resultEl.innerHTML = '<div class="suggest-result"><div class="ocr-loading"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3.51-7.13"/><polyline points="21 4 21 12 13 12"/></svg>Vorschlag wird generiert…</div></div>';
+
+        try {
+            const weekKey = getWeekKey(selectedWeek);
+            const existing = appData.menu[weekKey] || {};
+            const months = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+            const now = new Date();
+            const monthName = months[now.getMonth()];
+            const days = ['Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag','Sonntag'];
+
+            // Sammle die letzten paar Wochen als Inspirationsquelle
+            const recentMenus = [];
+            Object.keys(appData.menu).sort().slice(-3).forEach(wk => {
+                const week = appData.menu[wk] || {};
+                days.forEach(d => {
+                    const m = week[d] || {};
+                    if (m.zmittag) recentMenus.push(m.zmittag);
+                    if (m.znacht) recentMenus.push(m.znacht);
+                });
+            });
+
+            const targetWeekLabel = selectedWeek === 0 ? 'diese Woche' : 'nächste Woche';
+
+            const system = 'Du bist eine Schweizer Familien-Köchin. Schlage einen Wochenmenuplan vor mit traditionellen Schweizer Gerichten, schweizerdeutschen Begriffen (Zmittag, Znacht, Rüebli, Poulet, Gschnetzelts, Älplermagronen, Birchermüesli, Gschwellti, etc). Variation, kindergeeignet, saisonal. Antworte AUSSCHLIESSLICH als JSON-Objekt mit folgendem Format: {"Montag": {"zmittag": "…", "znacht": "…"}, "Dienstag": {…}, …}. Bestehende Einträge respektieren – nicht überschreiben.';
+
+            const userMsg = 'Plane das Menü für ' + targetWeekLabel + ' (Monat: ' + monthName + ').\n\n' +
+                'Bereits geplant (NICHT überschreiben, leere Werte ergänzen):\n' +
+                JSON.stringify(existing, null, 2) +
+                (recentMenus.length > 0 ? '\n\nLetzte Wochen (zur Inspiration, NICHT wiederholen):\n' + recentMenus.slice(-15).join(', ') : '');
+
+            const response = await callClaude({
+                model: 'claude-haiku-4-5-20251001',
+                maxTokens: 1500,
+                system: system,
+                messages: [{ role: 'user', content: userMsg }]
+            });
+            const plan = extractJson(response);
+            renderSuggestResult(plan, weekKey);
+            buzz(12);
+        } catch (e) {
+            console.error(e);
+            resultEl.innerHTML = '<div class="suggest-result" style="border-color:var(--danger);"><div class="suggest-day-name" style="color:var(--danger);">⚠️ Fehler</div><div style="color:var(--danger);font-size:0.78rem;">' + escapeHtml(e.message) + '</div><div class="ocr-actions"><button class="ghost-btn" onclick="document.getElementById(\'suggest-result\').innerHTML=\'\'">Schliessen</button></div></div>';
+        }
+    }
+
+    function renderSuggestResult(plan, weekKey) {
+        const days = ['Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag','Sonntag'];
+        let html = '<div class="suggest-result"><div class="ocr-panel-title"><span>✨ Wochenplan-Vorschlag</span><span style="font-size:0.65rem;color:var(--text-muted);">Tippe einzeln zum Übernehmen</span></div>';
+        days.forEach(day => {
+            const meal = plan[day] || {};
+            const existing = (appData.menu[weekKey] && appData.menu[weekKey][day]) || {};
+            html += '<div class="suggest-day"><div class="suggest-day-name">' + day + '</div>';
+            ['zmittag','znacht'].forEach(slot => {
+                const proposal = (meal[slot] || '').trim();
+                const isExisting = (existing[slot] || '').trim();
+                const label = slot === 'zmittag' ? 'Zmittag' : 'Znacht';
+                if (isExisting) {
+                    html += '<div class="suggest-meal"><span class="suggest-meal-label">' + label + ' (schon geplant):</span> ' + escapeHtml(isExisting) + '</div>';
+                } else if (proposal) {
+                    const propEsc = proposal.replace(/'/g, "\\'");
+                    html += '<div class="suggest-meal" onclick="applySuggestion(\'' + day + '\',\'' + slot + '\',\'' + propEsc + '\',this)" style="cursor:pointer;padding:6px 8px;border-radius:8px;background:var(--card);transition:background 0.2s;"><span class="suggest-meal-label">' + label + ':</span> ' + escapeHtml(proposal) + ' <span style="color:var(--primary-green);font-weight:700;">＋</span></div>';
+                } else {
+                    html += '<div class="suggest-meal"><span class="suggest-meal-label">' + label + ':</span> –</div>';
+                }
+            });
+            html += '</div>';
+        });
+        html += '<div class="ocr-actions"><button class="ghost-btn" onclick="document.getElementById(\'suggest-result\').innerHTML=\'\'">Schliessen</button><button class="add-btn" onclick="applyAllSuggestions()" id="apply-all-btn" data-plan=\'' + JSON.stringify(plan).replace(/'/g, '&#39;') + '\'>Alle übernehmen</button></div></div>';
+        document.getElementById('suggest-result').innerHTML = html;
+    }
+
+    function applySuggestion(day, slot, value, el) {
+        const weekKey = getWeekKey(selectedWeek);
+        if (!appData.menu[weekKey]) appData.menu[weekKey] = {};
+        if (!appData.menu[weekKey][day]) appData.menu[weekKey][day] = { zmittag: '', znacht: '' };
+        appData.menu[weekKey][day][slot] = value;
+        saveData();
+        renderMenu();
+        if (el) {
+            el.style.background = 'var(--success-bg)';
+            el.style.color = 'var(--success)';
+            el.innerHTML = el.innerHTML.replace('＋', '✓');
+            el.onclick = null;
+        }
+        buzz(8);
+    }
+
+    function applyAllSuggestions() {
+        const btn = document.getElementById('apply-all-btn');
+        if (!btn) return;
+        const plan = JSON.parse(btn.dataset.plan.replace(/&#39;/g, "'"));
+        const weekKey = getWeekKey(selectedWeek);
+        if (!appData.menu[weekKey]) appData.menu[weekKey] = {};
+        let added = 0;
+        Object.keys(plan).forEach(day => {
+            if (!appData.menu[weekKey][day]) appData.menu[weekKey][day] = { zmittag: '', znacht: '' };
+            ['zmittag','znacht'].forEach(slot => {
+                const val = (plan[day][slot] || '').trim();
+                const existing = (appData.menu[weekKey][day][slot] || '').trim();
+                if (val && !existing) {
+                    appData.menu[weekKey][day][slot] = val;
+                    added++;
+                }
+            });
+        });
+        saveData();
+        document.getElementById('suggest-result').innerHTML = '';
+        renderMenu();
+        buzz(20);
+        showToast('✨ ' + added + ' Mahlzeiten übernommen', null, 2500);
+    }
+
+    // ============================================================
     // STARTUP
     // ============================================================
     function startApp() {
@@ -2926,6 +3641,8 @@
         initFirebase();
         switchTab('dashboard');
         setupPullToRefresh();
+        initVoice();
+        updateAiStatusBadge();
     }
 
     // Theme zuerst, damit kein FOUC
