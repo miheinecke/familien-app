@@ -2,7 +2,7 @@
 // Cache-First für App-Shell, Network-First für Firebase / Wetter / Fonts.
 // Bei jedem Deployment CACHE_VERSION hochzählen → erzwingt frischen Cache.
 
-const CACHE_VERSION = 'v2.0.0';
+const CACHE_VERSION = 'v2.1.0';
 const SHELL_CACHE = `heinecke-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `heinecke-runtime-${CACHE_VERSION}`;
 
