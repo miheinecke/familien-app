@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Vollflächiger Hintergrund: wichtig für maskable / adaptive Icons (Android schneidet eigene Form) -->
+  <rect width="512" height="512" fill="#57856F"/>
+  <!-- Inhalt innerhalb der "Safe Zone" (zentraler 80%-Kreis, ca. 102-410) -->
+  <g fill="none" stroke="#ffffff" stroke-width="20" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Haus-Silhouette -->
+    <path d="M150 252 L256 162 L362 252 L362 372 Q362 388 346 388 L166 388 Q150 388 150 372 Z"/>
+    <!-- Tür -->
+    <path d="M222 388 L222 308 L290 308 L290 388"/>
+  </g>
+  <!-- Herz oben am Dach als Familien-Symbol -->
+  <path d="M256 215 C 248 205 232 205 232 220 C 232 232 256 248 256 248 C 256 248 280 232 280 220 C 280 205 264 205 256 215 Z" fill="#A1BFB0"/>
+</svg>
