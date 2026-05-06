@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -520,6 +521,40 @@
             margin-top: 6px;
         }
 
+        /* Packliste – Trip-Switcher */
+        .packlist-trip-switcher {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+        .packlist-trip-tab {
+            flex: 1;
+            min-width: 0;
+            padding: 8px 10px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.7);
+            font-family: 'Comfortaa', sans-serif;
+            font-size: 0.7rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .packlist-trip-tab.active {
+            background: rgba(255,255,255,0.95);
+            color: var(--dark-green);
+            border-color: rgba(255,255,255,0.95);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        }
+        .packlist-trip-tab:not(.active):hover {
+            background: rgba(255,255,255,0.2);
+            color: #fff;
+        }
         /* Packliste */
         .packlist-trip-card {
             background: linear-gradient(135deg, var(--primary-green), var(--dark-green));
@@ -1020,13 +1055,16 @@
     const defaultData = {
         menu: {},
         packliste: {
-            trip: {
-                name: 'Camperreise',
-                destination: '',
-                duration: '',
-                people: ['Michèle', 'Alex', 'Mila', 'Lene']
-            },
-            categories: {
+            activeTrip: 'camperreise',
+            trips: {
+                camperreise: {
+                    trip: {
+                        name: 'Camperreise',
+                        destination: '',
+                        duration: '',
+                        people: ['Michèle', 'Alex', 'Mila', 'Lene']
+                    },
+                    categories: {
                 '👗 Kleider Lene': [
                     { id: 1, text: 'Sonnenbad / UV-Schutzkleidung', checked: false, tag: 'Lene', note: '' },
                     { id: 2, text: 'Wollwalk-Anzug', checked: false, tag: 'Lene', note: '' },
@@ -1179,6 +1217,81 @@
                     { id: 127, text: 'Wasserflaschen füllen', checked: false, tag: '', note: '' },
                     { id: 128, text: 'Müll rausbringen', checked: false, tag: '', note: '' }
                 ]
+                    }
+                },
+                toggenburg: {
+                    trip: {
+                        name: 'Toggenburg-Wochenende',
+                        destination: 'Bei Mami & Papi',
+                        duration: '2–3 Tage',
+                        people: ['Michèle', 'Alex', 'Mila', 'Lene']
+                    },
+                    categories: {
+                        '👗 Kleider Lene': [
+                            { id: 201, text: 'Bodies (4–5)', checked: false, tag: 'Lene', note: '' },
+                            { id: 202, text: 'Strampler / Hosen (3)', checked: false, tag: 'Lene', note: '' },
+                            { id: 203, text: 'Jäckchen / Pullover', checked: false, tag: 'Lene', note: '' },
+                            { id: 204, text: 'Socken (3 Paar)', checked: false, tag: 'Lene', note: '' },
+                            { id: 205, text: 'Mütze (warm)', checked: false, tag: 'Lene', note: '' },
+                            { id: 206, text: 'Schlafsack', checked: false, tag: 'Lene', note: 'Bett ist da' },
+                            { id: 207, text: 'Nuschis (3–4)', checked: false, tag: 'Lene', note: '' },
+                            { id: 208, text: 'Lätzchen (3–4)', checked: false, tag: 'Lene', note: '' }
+                        ],
+                        '👗 Kleider Mila': [
+                            { id: 211, text: 'Hosen (2–3)', checked: false, tag: 'Mila', note: '' },
+                            { id: 212, text: 'Bodies / Shirts (3–4)', checked: false, tag: 'Mila', note: '' },
+                            { id: 213, text: 'Pyjama (2)', checked: false, tag: 'Mila', note: '' },
+                            { id: 214, text: 'Pullover / Jäckchen', checked: false, tag: 'Mila', note: '' },
+                            { id: 215, text: 'Unterhosen (4)', checked: false, tag: 'Mila', note: '' },
+                            { id: 216, text: 'Socken (3 Paar)', checked: false, tag: 'Mila', note: '' },
+                            { id: 217, text: 'Schuhe + Hausschuhe', checked: false, tag: 'Mila', note: '' },
+                            { id: 218, text: 'Jacke + Mütze', checked: false, tag: 'Mila', note: '' },
+                            { id: 219, text: 'Regenjacke', checked: false, tag: 'Mila', note: '' },
+                            { id: 220, text: 'Lieblings-Bettdecke', checked: false, tag: 'Mila', note: 'Bett ist da' }
+                        ],
+                        '👔 Michèle & Alex': [
+                            { id: 231, text: '2 Outfits gemäss Wetter', checked: false, tag: '', note: '' },
+                            { id: 232, text: 'Pyjamas', checked: false, tag: '', note: '' },
+                            { id: 233, text: 'Unterwäsche & Socken (3)', checked: false, tag: '', note: '' },
+                            { id: 234, text: 'Jacken', checked: false, tag: '', note: '' },
+                            { id: 235, text: 'Kulturbeutel (Zahnbürste, Cremes)', checked: false, tag: '', note: '' },
+                            { id: 236, text: 'BHs', checked: false, tag: 'Michèle', note: '' },
+                            { id: 237, text: 'Schminktäschchen', checked: false, tag: 'Michèle', note: '' }
+                        ],
+                        '🧷 Wickeln & Pflege': [
+                            { id: 241, text: 'Windeln Lene (ca. 20)', checked: false, tag: 'Lene', note: '' },
+                            { id: 242, text: 'Nacht-Windeln Mila', checked: false, tag: 'Mila', note: '' },
+                            { id: 243, text: 'Feuchttücher (1–2 Pack)', checked: false, tag: '', note: '' },
+                            { id: 244, text: 'Wickelunterlage', checked: false, tag: '', note: '' },
+                            { id: 245, text: 'Popocreme', checked: false, tag: '', note: '' },
+                            { id: 246, text: 'Zahnbürste & Zahnpasta Kinder', checked: false, tag: '', note: '' },
+                            { id: 247, text: 'Nuggis / Ersatznuggis', checked: false, tag: '', note: '' },
+                            { id: 248, text: 'Vitamin D', checked: false, tag: 'Lene', note: '' }
+                        ],
+                        '🍼 Lene-Spezial': [
+                            { id: 251, text: 'Brei / Gläschen (für 2–3 Tage)', checked: false, tag: 'Lene', note: '' },
+                            { id: 252, text: 'Milchpulver', checked: false, tag: 'Lene', note: '' },
+                            { id: 253, text: 'Schoppen + Sauger (2)', checked: false, tag: 'Lene', note: '' },
+                            { id: 254, text: 'Snacks (Reiswaffeln)', checked: false, tag: '', note: '' }
+                        ],
+                        '🎨 Schnüffel & Beschäftigung': [
+                            { id: 261, text: 'Walfisch / Hase (Schnüfftiere)', checked: false, tag: '', note: 'Nicht vergessen!' },
+                            { id: 262, text: 'Lieblingsbuch', checked: false, tag: '', note: '' },
+                            { id: 263, text: 'Malzeug & Stifte', checked: false, tag: 'Mila', note: '' }
+                        ],
+                        '🚗 Transport': [
+                            { id: 271, text: 'Kindersitze ins Auto', checked: false, tag: '', note: '' },
+                            { id: 272, text: 'Tragi (Ergobaby)', checked: false, tag: 'Lene', note: '' },
+                            { id: 273, text: 'Kinderwagen / Buggy', checked: false, tag: '', note: '' }
+                        ],
+                        '✅ Vor Abreise': [
+                            { id: 281, text: 'Hühner füttern / organisieren', checked: false, tag: '', note: '' },
+                            { id: 282, text: 'Pflanzen giessen', checked: false, tag: '', note: '' },
+                            { id: 283, text: 'Kühlschrank checken', checked: false, tag: '', note: '' },
+                            { id: 284, text: 'Müll rausbringen', checked: false, tag: '', note: '' }
+                        ]
+                    }
+                }
             }
         },
         shopping: [
@@ -1308,66 +1421,71 @@
         });
         // Ensure packliste exists
         if (!appData.packliste || typeof appData.packliste !== 'object') {
-            appData.packliste = defaultData.packliste ? JSON.parse(JSON.stringify(defaultData.packliste)) : { trip: {}, categories: {} };
+            appData.packliste = defaultData.packliste ? JSON.parse(JSON.stringify(defaultData.packliste)) : { activeTrip: 'camperreise', trips: {} };
         }
-        if (!appData.packliste.trip) appData.packliste.trip = {};
-        if (!appData.packliste.categories || typeof appData.packliste.categories !== 'object') {
-            appData.packliste.categories = {};
+        // Migrate old single-trip structure -> new trips structure
+        if (appData.packliste.trip || appData.packliste.categories) {
+            var migratedTrip = appData.packliste.trip || { name: 'Camperreise', destination: '', duration: '', people: ['Mich\u00e8le', 'Alex', 'Mila', 'Lene'] };
+            var migratedCats = appData.packliste.categories || {};
+            appData.packliste = {
+                activeTrip: 'camperreise',
+                trips: {
+                    camperreise: { trip: migratedTrip, categories: migratedCats }
+                }
+            };
         }
-        // Migrate old generic people names to real names
-        if (appData.packliste.trip && appData.packliste.trip.people) {
-            var nameMap = {'Frau': 'Mich\u00e8le', 'Mann': 'Alex', 'Kleinkind 2\u00bd': 'Mila', 'Baby 7 Mt.': 'Lene'};
-            appData.packliste.trip.people = appData.packliste.trip.people.map(function(p) {
-                return nameMap[p] || p;
-            });
-            // Also migrate tags in all packlist items
-            Object.keys(appData.packliste.categories).forEach(function(cat) {
-                (appData.packliste.categories[cat] || []).forEach(function(item) {
-                    if (item.tag && nameMap[item.tag]) {
-                        item.tag = nameMap[item.tag];
-                    }
+        if (!appData.packliste.trips || typeof appData.packliste.trips !== 'object') {
+            appData.packliste.trips = {};
+        }
+        // Ensure both default trips exist (don't overwrite existing user data)
+        if (!appData.packliste.trips.camperreise && defaultData.packliste.trips.camperreise) {
+            appData.packliste.trips.camperreise = JSON.parse(JSON.stringify(defaultData.packliste.trips.camperreise));
+        }
+        if (!appData.packliste.trips.toggenburg && defaultData.packliste.trips.toggenburg) {
+            appData.packliste.trips.toggenburg = JSON.parse(JSON.stringify(defaultData.packliste.trips.toggenburg));
+        }
+        if (!appData.packliste.activeTrip || !appData.packliste.trips[appData.packliste.activeTrip]) {
+            appData.packliste.activeTrip = Object.keys(appData.packliste.trips)[0] || 'camperreise';
+        }
+        // Validate each trip
+        Object.keys(appData.packliste.trips).forEach(function(tripKey) {
+            var t = appData.packliste.trips[tripKey];
+            if (!t || typeof t !== 'object') {
+                appData.packliste.trips[tripKey] = { trip: {}, categories: {} };
+                return;
+            }
+            if (!t.trip) t.trip = {};
+            if (!t.categories || typeof t.categories !== 'object') t.categories = {};
+            // Migrate old generic people names to real names
+            if (t.trip.people) {
+                var nameMap = {'Frau': 'Mich\u00e8le', 'Mann': 'Alex', 'Kleinkind 2\u00bd': 'Mila', 'Baby 7 Mt.': 'Lene'};
+                t.trip.people = t.trip.people.map(function(p) { return nameMap[p] || p; });
+                Object.keys(t.categories).forEach(function(cat) {
+                    (t.categories[cat] || []).forEach(function(item) {
+                        if (item.tag && nameMap[item.tag]) item.tag = nameMap[item.tag];
+                    });
                 });
+            }
+            // Migrate old category names
+            var catRenameMap = {
+                '\uD83D\uDC76 Kleidung Kinder': '\uD83D\uDC57 Kleider Mila & Lene',
+                '\uD83D\uDC57 Kleidung Erwachsene': '\uD83D\uDC57 Kleider Mich\u00e8le & Alex',
+                '\uD83C\uDF7C Baby & Kleinkind': '\uD83C\uDF7C Mila & Lene'
+            };
+            Object.keys(catRenameMap).forEach(function(oldName) {
+                if (t.categories[oldName]) {
+                    var newName = catRenameMap[oldName];
+                    if (!t.categories[newName]) t.categories[newName] = t.categories[oldName];
+                    delete t.categories[oldName];
+                }
             });
-        }
-        // Migrate old category names to new personal names
-        var catRenameMap = {
-            '\uD83D\uDC76 Kleidung Kinder': '\uD83D\uDC57 Kleider Mila & Lene',
-            '\uD83D\uDC57 Kleidung Erwachsene': '\uD83D\uDC57 Kleider Mich\u00e8le & Alex',
-            '\uD83C\uDF7C Baby & Kleinkind': '\uD83C\uDF7C Mila & Lene'
-        };
-        Object.keys(catRenameMap).forEach(function(oldName) {
-            if (appData.packliste.categories[oldName]) {
-                var newName = catRenameMap[oldName];
-                if (!appData.packliste.categories[newName]) {
-                    appData.packliste.categories[newName] = appData.packliste.categories[oldName];
+            // Convert object-arrays back to arrays
+            Object.keys(t.categories).forEach(function(cat) {
+                var items = t.categories[cat];
+                if (!Array.isArray(items)) {
+                    t.categories[cat] = (items && typeof items === 'object') ? Object.values(items) : [];
                 }
-                delete appData.packliste.categories[oldName];
-            }
-        });
-        // Ensure 'Vor Abreise' category exists
-        var vorAbreiseKey = '\u2705 Vor Abreise';
-        if (!appData.packliste.categories[vorAbreiseKey]) {
-            appData.packliste.categories[vorAbreiseKey] = [
-                { id: 921, text: 'Gas pr\u00fcfen', checked: false, tag: '', note: '' },
-                { id: 922, text: 'Luftdruck Reifen pr\u00fcfen', checked: false, tag: '', note: '' },
-                { id: 923, text: 'K\u00fchlschrank leeren', checked: false, tag: '', note: '' },
-                { id: 924, text: 'Pflanzen giessen / organisieren', checked: false, tag: '', note: '' },
-                { id: 925, text: 'H\u00fchner f\u00fcttern / alles bereitstellen', checked: false, tag: '', note: '' },
-                { id: 926, text: 'Wasser auff\u00fcllen (Camper)', checked: false, tag: '', note: '' },
-                { id: 927, text: 'Wasserflaschen f\u00fcllen', checked: false, tag: '', note: '' },
-                { id: 928, text: 'M\u00fcll rausbringen', checked: false, tag: '', note: '' }
-            ];
-        }
-        // If Firebase turns arrays into objects, convert back
-        Object.keys(appData.packliste.categories).forEach(function(cat) {
-            var items = appData.packliste.categories[cat];
-            if (!Array.isArray(items)) {
-                if (items && typeof items === 'object') {
-                    appData.packliste.categories[cat] = Object.values(items);
-                } else {
-                    appData.packliste.categories[cat] = [];
-                }
-            }
+            });
         });
         // Ensure reinigung is an array
         if (!Array.isArray(appData.reinigung)) {
@@ -1555,7 +1673,8 @@
 
         var packTotal = 0;
         var packChecked = 0;
-        Object.values(appData.packliste.categories).forEach(function(items) {
+        var activeTripData = (appData.packliste.trips && appData.packliste.trips[appData.packliste.activeTrip]) || { categories: {} };
+        Object.values(activeTripData.categories || {}).forEach(function(items) {
             if (Array.isArray(items)) {
                 items.forEach(function(item) {
                     packTotal++;
@@ -1564,8 +1683,9 @@
             }
         });
         var packPct = packTotal > 0 ? Math.round((packChecked / packTotal) * 100) : 0;
+        var tripName = (activeTripData.trip && activeTripData.trip.name) ? activeTripData.trip.name : 'Packliste';
         document.getElementById('overview-packliste').textContent = packPct + '%';
-        document.getElementById('overview-packliste-label').textContent = packChecked + ' / ' + packTotal;
+        document.getElementById('overview-packliste-label').textContent = tripName + ' · ' + packChecked + ' / ' + packTotal;
 
         fetchWeather();
     }
@@ -1821,16 +1941,47 @@
     // ============================================================
     var packlistCollapsed = {};
 
+    function getActivePackliste() {
+        var key = appData.packliste.activeTrip;
+        if (!appData.packliste.trips || !appData.packliste.trips[key]) {
+            // Fallback: pick the first available trip
+            var keys = Object.keys(appData.packliste.trips || {});
+            key = keys[0];
+            if (key) appData.packliste.activeTrip = key;
+        }
+        return appData.packliste.trips[key] || { trip: {}, categories: {} };
+    }
+
+    function switchPacklistTrip(tripKey) {
+        if (!appData.packliste.trips[tripKey]) return;
+        appData.packliste.activeTrip = tripKey;
+        packlistCollapsed = {}; // reset collapse state for new trip
+        saveData();
+        renderPackliste();
+        updateDashboardCounts();
+    }
+
     function togglePacklistCat(cat) {
         packlistCollapsed[cat] = !packlistCollapsed[cat];
         renderPackliste();
     }
 
     function renderPackliste() {
-        var trip = appData.packliste.trip || {};
-        var cats = appData.packliste.categories || {};
+        var active = getActivePackliste();
+        var trip = active.trip || {};
+        var cats = active.categories || {};
 
-        var tripHtml = '<h3>' + (trip.name || 'Reise') + ' 🧳</h3>';
+        // Trip-Switcher (Tabs)
+        var tripLabels = { camperreise: '🚐 Camperreise', toggenburg: '🏡 Toggenburg' };
+        var switcherHtml = '<div class="packlist-trip-switcher">';
+        Object.keys(appData.packliste.trips).forEach(function(tripKey) {
+            var label = tripLabels[tripKey] || (appData.packliste.trips[tripKey].trip && appData.packliste.trips[tripKey].trip.name) || tripKey;
+            var activeClass = tripKey === appData.packliste.activeTrip ? ' active' : '';
+            switcherHtml += '<button class="packlist-trip-tab' + activeClass + '" onclick="switchPacklistTrip(\'' + tripKey + '\')">' + label + '</button>';
+        });
+        switcherHtml += '</div>';
+
+        var tripHtml = switcherHtml + '<h3>' + (trip.name || 'Reise') + ' 🧳</h3>';
         if (trip.destination || trip.duration) {
             tripHtml += '<div class="packlist-trip-info">';
             if (trip.destination) tripHtml += '<span class="packlist-badge">' + trip.destination + '</span>';
@@ -1889,12 +2040,14 @@
     }
 
     function togglePacklist(id, cat) {
-        var items = appData.packliste.categories[cat] || [];
+        var active = getActivePackliste();
+        var items = active.categories[cat] || [];
         var item = items.find(function(i) { return i.id === id; });
         if (item) {
             item.checked = !item.checked;
             saveData();
             renderPackliste();
+            updateDashboardCounts();
         }
     }
 
@@ -1903,22 +2056,25 @@
         var cat = document.getElementById('packlist-category').value;
         var text = input.value.trim();
         if (!text || !cat) return;
-        if (!appData.packliste.categories[cat]) appData.packliste.categories[cat] = [];
+        var active = getActivePackliste();
+        if (!active.categories[cat]) active.categories[cat] = [];
         var maxId = 0;
-        Object.values(appData.packliste.categories).forEach(function(items) {
+        Object.values(active.categories).forEach(function(items) {
             if (Array.isArray(items)) items.forEach(function(i) { maxId = Math.max(maxId, i.id || 0); });
         });
-        appData.packliste.categories[cat].push({ id: maxId + 1, text: text, checked: false, tag: '', note: '' });
+        active.categories[cat].push({ id: maxId + 1, text: text, checked: false, tag: '', note: '' });
         input.value = '';
         saveData();
         renderPackliste();
     }
 
     function deletePacklist(id, cat) {
-        if (appData.packliste.categories[cat]) {
-            appData.packliste.categories[cat] = appData.packliste.categories[cat].filter(function(i) { return i.id !== id; });
+        var active = getActivePackliste();
+        if (active.categories[cat]) {
+            active.categories[cat] = active.categories[cat].filter(function(i) { return i.id !== id; });
             saveData();
             renderPackliste();
+            updateDashboardCounts();
         }
     }
 
@@ -1926,8 +2082,9 @@
         var input = document.getElementById('packlist-new-cat');
         var cat = input.value.trim();
         if (!cat) return;
-        if (!appData.packliste.categories[cat]) {
-            appData.packliste.categories[cat] = [];
+        var active = getActivePackliste();
+        if (!active.categories[cat]) {
+            active.categories[cat] = [];
             saveData();
             renderPackliste();
             input.value = '';
@@ -1935,26 +2092,30 @@
     }
 
     function editTripInfo() {
-        var name = prompt('Reisename:', appData.packliste.trip.name || '');
+        var active = getActivePackliste();
+        var name = prompt('Reisename:', active.trip.name || '');
         if (name === null) return;
-        appData.packliste.trip.name = name;
-        var dest = prompt('Ziel:', appData.packliste.trip.destination || '');
+        active.trip.name = name;
+        var dest = prompt('Ziel:', active.trip.destination || '');
         if (dest === null) return;
-        appData.packliste.trip.destination = dest;
-        var dur = prompt('Dauer:', appData.packliste.trip.duration || '');
+        active.trip.destination = dest;
+        var dur = prompt('Dauer:', active.trip.duration || '');
         if (dur === null) return;
-        appData.packliste.trip.duration = dur;
+        active.trip.duration = dur;
         saveData();
         renderPackliste();
     }
 
     function resetPackliste() {
-        if (!confirm('Alle Häkchen in der Packliste zurücksetzen?')) return;
-        Object.values(appData.packliste.categories).forEach(function(items) {
+        var active = getActivePackliste();
+        var label = (active.trip && active.trip.name) ? active.trip.name : 'dieser Packliste';
+        if (!confirm('Alle Häkchen in «' + label + '» zurücksetzen?')) return;
+        Object.values(active.categories).forEach(function(items) {
             if (Array.isArray(items)) items.forEach(function(i) { i.checked = false; });
         });
         saveData();
         renderPackliste();
+        updateDashboardCounts();
     }
 
     // ============================================================
@@ -2094,4 +2255,3 @@
     </script>
 </body>
 </html>
-
