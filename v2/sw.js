@@ -1,8 +1,8 @@
-// Familien-App 2.0 – Service Worker
-// Cache-First für App-Shell, Network-First für Firebase / Wetter / Fonts.
-// Bei jedem Deployment CACHE_VERSION hochzählen → erzwingt frischen Cache.
+// Familien-App 2.0 ‚Äì Service Worker
+// Cache-First f√ºr App-Shell, Network-First f√ºr Firebase / Wetter / Fonts.
+// Bei jedem Deployment CACHE_VERSION hochz√§hlen ‚Üí erzwingt frischen Cache.
 
-const CACHE_VERSION = 'v2.2.0';
+const CACHE_VERSION = 'v2.3.0';
 const SHELL_CACHE = `heinecke-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `heinecke-runtime-${CACHE_VERSION}`;
 
@@ -26,7 +26,7 @@ self.addEventListener('install', (event) => {
     );
 });
 
-// ---------- Activate: alte Caches aufräumen ----------
+// ---------- Activate: alte Caches aufr√§umen ----------
 self.addEventListener('activate', (event) => {
     event.waitUntil(
         caches.keys().then((keys) =>
@@ -48,33 +48,33 @@ self.addEventListener('fetch', (event) => {
 
     const url = new URL(req.url);
 
-    // Firebase Realtime DB → IMMER Network (Daten müssen frisch sein)
+    // Firebase Realtime DB ‚Üí IMMER Network (Daten m√ºssen frisch sein)
     if (url.hostname.includes('firebaseio.com') ||
         url.hostname.includes('firebasedatabase.app') ||
         url.hostname.includes('googleapis.com')) {
-        return; // Browser-Default → kein SW-Eingriff
+        return; // Browser-Default ‚Üí kein SW-Eingriff
     }
 
-    // Open-Meteo Wetter → Network-First, fallback auf Cache
+    // Open-Meteo Wetter ‚Üí Network-First, fallback auf Cache
     if (url.hostname.includes('open-meteo.com')) {
         event.respondWith(networkFirst(req));
         return;
     }
 
-    // Google Fonts → Cache-First (CSS) + Stale-While-Revalidate
+    // Google Fonts ‚Üí Cache-First (CSS) + Stale-While-Revalidate
     if (url.hostname.includes('fonts.googleapis.com') ||
         url.hostname.includes('fonts.gstatic.com')) {
         event.respondWith(staleWhileRevalidate(req));
         return;
     }
 
-    // Firebase SDK von gstatic → Cache-First
+    // Firebase SDK von gstatic ‚Üí Cache-First
     if (url.hostname.includes('gstatic.com')) {
         event.respondWith(cacheFirst(req));
         return;
     }
 
-    // Eigene App-Shell (same-origin) → Cache-First mit Network-Fallback
+    // Eigene App-Shell (same-origin) ‚Üí Cache-First mit Network-Fallback
     if (url.origin === self.location.origin) {
         event.respondWith(cacheFirst(req));
         return;
@@ -93,7 +93,7 @@ async function cacheFirst(req) {
         }
         return fresh;
     } catch (e) {
-        // Offline & nicht im Cache → Fallback auf index.html für Navigations-Requests
+        // Offline & nicht im Cache ‚Üí Fallback auf index.html f√ºr Navigations-Requests
         if (req.mode === 'navigate') {
             const shell = await caches.match('./index.html');
             if (shell) return shell;
