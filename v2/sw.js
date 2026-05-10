@@ -1,135 +1,4002 @@
-// Familien-App 2.0 ‚Äì Service Worker
-// Cache-First f√ºr App-Shell, Network-First f√ºr Firebase / Wetter / Fonts.
-// Bei jedem Deployment CACHE_VERSION hochz√§hlen ‚Üí erzwingt frischen Cache.
+<!DOCTYPE html>
+<html lang="de" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Familie Heinecke 2.0</title>
 
-const CACHE_VERSION = 'v2.3.0';
-const SHELL_CACHE = `heinecke-shell-${CACHE_VERSION}`;
-const RUNTIME_CACHE = `heinecke-runtime-${CACHE_VERSION}`;
+    <!-- PWA -->
+    <link rel="manifest" href="manifest.webmanifest">
+    <meta name="theme-color" content="#57856F" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#1a2421" media="(prefers-color-scheme: dark)">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Heinecke">
+    <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 
-// Pfade relativ zum SW-Scope (also /v2/ auf GitHub Pages)
-const SHELL_ASSETS = [
-    './',
-    './index.html',
-    './manifest.webmanifest',
-    './icons/icon.svg',
-    './icons/icon-192.png',
-    './icons/icon-512.png',
-    './icons/apple-touch-icon.png'
-];
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;700&family=Oswald:wght@400;600&display=swap" rel="stylesheet">
 
-// ---------- Install: Shell vorab cachen ----------
-self.addEventListener('install', (event) => {
-    event.waitUntil(
-        caches.open(SHELL_CACHE)
-            .then((cache) => cache.addAll(SHELL_ASSETS))
-            .then(() => self.skipWaiting())
-    );
-});
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-// ---------- Activate: alte Caches aufr√§umen ----------
-self.addEventListener('activate', (event) => {
-    event.waitUntil(
-        caches.keys().then((keys) =>
-            Promise.all(
-                keys
-                    .filter((k) => k !== SHELL_CACHE && k !== RUNTIME_CACHE)
-                    .map((k) => caches.delete(k))
-            )
-        ).then(() => self.clients.claim())
-    );
-});
-
-// ---------- Fetch ----------
-self.addEventListener('fetch', (event) => {
-    const req = event.request;
-
-    // Nur GET cachen
-    if (req.method !== 'GET') return;
-
-    const url = new URL(req.url);
-
-    // Firebase Realtime DB ‚Üí IMMER Network (Daten m√ºssen frisch sein)
-    if (url.hostname.includes('firebaseio.com') ||
-        url.hostname.includes('firebasedatabase.app') ||
-        url.hostname.includes('googleapis.com')) {
-        return; // Browser-Default ‚Üí kein SW-Eingriff
-    }
-
-    // Open-Meteo Wetter ‚Üí Network-First, fallback auf Cache
-    if (url.hostname.includes('open-meteo.com')) {
-        event.respondWith(networkFirst(req));
-        return;
-    }
-
-    // Google Fonts ‚Üí Cache-First (CSS) + Stale-While-Revalidate
-    if (url.hostname.includes('fonts.googleapis.com') ||
-        url.hostname.includes('fonts.gstatic.com')) {
-        event.respondWith(staleWhileRevalidate(req));
-        return;
-    }
-
-    // Firebase SDK von gstatic ‚Üí Cache-First
-    if (url.hostname.includes('gstatic.com')) {
-        event.respondWith(cacheFirst(req));
-        return;
-    }
-
-    // Eigene App-Shell (same-origin) ‚Üí Cache-First mit Network-Fallback
-    if (url.origin === self.location.origin) {
-        event.respondWith(cacheFirst(req));
-        return;
-    }
-});
-
-// ---------- Strategien ----------
-async function cacheFirst(req) {
-    const cached = await caches.match(req);
-    if (cached) return cached;
-    try {
-        const fresh = await fetch(req);
-        if (fresh && fresh.status === 200) {
-            const cache = await caches.open(RUNTIME_CACHE);
-            cache.put(req, fresh.clone());
+        /* ==================== DESIGN TOKENS – LIGHT ==================== */
+        :root, [data-theme="light"] {
+            --primary-green: #57856F;
+            --button-green: #A1BFB0;
+            --dark-green: #3D6350;
+            --light-bg: #E8F0EB;
+            --bg: #E8F0EB;
+            --card: #FFFFFF;
+            --card-alt: #F4F8F5;
+            --text-dark: #3B3B3B;
+            --text: #3B3B3B;
+            --text-muted: #6b7b72;
+            --border: #f0f4f2;
+            --white: #FFFFFF;
+            --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --danger: #e74c3c;
+            --danger-bg: #fde8e8;
+            --warn: #e67e22;
+            --warn-bg: #fef3e2;
+            --success: #27ae60;
+            --success-bg: #e8f5e9;
+            --overlay-bg: rgba(0,0,0,0.4);
         }
-        return fresh;
-    } catch (e) {
-        // Offline & nicht im Cache ‚Üí Fallback auf index.html f√ºr Navigations-Requests
-        if (req.mode === 'navigate') {
-            const shell = await caches.match('./index.html');
-            if (shell) return shell;
+
+        /* ==================== DESIGN TOKENS – DARK ==================== */
+        [data-theme="dark"] {
+            --primary-green: #7aa48b;
+            --button-green: #5a7a68;
+            --dark-green: #4a7a62;
+            --light-bg: #1a2421;
+            --bg: #1a2421;
+            --card: #2a3a32;
+            --card-alt: #213029;
+            --text-dark: #e8f0eb;
+            --text: #e8f0eb;
+            --text-muted: #95a89d;
+            --border: #354740;
+            --white: #2a3a32;
+            --shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+            --shadow-card: 0 4px 14px rgba(0, 0, 0, 0.35);
+            --danger: #ff6b5a;
+            --danger-bg: #4a2a28;
+            --warn: #ffa75e;
+            --warn-bg: #4a3a28;
+            --success: #5dd58c;
+            --success-bg: #1f3a28;
+            --overlay-bg: rgba(0,0,0,0.6);
         }
-        throw e;
-    }
-}
 
-async function networkFirst(req) {
-    try {
-        const fresh = await fetch(req);
-        if (fresh && fresh.status === 200) {
-            const cache = await caches.open(RUNTIME_CACHE);
-            cache.put(req, fresh.clone());
+        html, body { background: var(--bg); }
+        body {
+            font-family: 'Comfortaa', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            min-height: 100dvh;
+            padding-bottom: calc(80px + env(safe-area-inset-bottom));
+            overscroll-behavior-y: contain;
+            transition: background 0.3s, color 0.3s;
         }
-        return fresh;
-    } catch (e) {
-        const cached = await caches.match(req);
-        if (cached) return cached;
-        throw e;
-    }
-}
 
-async function staleWhileRevalidate(req) {
-    const cache = await caches.open(RUNTIME_CACHE);
-    const cached = await cache.match(req);
-    const networkPromise = fetch(req).then((res) => {
-        if (res && res.status === 200) cache.put(req, res.clone());
-        return res;
-    }).catch(() => cached);
-    return cached || networkPromise;
-}
+        /* ==================== HEADER ==================== */
+        .header {
+            background: var(--primary-green);
+            color: #ffffff;
+            padding: calc(14px + env(safe-area-inset-top)) 20px 14px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: grid;
+            grid-template-columns: 44px 1fr 44px;
+            align-items: center;
+        }
+        .header-title { grid-column: 2; }
+        .header h1 {
+            font-family: 'Oswald', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            line-height: 1.1;
+        }
+        .header p { font-size: 0.7rem; opacity: 0.85; margin-top: 2px; }
+        .sync-status { font-size: 0.55rem; opacity: 0.75; margin-top: 3px; }
+        .sync-status.online { color: #b6f0bd; }
+        .sync-status.offline { color: #ffb6ad; }
 
-// ---------- Optional: Hard-Refresh Trigger via Message ----------
-self.addEventListener('message', (event) => {
-    if (event.data && event.data.type === 'SKIP_WAITING') {
-        self.skipWaiting();
+        .icon-btn {
+            background: rgba(255,255,255,0.15);
+            border: none;
+            border-radius: 50%;
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #ffffff;
+            transition: background 0.2s, transform 0.15s;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        .icon-btn:active { transform: scale(0.92); background: rgba(255,255,255,0.28); }
+        .icon-btn svg { width: 20px; height: 20px; }
+
+        /* ==================== PULL-TO-REFRESH ==================== */
+        .pull-indicator {
+            position: fixed;
+            top: env(safe-area-inset-top);
+            left: 0;
+            right: 0;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg);
+            color: var(--primary-green);
+            font-size: 1.4rem;
+            transform: translateY(-100%);
+            transition: transform 0.2s;
+            z-index: 99;
+            pointer-events: none;
+        }
+        .pull-indicator.visible { transform: translateY(0); }
+        .pull-indicator.refreshing svg { animation: spin 0.8s linear infinite; }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* ==================== INSTALL BANNER ==================== */
+        .install-banner {
+            display: none;
+            background: linear-gradient(135deg, var(--primary-green), var(--dark-green));
+            color: #ffffff;
+            padding: 12px 16px;
+            margin: 12px 16px 0;
+            border-radius: 14px;
+            box-shadow: var(--shadow-card);
+            align-items: center;
+            gap: 12px;
+            animation: slideInDown 0.3s ease-out;
+        }
+        .install-banner.show { display: flex; }
+        .install-banner-text { flex: 1; font-size: 0.78rem; line-height: 1.3; }
+        .install-banner-text strong { font-family: 'Oswald', sans-serif; font-size: 0.9rem; display: block; margin-bottom: 2px; }
+        .install-banner button {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: #ffffff;
+            padding: 8px 14px;
+            border-radius: 10px;
+            font-family: 'Comfortaa', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .install-banner button:active { background: rgba(255,255,255,0.35); }
+        .install-banner .close-btn {
+            background: transparent;
+            padding: 4px 8px;
+            font-size: 1rem;
+            opacity: 0.7;
+        }
+        @keyframes slideInDown {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* ==================== BOTTOM NAVIGATION ==================== */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--card);
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0 calc(12px + env(safe-area-inset-bottom));
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            z-index: 100;
+            transition: background 0.3s;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            padding: 4px 6px;
+            border: none;
+            background: none;
+            color: var(--text-muted);
+            font-family: 'Comfortaa', sans-serif;
+            font-size: 0.55rem;
+            cursor: pointer;
+            transition: color 0.2s, transform 0.15s;
+            border-radius: 12px;
+            position: relative;
+        }
+        .nav-item.active { color: var(--primary-green); }
+        .nav-item:active { transform: scale(0.9); }
+        .nav-item svg { width: 20px; height: 20px; transition: transform 0.2s; }
+        .nav-item.active svg { transform: translateY(-1px); }
+        .nav-item .nav-badge {
+            position: absolute;
+            top: 0;
+            right: 6px;
+            background: var(--danger);
+            color: #ffffff;
+            border-radius: 9px;
+            padding: 1px 5px;
+            font-size: 0.5rem;
+            font-weight: 700;
+            min-width: 14px;
+            text-align: center;
+        }
+
+        /* ==================== SECTIONS ==================== */
+        .section { display: none; padding: 16px; max-width: 600px; margin: 0 auto; }
+        .section.active { display: block; animation: fadeIn 0.25s ease-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .section-title {
+            font-family: 'Oswald', sans-serif;
+            font-size: 1.2rem;
+            color: var(--dark-green);
+            margin-bottom: 14px;
+        }
+        [data-theme="dark"] .section-title { color: var(--primary-green); }
+
+        /* ==================== CARDS ==================== */
+        .card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: var(--shadow-card);
+            transition: background 0.3s;
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .card-title {
+            font-family: 'Oswald', sans-serif;
+            font-size: 1rem;
+            color: var(--dark-green);
+        }
+        [data-theme="dark"] .card-title { color: var(--primary-green); }
+
+        /* ==================== WEEK TOGGLE & DAY CHIPS ==================== */
+        .week-toggle {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 14px;
+            background: var(--card);
+            border-radius: 16px;
+            padding: 4px;
+            box-shadow: var(--shadow-card);
+        }
+        .week-btn {
+            flex: 1;
+            padding: 10px 8px;
+            border-radius: 12px;
+            border: none;
+            font-family: 'Comfortaa', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            background: transparent;
+            color: var(--text-muted);
+            transition: all 0.2s;
+        }
+        .week-btn.active {
+            background: var(--primary-green);
+            color: #ffffff;
+        }
+        .day-chips {
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+            padding-bottom: 12px;
+            margin-bottom: 4px;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+        .day-chips::-webkit-scrollbar { display: none; }
+        .day-chip {
+            flex-shrink: 0;
+            padding: 8px 14px;
+            border-radius: 20px;
+            border: 2px solid var(--button-green);
+            background: var(--card);
+            color: var(--primary-green);
+            font-family: 'Comfortaa', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .day-chip.active {
+            background: var(--primary-green);
+            color: #ffffff;
+            border-color: var(--primary-green);
+        }
+        .day-chip.today { border-color: var(--dark-green); position: relative; }
+        .day-chip.today::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 6px;
+            height: 6px;
+            background: var(--primary-green);
+            border-radius: 50%;
+        }
+
+        /* ==================== MENU PLAN ==================== */
+        .meal-card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: var(--shadow-card);
+        }
+        .meal-label {
+            font-family: 'Oswald', sans-serif;
+            font-size: 0.8rem;
+            color: var(--primary-green);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+        }
+        .meal-name {
+            font-size: 0.95rem;
+            color: var(--text);
+            line-height: 1.4;
+            cursor: pointer;
+            padding: 4px 0;
+        }
+        .meal-name.empty { color: var(--text-muted); font-style: italic; }
+        .meal-section { margin-bottom: 14px; }
+        .meal-section:last-child { margin-bottom: 0; }
+
+        /* ==================== LISTS ==================== */
+        .category-header {
+            font-family: 'Oswald', sans-serif;
+            font-size: 0.85rem;
+            color: var(--primary-green);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 10px 0 6px;
+            border-bottom: 1px solid var(--border);
+            margin-top: 8px;
+        }
+
+        /* Swipe wrapper – relative position, contains the swipe-bg + swipe-content */
+        .swipe-wrapper {
+            position: relative;
+            overflow: hidden;
+            background: var(--card);
+        }
+        .swipe-bg {
+            position: absolute;
+            inset: 0;
+            background: var(--danger);
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 0 20px;
+            font-family: 'Comfortaa', sans-serif;
+            font-weight: 700;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            pointer-events: none;
+        }
+        .swipe-content {
+            position: relative;
+            background: var(--card);
+            transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+            will-change: transform;
+            touch-action: pan-y;
+        }
+        .swipe-content.swiping { transition: none; }
+        .swipe-content.deleting {
+            transition: transform 0.3s ease-in, opacity 0.3s;
+            transform: translateX(-100%);
+            opacity: 0;
+        }
+
+        .shopping-item, .todo-item, .cleaning-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border);
+        }
+        .shopping-item:last-child, .todo-item:last-child, .cleaning-item:last-child { border-bottom: none; }
+
+        .checkbox {
+            width: 24px;
+            height: 24px;
+            border-radius: 7px;
+            border: 2px solid var(--button-green);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.2s;
+            background: var(--card);
+        }
+        .checkbox.checked {
+            background: var(--primary-green);
+            border-color: var(--primary-green);
+            animation: pop 0.25s ease-out;
+        }
+        .checkbox.checked::after {
+            content: '\2713';
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        @keyframes pop {
+            0% { transform: scale(1); }
+            45% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .item-text { flex: 1; font-size: 0.88rem; line-height: 1.3; }
+        .item-text.checked { text-decoration: line-through; color: var(--text-muted); }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 1.1rem;
+            padding: 4px 6px;
+            transition: color 0.2s;
+            opacity: 0.5;
+        }
+        .delete-btn:hover { color: var(--danger); opacity: 1; }
+        .delete-btn:active { opacity: 1; }
+
+        /* Drag handle */
+        .drag-handle {
+            color: var(--text-muted);
+            cursor: grab;
+            padding: 6px 4px;
+            opacity: 0.4;
+            font-size: 1rem;
+            line-height: 1;
+            touch-action: none;
+            -webkit-user-select: none;
+            user-select: none;
+            flex-shrink: 0;
+        }
+        .drag-handle:active { cursor: grabbing; opacity: 1; }
+        .sortable-item.is-dragging .swipe-content {
+            opacity: 0.6;
+            transform: scale(0.98);
+            box-shadow: var(--shadow-card);
+        }
+        .sortable-item.drag-target-above .swipe-content {
+            border-top: 2px solid var(--primary-green);
+        }
+        .sortable-item.drag-target-below .swipe-content {
+            border-bottom: 2px solid var(--primary-green);
+        }
+
+        /* ==================== ADD FORM ==================== */
+        .add-form { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+        .add-input {
+            flex: 1;
+            min-width: 120px;
+            padding: 10px 14px;
+            border: 2px solid var(--button-green);
+            border-radius: 12px;
+            font-family: 'Comfortaa', sans-serif;
+            font-size: 0.85rem;
+            outline: none;
+            background: var(--card);
+            color: var(--text);
+            transition: border-color 0.2s, background 0.3s;
+        }
+        .add-input:focus { border-color: var(--primary-green); }
+        .add-input::placeholder { color: var(--text-muted); opacity: 0.7; }
+        .add-btn {
+            padding: 10px 18px;
+            background: var(--primary-green);
+            color: #ffffff;
+            border: none;
+            border-radius: 12px;
+            font-family: 'Comfortaa', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+        .add-btn:hover { background: var(--dark-green); }
+        .add-btn:active { transform: scale(0.95); }
+        .category-select, .assignee-select, .priority-select {
+            padding: 10px 12px;
+            border: 2px solid var(--button-green);
+            border-radius: 12px;
+            font-family: 'Comfortaa', sans-serif;
+            font-size: 0.8rem;
+            outline: none;
+            background: var(--card);
+            color: var(--text);
+        }
+
+        /* ==================== TODO ==================== */
+        .todo-priority {
+            font-size: 0.6rem;
+            padding: 2px 8px;
+            border-radius: 8px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+        .priority-high { background: var(--danger-bg); color: var(--danger); }
+        .priority-medium { background: var(--warn-bg); color: var(--warn); }
+        .priority-low { background: var(--success-bg); color: var(--success); }
+        .todo-meta { display: flex; gap: 4px; align-items: center; flex-shrink: 0; flex-wrap: wrap; justify-content: flex-end; }
+        .todo-assignee {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            background: var(--card-alt);
+            padding: 2px 8px;
+            border-radius: 8px;
+            white-space: nowrap;
+        }
+        [data-theme="light"] .assignee-michele { background: #e8f0fb; color: #2b6cb0; }
+        [data-theme="light"] .assignee-alex { background: #fef3e2; color: #c05621; }
+        [data-theme="light"] .assignee-beide { background: #e8f5e9; color: #276749; }
+        [data-theme="dark"] .assignee-michele { background: #283d52; color: #8fb6e0; }
+        [data-theme="dark"] .assignee-alex { background: #4a3a28; color: #f0a878; }
+        [data-theme="dark"] .assignee-beide { background: #1f3a28; color: #8fd6a8; }
+
+        /* ==================== PROGRESS BAR ==================== */
+        .progress-container { margin-bottom: 16px; }
+        .progress-bar { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--primary-green); border-radius: 3px; transition: width 0.4s ease-out; }
+        .progress-text { font-size: 0.7rem; color: var(--text-muted); margin-top: 4px; text-align: right; }
+
+        /* ==================== DASHBOARD OVERVIEW ==================== */
+        .overview-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+        .overview-card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 16px;
+            text-align: center;
+            box-shadow: var(--shadow-card);
+            cursor: pointer;
+            transition: transform 0.15s, box-shadow 0.15s, background 0.3s;
+        }
+        .overview-card:active { transform: scale(0.97); }
+        .overview-number {
+            font-family: 'Oswald', sans-serif;
+            font-size: 2rem;
+            color: var(--primary-green);
+        }
+        .overview-label { font-size: 0.7rem; color: var(--text-muted); margin-top: 2px; }
+        .overview-icon { font-size: 1.5rem; margin-bottom: 4px; }
+
+        .today-card {
+            background: linear-gradient(135deg, var(--primary-green), var(--dark-green));
+            color: #ffffff;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 14px;
+            box-shadow: var(--shadow-card);
+        }
+        .today-card h3 { font-family: 'Oswald', sans-serif; font-size: 1.1rem; margin-bottom: 10px; }
+        .today-meal { display: flex; justify-content: space-between; padding: 4px 0; font-size: 0.85rem; opacity: 0.95; }
+        .today-meal-label { font-weight: 700; opacity: 0.85; }
+
+        /* ==================== WEEK PROGRESS RING ==================== */
+        .week-ring-card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 18px 16px;
+            margin-bottom: 14px;
+            box-shadow: var(--shadow-card);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .week-ring {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            flex-shrink: 0;
+        }
+        .week-ring svg {
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+        }
+        .week-ring-bg {
+            fill: none;
+            stroke: var(--border);
+            stroke-width: 8;
+        }
+        .week-ring-fill {
+            fill: none;
+            stroke: var(--primary-green);
+            stroke-width: 8;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .week-ring-text {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Oswald', sans-serif;
+            font-size: 1.2rem;
+            color: var(--primary-green);
+        }
+        .week-ring-info { flex: 1; }
+        .week-ring-info h4 {
+            font-family: 'Oswald', sans-serif;
+            font-size: 0.9rem;
+            color: var(--dark-green);
+            margin-bottom: 4px;
+        }
+        [data-theme="dark"] .week-ring-info h4 { color: var(--primary-green); }
+        .week-ring-info p {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            line-height: 1.3;
+        }
+
+        /* ==================== FILTER TABS ==================== */
+        .filter-tabs { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
+        .filter-tab {
+            padding: 6px 12px;
+            border-radius: 16px;
+            border: none;
+            font-family: 'Comfortaa', sans-serif;
+            font-size: 0.7rem;
+            cursor: pointer;
+            background: var(--card);
+            color: var(--text-muted);
+            transition: all 0.2s;
+        }
+        .filter-tab.active { background: var(--primary-green); color: #ffffff; }
+
+        /* ==================== EMPTY STATE ==================== */
+        .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); font-size: 0.85rem; }
+        .empty-state-icon { font-size: 2.5rem; margin-bottom: 10px; }
+
+        /* ==================== SETUP / PASSWORD ==================== */
+        .setup-overlay, .password-overlay {
+            position: fixed;
+            inset: 0;
+            background: var(--bg);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .password-overlay { z-index: 2000; }
+        .setup-card, .password-card {
+            background: var(--card);
+            border-radius: 20px;
+            padding: 30px 24px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: var(--shadow-card);
+            text-align: center;
+        }
+        .setup-card h2, .password-card h2 {
+            font-family: 'Oswald', sans-serif;
+            color: var(--dark-green);
+            margin-bottom: 12px;
+        }
+        [data-theme="dark"] .setup-card h2, [data-theme="dark"] .password-card h2 { color: var(--primary-green); }
+        .setup-card p, .password-card p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        .password-card .lock-icon { font-size: 2.5rem; margin-bottom: 12px; }
+        .setup-input, .password-input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--button-green);
+            border-radius: 12px;
+            font-family: 'Comfortaa', sans-serif;
+            font-size: 0.9rem;
+            outline: none;
+            text-align: center;
+            margin-bottom: 12px;
+            background: var(--card);
+            color: var(--text);
+        }
+        .password-input { letter-spacing: 2px; }
+        .setup-input:focus, .password-input:focus { border-color: var(--primary-green); }
+        .password-error { color: var(--danger); font-size: 0.75rem; margin-bottom: 8px; display: none; }
+        .setup-btn, .password-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--primary-green);
+            color: #ffffff;
+            border: none;
+            border-radius: 12px;
+            font-family: 'Comfortaa', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: background 0.2s, transform 0.1s;
+        }
+        .setup-btn:hover, .password-btn:hover { background: var(--dark-green); }
+        .setup-btn:active, .password-btn:active { transform: scale(0.97); }
+        .setup-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            50% { transform: translateX(8px); }
+            75% { transform: translateX(-4px); }
+        }
+
+        /* ==================== WEATHER ==================== */
+        .weather-card {
+            background: linear-gradient(135deg, var(--primary-green), var(--dark-green));
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+            color: #ffffff;
+            box-shadow: var(--shadow-card);
+        }
+        .weather-main {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        .weather-temp {
+            font-family: 'Oswald', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 600;
+            line-height: 1;
+        }
+        .weather-desc { font-size: 0.75rem; opacity: 0.9; }
+        .weather-icon { font-size: 2.5rem; line-height: 1; }
+        .weather-forecast {
+            display: flex;
+            gap: 8px;
+            justify-content: space-between;
+            border-top: 1px solid rgba(255,255,255,0.2);
+            padding-top: 10px;
+        }
+        .forecast-day { text-align: center; flex: 1; font-size: 0.65rem; }
+        .forecast-day .fc-icon { font-size: 1.2rem; margin: 2px 0; }
+        .forecast-day .fc-temp { font-weight: 700; font-size: 0.7rem; }
+        .weather-source { font-size: 0.5rem; opacity: 0.5; text-align: right; margin-top: 6px; }
+
+        /* ==================== PACKLISTE ==================== */
+        /* Packliste – Trip-Switcher */
+        .packlist-trip-switcher {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+        .packlist-trip-tab {
+            flex: 1;
+            min-width: 0;
+            padding: 8px 10px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.7);
+            font-family: 'Comfortaa', sans-serif;
+            font-size: 0.7rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .packlist-trip-tab.active {
+            background: rgba(255,255,255,0.95);
+            color: var(--dark-green);
+            border-color: rgba(255,255,255,0.95);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        }
+        .packlist-trip-tab:not(.active):hover {
+            background: rgba(255,255,255,0.2);
+            color: #fff;
+        }
+        .packlist-trip-card {
+            background: linear-gradient(135deg, var(--primary-green), var(--dark-green));
+            color: #ffffff;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 14px;
+            box-shadow: var(--shadow-card);
+        }
+        .packlist-trip-card h3 {
+            font-family: 'Oswald', sans-serif;
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .packlist-trip-info { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+        .packlist-badge {
+            background: rgba(255,255,255,0.2);
+            border-radius: 16px;
+            padding: 3px 10px;
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+        .packlist-edit-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: #ffffff;
+            border-radius: 10px;
+            padding: 6px 12px;
+            font-size: 0.7rem;
+            font-family: 'Comfortaa', sans-serif;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+        .packlist-cat-header {
+            font-family: 'Oswald', sans-serif;
+            font-size: 0.85rem;
+            color: var(--primary-green);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 10px 0 6px;
+            border-bottom: 1px solid var(--border);
+            margin-top: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        .packlist-cat-toggle {
+            font-size: 0.7rem;
+            margin-right: 6px;
+            transition: transform 0.2s;
+            display: inline-block;
+        }
+        .packlist-cat-toggle.collapsed { transform: rotate(-90deg); }
+        .packlist-cat-items { overflow: hidden; transition: max-height 0.3s ease; }
+        .packlist-cat-items.collapsed { max-height: 0 !important; }
+        .packlist-cat-count {
+            font-family: 'Comfortaa', sans-serif;
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+        .packlist-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .packlist-item:last-child { border-bottom: none; }
+        .packlist-item-info { flex: 1; }
+        .packlist-item-text { font-size: 0.85rem; }
+        .packlist-item-text.checked { text-decoration: line-through; color: var(--text-muted); }
+        .packlist-item-tag { font-size: 0.55rem; padding: 1px 7px; margin-left: 4px; vertical-align: middle; border-radius: 8px; }
+        [data-theme="light"] .tag-person-0 { background: #e8f0fb; color: #2b6cb0; }
+        [data-theme="light"] .tag-person-1 { background: #fef3e2; color: #c05621; }
+        [data-theme="light"] .tag-person-2 { background: #fde8f5; color: #b0609a; }
+        [data-theme="light"] .tag-person-3 { background: #d8edf7; color: #4a7fa8; }
+        [data-theme="light"] .tag-person-alle { background: #e8f5e9; color: #276749; }
+        [data-theme="dark"] .tag-person-0 { background: #283d52; color: #8fb6e0; }
+        [data-theme="dark"] .tag-person-1 { background: #4a3a28; color: #f0a878; }
+        [data-theme="dark"] .tag-person-2 { background: #4a2a3d; color: #e898c5; }
+        [data-theme="dark"] .tag-person-3 { background: #2a3d4a; color: #82b0d0; }
+        [data-theme="dark"] .tag-person-alle { background: #1f3a28; color: #8fd6a8; }
+
+        /* ==================== REINIGUNG ==================== */
+        .cleaning-frequency-header {
+            font-family: 'Oswald', sans-serif;
+            font-size: 0.85rem;
+            color: var(--primary-green);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 12px 0 6px;
+            border-bottom: 1px solid var(--border);
+            margin-top: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .cleaning-frequency-badge {
+            font-family: 'Comfortaa', sans-serif;
+            font-size: 0.55rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 8px;
+            text-transform: none;
+            letter-spacing: 0;
+        }
+        [data-theme="light"] .freq-weekly { background: #e8f5e9; color: #27ae60; }
+        [data-theme="light"] .freq-biweekly { background: #e8f0fb; color: #2b6cb0; }
+        [data-theme="light"] .freq-monthly { background: #fef3e2; color: #e67e22; }
+        [data-theme="light"] .freq-quarterly { background: #fde8f5; color: #b0609a; }
+        [data-theme="light"] .freq-biannual { background: #fff3e0; color: #e65100; }
+        [data-theme="light"] .freq-annual { background: #fde8e8; color: #c0392b; }
+        [data-theme="dark"] .freq-weekly { background: #1f3a28; color: #8fd6a8; }
+        [data-theme="dark"] .freq-biweekly { background: #283d52; color: #8fb6e0; }
+        [data-theme="dark"] .freq-monthly { background: #4a3a28; color: #f0a878; }
+        [data-theme="dark"] .freq-quarterly { background: #4a2a3d; color: #e898c5; }
+        [data-theme="dark"] .freq-biannual { background: #4a3520; color: #f0a060; }
+        [data-theme="dark"] .freq-annual { background: #4a2a28; color: #ff8a78; }
+        .cleaning-item-info { flex: 1; }
+        .cleaning-item-text { font-size: 0.85rem; }
+        .cleaning-item-text.checked { text-decoration: line-through; color: var(--text-muted); }
+        .cleaning-last-done { font-size: 0.65rem; color: var(--text-muted); margin-top: 2px; }
+        .cleaning-note { font-size: 0.6rem; color: var(--button-green); font-style: italic; }
+
+        /* ==================== SECONDARY BUTTONS ==================== */
+        .ghost-btn {
+            background: none;
+            border: 1px solid var(--button-green);
+            color: var(--text-muted);
+            border-radius: 12px;
+            padding: 8px 16px;
+            font-family: 'Comfortaa', sans-serif;
+            font-size: 0.7rem;
+            cursor: pointer;
+            opacity: 0.6;
+            transition: opacity 0.2s, background 0.2s;
+        }
+        .ghost-btn:hover { opacity: 1; }
+        .secondary-btn {
+            background: var(--button-green);
+            border: none;
+            color: var(--dark-green);
+            border-radius: 12px;
+            padding: 10px 18px;
+            font-family: 'Comfortaa', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        /* ==================== TOAST ==================== */
+        .toast-container {
+            position: fixed;
+            left: 16px;
+            right: 16px;
+            bottom: calc(90px + env(safe-area-inset-bottom));
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 200;
+            pointer-events: none;
+            max-width: 568px;
+            margin: 0 auto;
+        }
+        .toast {
+            background: var(--text-dark);
+            color: var(--bg);
+            border-radius: 12px;
+            padding: 12px 16px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.82rem;
+            pointer-events: auto;
+            animation: toastIn 0.25s ease-out;
+        }
+        [data-theme="dark"] .toast { background: var(--card); color: var(--text); border: 1px solid var(--border); }
+        .toast.leaving { animation: toastOut 0.25s ease-in forwards; }
+        .toast-text { flex: 1; line-height: 1.3; }
+        .toast-action {
+            background: var(--primary-green);
+            border: none;
+            color: #ffffff;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-family: 'Comfortaa', sans-serif;
+            font-weight: 700;
+            font-size: 0.75rem;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .toast-action:active { transform: scale(0.95); }
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes toastOut {
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(20px); }
+        }
+
+        /* ==================== CONFETTI ==================== */
+        .confetti-canvas {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 300;
+            display: none;
+        }
+
+        /* ==================== AI / SMART FEATURES ==================== */
+        /* Settings Overlay */
+        .settings-overlay {
+            position: fixed;
+            inset: 0;
+            background: var(--overlay-bg);
+            z-index: 1500;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .settings-overlay.show { display: flex; }
+        .settings-card {
+            background: var(--card);
+            color: var(--text);
+            border-radius: 20px;
+            padding: 24px;
+            max-width: 460px;
+            width: 100%;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .settings-card h2 {
+            font-family: 'Oswald', sans-serif;
+            color: var(--dark-green);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        [data-theme="dark"] .settings-card h2 { color: var(--primary-green); }
+        .settings-card p { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 14px; line-height: 1.5; }
+        .settings-card label { font-size: 0.78rem; font-weight: 700; color: var(--text); display: block; margin: 14px 0 6px; }
+        .settings-card input[type=password], .settings-card input[type=text], .settings-card textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid var(--button-green);
+            border-radius: 10px;
+            font-family: 'Comfortaa', sans-serif;
+            font-size: 0.85rem;
+            background: var(--card-alt);
+            color: var(--text);
+            outline: none;
+        }
+        .settings-card input:focus, .settings-card textarea:focus { border-color: var(--primary-green); }
+        .settings-row {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+        }
+        .settings-row button { flex: 1; }
+        .ai-link { font-size: 0.7rem; color: var(--primary-green); text-decoration: underline; }
+        .ai-status {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 8px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            margin-left: 6px;
+        }
+        .ai-status.on { background: var(--success-bg); color: var(--success); }
+        .ai-status.off { background: var(--danger-bg); color: var(--danger); }
+
+        /* AI Action Buttons (innerhalb Sections) */
+        .ai-action-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+        }
+        .ai-btn {
+            flex: 1;
+            min-width: 130px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 10px 14px;
+            background: linear-gradient(135deg, #7AC4F0, #4a7fa8);
+            color: #ffffff;
+            border: none;
+            border-radius: 12px;
+            font-family: 'Comfortaa', sans-serif;
+            font-size: 0.78rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.1s, box-shadow 0.2s;
+            box-shadow: 0 2px 6px rgba(74,127,168,0.3);
+        }
+        .ai-btn:active { transform: scale(0.96); }
+        .ai-btn[disabled] { opacity: 0.5; cursor: not-allowed; }
+        .ai-btn.blue { background: linear-gradient(135deg, #B0C9DB, #6F8DA8); box-shadow: 0 2px 6px rgba(111,141,168,0.3); }
+        .ai-btn.green { background: linear-gradient(135deg, #A1BFB0, #57856F); box-shadow: 0 2px 6px rgba(87,133,111,0.3); }
+        .ai-btn svg { width: 16px; height: 16px; }
+
+        /* Floating Mic Button */
+        .fab-mic {
+            position: fixed;
+            bottom: calc(96px + env(safe-area-inset-bottom));
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #9FBAD0, #5C7C95);
+            color: #ffffff;
+            border: none;
+            box-shadow: 0 6px 18px rgba(92,124,149,0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 150;
+            transition: transform 0.15s, box-shadow 0.2s;
+        }
+        .fab-mic:active { transform: scale(0.92); }
+        .fab-mic.listening {
+            background: linear-gradient(135deg, #FF7B6B, #C0392B);
+            animation: pulse 1.2s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255,123,107,0.5); }
+            50% { transform: scale(1.06); box-shadow: 0 0 0 14px rgba(255,123,107,0); }
+        }
+        .fab-mic svg { width: 26px; height: 26px; }
+
+        /* Voice transcript bubble */
+        .voice-bubble {
+            position: fixed;
+            bottom: calc(170px + env(safe-area-inset-bottom));
+            right: 16px;
+            left: 16px;
+            max-width: 480px;
+            margin: 0 auto;
+            background: var(--card);
+            color: var(--text);
+            border: 2px solid var(--primary-green);
+            border-radius: 16px;
+            padding: 14px 18px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+            z-index: 151;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            display: none;
+        }
+        .voice-bubble.show { display: block; animation: slideInUp 0.25s ease-out; }
+        .voice-bubble .vb-label {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Photo OCR result panel */
+        .ocr-panel {
+            background: var(--card-alt);
+            border: 2px dashed var(--button-green);
+            border-radius: 14px;
+            padding: 14px;
+            margin-bottom: 14px;
+            font-size: 0.85rem;
+        }
+        .ocr-panel-title {
+            font-family: 'Oswald', sans-serif;
+            font-size: 0.85rem;
+            color: var(--dark-green);
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        [data-theme="dark"] .ocr-panel-title { color: var(--primary-green); }
+        .ocr-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .ocr-item:last-child { border-bottom: none; }
+        .ocr-item input[type=text] {
+            flex: 1;
+            padding: 4px 8px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: var(--card);
+            color: var(--text);
+            font-family: 'Comfortaa', sans-serif;
+            font-size: 0.82rem;
+            outline: none;
+        }
+        .ocr-item select {
+            padding: 4px 6px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: var(--card);
+            color: var(--text);
+            font-family: 'Comfortaa', sans-serif;
+            font-size: 0.7rem;
+            outline: none;
+        }
+        .ocr-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        .ocr-loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 18px;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+        .ocr-loading svg { animation: spin 1s linear infinite; width: 22px; height: 22px; }
+
+        /* Menu suggestion result */
+        .suggest-result {
+            background: var(--card-alt);
+            border: 2px dashed var(--button-green);
+            border-radius: 14px;
+            padding: 14px;
+            margin-bottom: 14px;
+        }
+        .suggest-day {
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .suggest-day:last-child { border-bottom: none; }
+        .suggest-day-name {
+            font-family: 'Oswald', sans-serif;
+            font-size: 0.8rem;
+            color: var(--primary-green);
+            margin-bottom: 4px;
+        }
+        .suggest-meal {
+            font-size: 0.82rem;
+            color: var(--text);
+            padding: 2px 0;
+        }
+        .suggest-meal-label {
+            font-weight: 700;
+            color: var(--text-muted);
+            font-size: 0.7rem;
+        }
+
+        /* ==================== RESPONSIVE ==================== */
+        @media (min-width: 768px) {
+            .section { padding: 24px; }
+            .header h1 { font-size: 1.7rem; }
+            .overview-grid { grid-template-columns: repeat(3, 1fr); }
+            .overview-card.span-all { grid-column: auto; }
+        }
+
+        /* Reduce motion */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ==================== PASSWORD SCREEN ==================== -->
+    <div class="password-overlay" id="password-overlay">
+        <div class="password-card">
+            <div class="lock-icon">🔒</div>
+            <h2>Familie Heinecke</h2>
+            <p>Bitte Kennwort eingeben</p>
+            <input type="password" class="password-input" id="password-input" placeholder="Kennwort..." autocomplete="current-password" onkeydown="if(event.key==='Enter') checkPassword()">
+            <div class="password-error" id="password-error">Falsches Kennwort – bitte nochmals versuchen</div>
+            <button class="password-btn" onclick="checkPassword()">Einloggen</button>
+        </div>
+    </div>
+
+    <!-- ==================== SETUP OVERLAY ==================== -->
+    <div class="setup-overlay" id="setup-overlay" style="display:none;">
+        <div class="setup-card">
+            <h2>Willkommen!</h2>
+            <p>Wer bist du?</p>
+            <button class="setup-btn" onclick="selectUser('Michèle')" style="margin-bottom:8px;">Michèle</button>
+            <button class="setup-btn" onclick="selectUser('Alex')" style="background:var(--button-green);color:var(--dark-green);">Alex</button>
+        </div>
+    </div>
+
+    <!-- ==================== PULL-TO-REFRESH ==================== -->
+    <div class="pull-indicator" id="pull-indicator">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="22" height="22">
+            <path d="M21 12a9 9 0 1 1-3.51-7.13" />
+            <polyline points="21 4 21 12 13 12" />
+        </svg>
+    </div>
+
+    <!-- ==================== HEADER ==================== -->
+    <div class="header" style="grid-template-columns: 44px 1fr 44px 44px;">
+        <button class="icon-btn" id="install-btn" onclick="triggerInstall()" title="App installieren" style="display:none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        </button>
+        <div class="header-title" style="grid-column: 2;">
+            <h1>Familie Heinecke</h1>
+            <p>Unser Familien-Dashboard</p>
+            <div class="sync-status" id="sync-status">Verbinde...</div>
+        </div>
+        <button class="icon-btn" id="theme-toggle" onclick="toggleTheme()" title="Theme wechseln">
+            <svg id="theme-icon-light" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+            <svg id="theme-icon-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+        <button class="icon-btn" onclick="openSettings()" title="Einstellungen / KI">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </button>
+    </div>
+
+    <!-- ==================== SETTINGS OVERLAY ==================== -->
+    <div class="settings-overlay" id="settings-overlay" onclick="if(event.target===this) closeSettings()">
+        <div class="settings-card">
+            <h2>⚙️ Einstellungen</h2>
+            <p>Hier richtest du die KI-Funktionen ein. API-Key wird nur lokal auf diesem Gerät gespeichert (im Browser, nicht synchronisiert).</p>
+
+            <label>Anthropic API-Key <span class="ai-status" id="ai-status">…</span></label>
+            <input type="password" id="api-key-input" placeholder="sk-ant-…" autocomplete="off">
+            <p style="margin-top:6px;margin-bottom:0;">
+                <a class="ai-link" href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">→ Key erstellen auf console.anthropic.com</a>
+            </p>
+
+            <label style="margin-top:18px;">Wer bist du?</label>
+            <select id="settings-user" style="width:100%;padding:10px 12px;border:2px solid var(--button-green);border-radius:10px;font-family:'Comfortaa',sans-serif;font-size:0.85rem;background:var(--card-alt);color:var(--text);">
+                <option value="Michèle">Michèle</option>
+                <option value="Alex">Alex</option>
+            </select>
+
+            <div class="settings-row">
+                <button class="ghost-btn" onclick="closeSettings()" style="border-color:var(--text-muted);">Schliessen</button>
+                <button class="add-btn" onclick="saveSettings()">Speichern</button>
+            </div>
+
+            <details style="margin-top:18px;font-size:0.75rem;color:var(--text-muted);">
+                <summary style="cursor:pointer;">Über die KI-Features</summary>
+                <p style="margin-top:8px;font-size:0.75rem;">
+                    <strong>🎤 Mikrofon (gratis):</strong> Diktieren über Web Speech API. Wird im richtigen Bereich abgelegt.<br><br>
+                    <strong>📷 Foto → Einkauf (mit API-Key):</strong> Kassenzettel oder Liste fotografieren, Claude liest die Items aus und schlägt Einträge vor.<br><br>
+                    <strong>✨ Menü-Vorschlag (mit API-Key):</strong> Claude generiert einen Wochenplan basierend auf Saison und schon geplanten Mahlzeiten.<br><br>
+                    Kosten pro Anfrage: ~1-3 Rappen. API-Key wird nur lokal gespeichert.
+                </p>
+            </details>
+        </div>
+    </div>
+
+    <!-- Hidden Photo Input für Foto-OCR -->
+    <input type="file" id="photo-input" accept="image/*" capture="environment" style="display:none;" onchange="handlePhotoSelected(event)">
+
+    <!-- Voice transcript bubble -->
+    <div class="voice-bubble" id="voice-bubble">
+        <div class="vb-label">Höre zu… sprich jetzt</div>
+        <div id="voice-text">…</div>
+    </div>
+
+    <!-- ==================== INSTALL BANNER ==================== -->
+    <div class="install-banner" id="install-banner">
+        <div class="install-banner-text">
+            <strong>📲 Als App installieren</strong>
+            Ein Tap und sie liegt am Home-Screen wie eine echte App.
+        </div>
+        <button onclick="triggerInstall()">Installieren</button>
+        <button class="close-btn" onclick="dismissInstallBanner()" aria-label="Schliessen">×</button>
+    </div>
+
+    <!-- ==================== DASHBOARD ==================== -->
+    <div class="section active" id="section-dashboard">
+        <div id="dashboard-date" style="font-size:0.8rem;color:var(--text-muted);margin-bottom:4px;"></div>
+        <h2 class="section-title" id="greeting">Hallo!</h2>
+
+        <div class="today-card" id="today-menu-card" onclick="switchTab('menu')" style="cursor:pointer;"></div>
+
+        <!-- Wochen-Fortschritt-Ring -->
+        <div class="week-ring-card" onclick="switchTab('menu')" style="cursor:pointer;">
+            <div class="week-ring">
+                <svg viewBox="0 0 100 100">
+                    <circle class="week-ring-bg" cx="50" cy="50" r="40"/>
+                    <circle class="week-ring-fill" id="week-ring-fill" cx="50" cy="50" r="40" stroke-dasharray="251.3" stroke-dashoffset="251.3"/>
+                </svg>
+                <div class="week-ring-text" id="week-ring-text">0/14</div>
+            </div>
+            <div class="week-ring-info">
+                <h4>Wochen-Menü 🍽️</h4>
+                <p id="week-ring-label">Mahlzeiten dieser Woche geplant</p>
+            </div>
+        </div>
+
+        <div class="overview-grid">
+            <div class="overview-card" onclick="switchTab('shopping')">
+                <div class="overview-icon">&#x1F6D2;</div>
+                <div class="overview-number" id="overview-shopping">0</div>
+                <div class="overview-label">Einkäufe offen</div>
+            </div>
+            <div class="overview-card" onclick="switchTab('todos')">
+                <div class="overview-icon">&#x2705;</div>
+                <div class="overview-number" id="overview-todos">0</div>
+                <div class="overview-label">Meine Todos</div>
+            </div>
+            <div class="overview-card" onclick="switchTab('packliste')" id="overview-packliste-card" style="grid-column:1/-1;">
+                <div class="overview-icon">&#x1F9F3;</div>
+                <div class="overview-number" id="overview-packliste">0%</div>
+                <div class="overview-label" id="overview-packliste-label">Packliste</div>
+            </div>
+        </div>
+
+        <div class="weather-card" id="weather-card">
+            <div style="font-size:0.75rem;opacity:0.85;">Wetter wird geladen...</div>
+        </div>
+    </div>
+
+    <!-- ==================== MENU PLAN ==================== -->
+    <div class="section" id="section-menu">
+        <h2 class="section-title">&#x1F37D;&#xFE0F; Wochenmenu</h2>
+        <p style="font-size:0.7rem;color:var(--text-muted);margin-bottom:10px;">Tippe auf ein Gericht, um es zu ändern &#x270F;&#xFE0F;</p>
+        <div class="ai-action-bar">
+            <button class="ai-btn blue" onclick="suggestMenu()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                Wochenplan vorschlagen
+            </button>
+        </div>
+        <div id="suggest-result"></div>
+        <div class="week-toggle" id="week-toggle">
+            <button class="week-btn active" onclick="selectWeek('current')">Diese Woche</button>
+            <button class="week-btn" onclick="selectWeek('next')">Nächste Woche</button>
+        </div>
+        <div class="day-chips" id="day-chips"></div>
+        <div id="menu-content"></div>
+    </div>
+
+    <!-- ==================== SHOPPING ==================== -->
+    <div class="section" id="section-shopping">
+        <h2 class="section-title">&#x1F6D2; Einkaufsliste</h2>
+        <div class="ai-action-bar">
+            <button class="ai-btn green" onclick="triggerPhoto()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                Foto → Liste
+            </button>
+        </div>
+        <div id="ocr-result"></div>
+        <div class="progress-container" id="shopping-progress">
+            <div class="progress-bar"><div class="progress-fill" id="shopping-progress-fill"></div></div>
+            <div class="progress-text" id="shopping-progress-text"></div>
+        </div>
+        <div class="add-form">
+            <input type="text" class="add-input" id="shopping-input" placeholder="Artikel hinzufügen...">
+            <select class="category-select" id="shopping-category">
+                <option value="Gemüse">Gemüse</option>
+                <option value="Früchte">Früchte</option>
+                <option value="Milchprodukte">Milchprodukte</option>
+                <option value="Fleisch &amp; Fisch">Fleisch &amp; Fisch</option>
+                <option value="Brot &amp; Gebäck">Brot &amp; Gebäck</option>
+                <option value="Getränke">Getränke</option>
+                <option value="Haushalt">Haushalt</option>
+                <option value="Sonstiges">Sonstiges</option>
+            </select>
+            <button class="add-btn" onclick="addShoppingItem()">+</button>
+        </div>
+        <div id="shopping-list"></div>
+        <div style="text-align:center;margin-top:18px;">
+            <button class="ghost-btn" id="share-shopping-btn" onclick="shareShopping()" style="display:none;">📤 Liste teilen</button>
+        </div>
+    </div>
+
+    <!-- ==================== TODOS ==================== -->
+    <div class="section" id="section-todos">
+        <h2 class="section-title">&#x2705; Todos</h2>
+        <div class="progress-container" id="todo-progress">
+            <div class="progress-bar"><div class="progress-fill" id="todo-progress-fill"></div></div>
+            <div class="progress-text" id="todo-progress-text"></div>
+        </div>
+        <div class="filter-tabs" id="todo-filters">
+            <button class="filter-tab active" onclick="filterTodos('alle')">Alle</button>
+            <button class="filter-tab" onclick="filterTodos('meine')">Meine</button>
+            <button class="filter-tab" onclick="filterTodos('offen')">Offen</button>
+            <button class="filter-tab" onclick="filterTodos('erledigt')">Erledigt</button>
+        </div>
+        <div class="add-form">
+            <input type="text" class="add-input" id="todo-input" placeholder="Neues Todo...">
+            <select class="assignee-select" id="todo-assignee">
+                <option value="beide">Beide</option>
+                <option value="Michèle">Michèle</option>
+                <option value="Alex">Alex</option>
+            </select>
+            <button class="add-btn" onclick="addTodo()">+</button>
+        </div>
+        <div id="todo-list"></div>
+    </div>
+
+    <!-- ==================== PACKLISTE ==================== -->
+    <div class="section" id="section-packliste">
+        <h2 class="section-title">&#x1F9F3; Packliste</h2>
+        <div class="packlist-trip-card" id="packlist-trip-card"></div>
+        <div class="progress-container" id="packlist-progress">
+            <div class="progress-bar"><div class="progress-fill" id="packlist-progress-fill"></div></div>
+            <div class="progress-text" id="packlist-progress-text"></div>
+        </div>
+        <div class="add-form">
+            <input type="text" class="add-input" id="packlist-input" placeholder="Neuer Gegenstand...">
+            <select class="category-select" id="packlist-category"></select>
+            <button class="add-btn" onclick="addPacklistItem()">+</button>
+        </div>
+        <div class="add-form" style="margin-top:4px;margin-bottom:14px;">
+            <input type="text" class="add-input" id="packlist-new-cat" placeholder="Neue Kategorie...">
+            <button class="add-btn" onclick="addPacklistCategory()" style="background:var(--button-green);color:var(--dark-green);">+ Kat.</button>
+        </div>
+        <div id="packlist-list"></div>
+        <div style="text-align:center;margin-top:24px;margin-bottom:16px;">
+            <button class="ghost-btn" onclick="resetPackliste()">↩ Alle Häkchen zurücksetzen</button>
+        </div>
+    </div>
+
+    <!-- ==================== REINIGUNG ==================== -->
+    <div class="section" id="section-reinigung">
+        <h2 class="section-title">🧹 Reinigung</h2>
+        <p style="font-size:0.7rem;color:var(--text-muted);margin-bottom:10px;">Putzfrau kommt alle 2 Wochen – hier die wiederkehrenden Aufgaben</p>
+        <div class="progress-container" id="cleaning-progress">
+            <div class="progress-bar"><div class="progress-fill" id="cleaning-progress-fill"></div></div>
+            <div class="progress-text" id="cleaning-progress-text"></div>
+        </div>
+        <div class="filter-tabs" id="cleaning-filters">
+            <button class="filter-tab active" onclick="filterCleaning('alle')">Alle</button>
+            <button class="filter-tab" onclick="filterCleaning('offen')">Offen</button>
+            <button class="filter-tab" onclick="filterCleaning('erledigt')">Erledigt</button>
+        </div>
+        <div class="add-form">
+            <input type="text" class="add-input" id="cleaning-input" placeholder="Neue Aufgabe...">
+            <select class="category-select" id="cleaning-frequency">
+                <option value="weekly">Wöchentlich</option>
+                <option value="biweekly">Alle 2 Wochen</option>
+                <option value="monthly">Monatlich</option>
+                <option value="quarterly">Vierteljährlich</option>
+                <option value="biannual">Halbjährlich</option>
+                <option value="annual">Jährlich</option>
+            </select>
+            <button class="add-btn" onclick="addCleaningItem()">+</button>
+        </div>
+        <div id="cleaning-list"></div>
+        <div style="text-align:center;margin-top:24px;margin-bottom:16px;">
+            <button class="ghost-btn" onclick="resetCleaning()">↩ Alle Häkchen zurücksetzen</button>
+        </div>
+    </div>
+
+    <!-- ==================== BOTTOM NAVIGATION ==================== -->
+    <nav class="bottom-nav">
+        <button class="nav-item active" onclick="switchTab('dashboard')" data-tab="dashboard">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            <span>Home</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('menu')" data-tab="menu">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8h1a4 4 0 010 8h-1"/><path d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+            <span>Menue</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('shopping')" data-tab="shopping">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
+            <span>Einkauf</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('todos')" data-tab="todos">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            <span>Todos</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('packliste')" data-tab="packliste">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 7V5a4 4 0 00-8 0v2"/><line x1="12" y1="11" x2="12" y2="15"/><line x1="10" y1="13" x2="14" y2="13"/></svg>
+            <span>Packen</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('reinigung')" data-tab="reinigung">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5L12 3z"/><path d="M19 13l1 3 3 1-3 1-1 3-1-3-3-1 3-1 1-3z"/></svg>
+            <span>Putzen</span>
+        </button>
+    </nav>
+
+    <!-- ==================== FLOATING MIC BUTTON ==================== -->
+    <button class="fab-mic" id="fab-mic" onclick="toggleVoice()" title="Sprach-Eingabe" aria-label="Mikrofon" style="display:none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+    </button>
+
+    <!-- ==================== TOAST CONTAINER ==================== -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- ==================== CONFETTI CANVAS ==================== -->
+    <canvas class="confetti-canvas" id="confetti-canvas"></canvas>
+
+    <!-- ==================== FIREBASE SDK ==================== -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
+    <script>
+    'use strict';
+
+    // ============================================================
+    // CONSTANTS – v2 nutzt eigene Storage Keys + Firebase Pfad
+    // ============================================================
+    const APP_VERSION = 'v2.0.0';
+    const STORAGE_KEY = 'familieHeineckeAppV2';
+    const USER_KEY = 'familieHeineckeUserV2';
+    const AUTH_KEY = 'familieHeineckeAuthV2';
+    const THEME_KEY = 'familieHeineckeThemeV2';
+    const SORT_KEY = 'familieHeineckeSortV2';      // saved manual sort orders
+    const INSTALL_DISMISS_KEY = 'familieHeineckeInstallDismissedV2';
+    // Shared Firebase-Pfad mit v1: beide Apps lesen/schreiben dieselben Daten.
+    // → v1 läuft weiter, v2 hat sofort aktuelle Daten, keine Migration nötig.
+    const FIREBASE_REF = 'familyApp';
+    const API_KEY_STORAGE = 'familieHeineckeApiKeyV2';
+
+    const FIREBASE_CONFIG = {
+        apiKey: "AIzaSyCVzWxj3jj2j4UYVW0t2L2lsYXHVYOk98s",
+        authDomain: "heinecke-family.firebaseapp.com",
+        databaseURL: "https://heinecke-family-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "heinecke-family",
+        storageBucket: "heinecke-family.firebasestorage.app",
+        messagingSenderId: "164552911106",
+        appId: "1:164552911106:web:a4c841ea77f7f77049fa1b"
+    };
+
+    let db = null;
+    let dbRef = null;
+    let firebaseReady = false;
+    let currentUser = localStorage.getItem(USER_KEY) || null;
+    let currentTab = 'dashboard';
+    let appData = null;
+    let selectedWeek = 0;
+    let todoFilter = 'alle';
+    let cleaningFilter = 'alle';
+    let packlistCollapsed = {};
+    let deferredInstallPrompt = null;
+
+    // ============================================================
+    // VIBRATION (Android haptic) – degradiert lautlos auf iOS
+    // ============================================================
+    function buzz(pattern) {
+        if ('vibrate' in navigator) {
+            try { navigator.vibrate(pattern); } catch (e) {}
+        }
     }
-});
+
+    // ============================================================
+    // PASSWORD
+    // ============================================================
+    function checkPassword() {
+        const input = document.getElementById('password-input');
+        const pw = input.value.trim();
+        if (pw === '1234') {
+            sessionStorage.setItem(AUTH_KEY, 'true');
+            document.getElementById('password-overlay').style.display = 'none';
+            startApp();
+        } else {
+            buzz([60, 40, 60]);
+            const errEl = document.getElementById('password-error');
+            errEl.style.display = 'block';
+            input.value = '';
+            input.focus();
+            const card = input.parentElement;
+            card.style.animation = 'shake 0.4s';
+            setTimeout(() => { card.style.animation = ''; }, 400);
+        }
+    }
+
+    function checkAuth() {
+        if (sessionStorage.getItem(AUTH_KEY) === 'true') {
+            document.getElementById('password-overlay').style.display = 'none';
+            return true;
+        }
+        document.getElementById('password-overlay').style.display = 'flex';
+        document.getElementById('password-input').focus();
+        return false;
+    }
+
+    // ============================================================
+    // THEME
+    // ============================================================
+    function applyTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        document.getElementById('theme-icon-light').style.display = theme === 'light' ? 'block' : 'none';
+        document.getElementById('theme-icon-dark').style.display = theme === 'dark' ? 'block' : 'none';
+    }
+
+    function toggleTheme() {
+        const current = document.documentElement.getAttribute('data-theme') || 'light';
+        const next = current === 'light' ? 'dark' : 'light';
+        applyTheme(next);
+        localStorage.setItem(THEME_KEY, next);
+        buzz(8);
+    }
+
+    function initTheme() {
+        const saved = localStorage.getItem(THEME_KEY);
+        if (saved) {
+            applyTheme(saved);
+        } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            applyTheme('dark');
+        } else {
+            applyTheme('light');
+        }
+    }
+
+    // ============================================================
+    // DEFAULT DATA – identisch zu v1, damit Migration möglich ist
+    // ============================================================
+    const defaultData = {
+        menu: {},
+        packliste: {
+            activeTrip: 'camperreise',
+            trips: {
+                camperreise: {
+                    trip: {
+                        name: 'Camperreise',
+                        destination: '',
+                        duration: '',
+                        people: ['Michèle', 'Alex', 'Mila', 'Lene']
+                    },
+                    categories: {
+                '👗 Kleider Lene': [
+                    { id: 1, text: 'Sonnenbad / UV-Schutzkleidung', checked: false, tag: 'Lene', note: '' },
+                    { id: 2, text: 'Wollwalk-Anzug', checked: false, tag: 'Lene', note: '' },
+                    { id: 3, text: 'Strampler (5–6)', checked: false, tag: 'Lene', note: '' },
+                    { id: 4, text: 'Jäckchen (2–3)', checked: false, tag: 'Lene', note: '' },
+                    { id: 5, text: 'Mützen (Sonne + warm)', checked: false, tag: 'Lene', note: '' },
+                    { id: 6, text: 'Schlafsack', checked: false, tag: 'Lene', note: '' },
+                    { id: 7, text: 'Bodies (8–10)', checked: false, tag: 'Lene', note: '' },
+                    { id: 8, text: 'Socken / Strumpfhosen', checked: false, tag: 'Lene', note: '' },
+                    { id: 9, text: 'Hosen (4–5)', checked: false, tag: 'Lene', note: '' },
+                    { id: 10, text: 'Nuschis / Spucktücher (5–6)', checked: false, tag: 'Lene', note: '' },
+                    { id: 11, text: 'Lätzchen (6–8)', checked: false, tag: 'Lene', note: '' }
+                ],
+                '👗 Kleider Mila': [
+                    { id: 12, text: 'Schuhe (Alltag + Sandalen)', checked: false, tag: 'Mila', note: '' },
+                    { id: 13, text: 'Bettdecke Mila', checked: false, tag: 'Mila', note: '' },
+                    { id: 14, text: 'Wollwalk und Jacke', checked: false, tag: 'Mila', note: '' },
+                    { id: 15, text: 'Mützen (Sonne + warm)', checked: false, tag: 'Mila', note: '' },
+                    { id: 16, text: 'Sonnencap', checked: false, tag: 'Mila', note: '' },
+                    { id: 17, text: 'Pyjamas (3–4)', checked: false, tag: 'Mila', note: '' },
+                    { id: 18, text: 'Jäckchen oder Pullover (2–3)', checked: false, tag: 'Mila', note: '' },
+                    { id: 19, text: 'Socken / Strumpfhosen', checked: false, tag: 'Mila', note: '' },
+                    { id: 20, text: 'Hosen (5–6)', checked: false, tag: 'Mila', note: '' },
+                    { id: 21, text: 'Bodies / T-Shirts / Langarmshirts', checked: false, tag: 'Mila', note: '' },
+                    { id: 22, text: 'Unterhosen', checked: false, tag: 'Mila', note: '' },
+                    { id: 23, text: 'Schlafsack', checked: false, tag: 'Mila', note: '' },
+                    { id: 24, text: 'Nuschis', checked: false, tag: 'Mila', note: '' },
+                    { id: 25, text: 'Regenjacke & Regenhose', checked: false, tag: 'Mila', note: '' }
+                ],
+                '🧷 Wickeln & Co': [
+                    { id: 26, text: 'Walfisch / Hase (Kuscheltiere)', checked: false, tag: '', note: 'Schnüfftiere nicht vergessen!' },
+                    { id: 27, text: 'Vitamin D', checked: false, tag: 'Lene', note: '' },
+                    { id: 28, text: 'Popocreme', checked: false, tag: '', note: '' },
+                    { id: 29, text: 'Zahnpasta und Zahnbürste Kinder', checked: false, tag: '', note: '' },
+                    { id: 30, text: 'Nuggies / Ersatznuggies', checked: false, tag: '', note: '' },
+                    { id: 31, text: 'Schnullerketten', checked: false, tag: '', note: '' },
+                    { id: 32, text: 'Feuchttücher (6–7 Packungen)', checked: false, tag: '', note: '' },
+                    { id: 33, text: 'Wickelunterlage (faltbar)', checked: false, tag: '', note: '' },
+                    { id: 34, text: 'Windeln Lene (ca. 80–100)', checked: false, tag: 'Lene', note: 'ca. 6–8 pro Tag' },
+                    { id: 35, text: 'Nacht-Windeln Mila', checked: false, tag: 'Mila', note: '' },
+                    { id: 36, text: 'Reise-Töpfchen / Toilettensitz', checked: false, tag: 'Mila', note: '' }
+                ],
+                '🍼 Küche Mädels': [
+                    { id: 37, text: 'Snacks (Reiswaffeln, Fruchtriegel)', checked: false, tag: '', note: '' },
+                    { id: 38, text: 'Schoppen mit Aufsatz', checked: false, tag: 'Lene', note: '' },
+                    { id: 39, text: 'Flaschen & Sauger (3 Stk.)', checked: false, tag: 'Lene', note: '' },
+                    { id: 40, text: 'Teller / Besteck Mädels', checked: false, tag: '', note: '' },
+                    { id: 41, text: 'Latz / Lätzchen', checked: false, tag: '', note: '' },
+                    { id: 42, text: 'Brei / Milchpulver / Beikost', checked: false, tag: 'Lene', note: '' },
+                    { id: 43, text: 'Trinkflaschen Kinder', checked: false, tag: '', note: '' }
+                ],
+                '👔 Michèle & Alex': [
+                    { id: 44, text: 'Haarwachs und Deo Alex', checked: false, tag: 'Alex', note: '' },
+                    { id: 45, text: 'Jacken', checked: false, tag: '', note: '' },
+                    { id: 46, text: 'Socken (je 8–10 Paar)', checked: false, tag: '', note: '' },
+                    { id: 47, text: 'Abschminkpads', checked: false, tag: 'Michèle', note: '' },
+                    { id: 48, text: 'Jogger / Pyjamas', checked: false, tag: '', note: '' },
+                    { id: 49, text: 'Cremes (Gesicht, Körper)', checked: false, tag: '', note: '' },
+                    { id: 50, text: 'Zahnbürste und Zahnpasta', checked: false, tag: '', note: '' },
+                    { id: 51, text: 'Schminktäschchen', checked: false, tag: 'Michèle', note: '' },
+                    { id: 52, text: 'BHs', checked: false, tag: 'Michèle', note: '' },
+                    { id: 53, text: 'Unterhosen', checked: false, tag: '', note: '' },
+                    { id: 54, text: '4 Outfits gemäss Wetter', checked: false, tag: '', note: '' },
+                    { id: 55, text: 'Shampoo / Duschgel', checked: false, tag: '', note: '' },
+                    { id: 56, text: 'Badetücher und Handtücher', checked: false, tag: '', note: '' },
+                    { id: 57, text: 'Bikini und Badehosen', checked: false, tag: '', note: '' },
+                    { id: 58, text: 'Sonnencreme LSF 50+', checked: false, tag: '', note: '' },
+                    { id: 59, text: 'Sonnenbrillen', checked: false, tag: '', note: '' }
+                ],
+                '💊 Reiseapotheke': [
+                    { id: 60, text: 'Fieberthermometer', checked: false, tag: '', note: '' },
+                    { id: 61, text: 'Nasenspray Baby & Kinder', checked: false, tag: '', note: '' },
+                    { id: 62, text: 'Hustensirup Kinder', checked: false, tag: '', note: '' },
+                    { id: 63, text: 'Salzwasser-Nasentropfen', checked: false, tag: '', note: '' },
+                    { id: 64, text: 'Pflaster & Verbandmaterial', checked: false, tag: '', note: '' },
+                    { id: 65, text: 'Zäpfli (Fieber, Schmerzen)', checked: false, tag: '', note: 'Baby + Kleinkind-Dosis' },
+                    { id: 66, text: 'Ibuprofen Erwachsene', checked: false, tag: '', note: '' },
+                    { id: 67, text: 'Wundsalbe / Bepanthen', checked: false, tag: '', note: '' },
+                    { id: 68, text: 'Sonnenbrand-Gel', checked: false, tag: '', note: '' },
+                    { id: 69, text: 'Desinfektionsmittel', checked: false, tag: '', note: '' },
+                    { id: 70, text: 'Pinzette & Zeckenzange', checked: false, tag: '', note: '' },
+                    { id: 71, text: 'Insektenschutz', checked: false, tag: '', note: '' },
+                    { id: 72, text: 'Baby-Sonnencreme LSF 50+', checked: false, tag: '', note: '' },
+                    { id: 73, text: 'Medikamente (eigene)', checked: false, tag: '', note: '' }
+                ],
+                '🚗 Transport & Unterwegs': [
+                    { id: 74, text: 'Kindersitz', checked: false, tag: '', note: '' },
+                    { id: 75, text: 'Tragetuch', checked: false, tag: 'Lene', note: '' },
+                    { id: 76, text: 'Tragi (Ergobaby o.ä.)', checked: false, tag: '', note: '' },
+                    { id: 77, text: 'Kinderwagen mit Regencover', checked: false, tag: '', note: '' },
+                    { id: 78, text: 'Thule mit Regencover', checked: false, tag: '', note: '' },
+                    { id: 79, text: 'Kumja', checked: false, tag: '', note: '' },
+                    { id: 80, text: 'Fahrräder', checked: false, tag: '', note: '' },
+                    { id: 81, text: 'Akkus / Stromkabel Fahrräder', checked: false, tag: '', note: '' },
+                    { id: 82, text: 'Sonnensegel Buggy & Auto', checked: false, tag: '', note: '' }
+                ],
+                '🎨 Spielen & Beschäftigung': [
+                    { id: 83, text: 'Spielzeug', checked: false, tag: '', note: '' },
+                    { id: 84, text: 'Vorlesebücher / Gutenachtgeschichten', checked: false, tag: '', note: '' },
+                    { id: 85, text: 'Malzeug / Stifte & Malbuch', checked: false, tag: 'Mila', note: '' },
+                    { id: 86, text: 'Laptop / iPad', checked: false, tag: '', note: '' },
+                    { id: 87, text: 'Kopfhörer (Kinder + Erwachsene)', checked: false, tag: '', note: '' },
+                    { id: 88, text: 'Sandspielzeug', checked: false, tag: 'Mila', note: '' },
+                    { id: 89, text: 'Badekleider / Badewindeln', checked: false, tag: '', note: '' }
+                ],
+                '🍳 Küche & Verpflegung': [
+                    { id: 90, text: 'Grundvorrat Gewürze und Kochzeug', checked: false, tag: '', note: '' },
+                    { id: 91, text: 'Pasta, Reis, Couscous', checked: false, tag: '', note: '' },
+                    { id: 92, text: 'Müesli / Haferflocken', checked: false, tag: '', note: '' },
+                    { id: 93, text: 'Kaffee / Tee', checked: false, tag: '', note: '' },
+                    { id: 94, text: 'Milch', checked: false, tag: '', note: '' },
+                    { id: 95, text: 'Tupperware', checked: false, tag: '', note: '' },
+                    { id: 96, text: 'Abfallsäcke', checked: false, tag: '', note: '' },
+                    { id: 97, text: 'Spüli, Schwamm und Lappen', checked: false, tag: '', note: '' },
+                    { id: 98, text: 'Küchentücher', checked: false, tag: '', note: '' },
+                    { id: 99, text: 'Altglas Behälter', checked: false, tag: '', note: '' }
+                ],
+                '⚡ Technik & Camper': [
+                    { id: 100, text: 'Ladekabel für alles', checked: false, tag: '', note: '' },
+                    { id: 101, text: 'Powerbank', checked: false, tag: '', note: '' },
+                    { id: 102, text: 'Teufel Musikbox mit Kabel', checked: false, tag: '', note: '' },
+                    { id: 103, text: 'Licht Ei', checked: false, tag: '', note: '' },
+                    { id: 104, text: 'Feuerhand Laterne', checked: false, tag: '', note: '' },
+                    { id: 105, text: 'Uhren', checked: false, tag: '', note: '' },
+                    { id: 106, text: 'Kleiner Staubsauger', checked: false, tag: '', note: '' },
+                    { id: 107, text: 'Campingstühle / Tisch', checked: false, tag: '', note: '' },
+                    { id: 108, text: 'Picknick Decke', checked: false, tag: '', note: '' },
+                    { id: 109, text: 'Keile, Kabel (Camper)', checked: false, tag: '', note: '' },
+                    { id: 110, text: 'WC Papier', checked: false, tag: '', note: '' },
+                    { id: 111, text: 'Wäschesack', checked: false, tag: '', note: '' },
+                    { id: 112, text: 'Wäscheleine & Klammern', checked: false, tag: '', note: '' },
+                    { id: 113, text: 'Bettbezug / Reserve Leintuch', checked: false, tag: '', note: '' }
+                ],
+                '📄 Dokumente & Finanzen': [
+                    { id: 114, text: 'Ausweise und Krankenkassenkarten', checked: false, tag: '', note: 'Kinder brauchen eigenen Pass/ID' },
+                    { id: 115, text: 'Europäische Krankenversicherungskarte', checked: false, tag: '', note: '' },
+                    { id: 116, text: 'Fahrzeugpapiere / Führerausweis', checked: false, tag: '', note: '' },
+                    { id: 117, text: 'Campingplatz-Buchungsbestätigungen', checked: false, tag: '', note: '' },
+                    { id: 118, text: 'Bargeld / Karten', checked: false, tag: '', note: '' },
+                    { id: 119, text: 'Notfallnummern-Liste', checked: false, tag: '', note: 'Kinderarzt, Pannendienst' },
+                    { id: 120, text: 'Impfausweis Kinder', checked: false, tag: '', note: '' }
+                ],
+                '✅ Vor Abreise': [
+                    { id: 121, text: 'Gas prüfen', checked: false, tag: '', note: '' },
+                    { id: 122, text: 'Luftdruck Reifen prüfen', checked: false, tag: '', note: '' },
+                    { id: 123, text: 'Kühlschrank leeren', checked: false, tag: '', note: '' },
+                    { id: 124, text: 'Pflanzen giessen / organisieren', checked: false, tag: '', note: '' },
+                    { id: 125, text: 'Hühner füttern / alles bereitstellen', checked: false, tag: '', note: '' },
+                    { id: 126, text: 'Wasser auffüllen (Camper)', checked: false, tag: '', note: '' },
+                    { id: 127, text: 'Wasserflaschen füllen', checked: false, tag: '', note: '' },
+                    { id: 128, text: 'Müll rausbringen', checked: false, tag: '', note: '' }
+                ]
+                    }
+                },
+                toggenburg: {
+                    trip: {
+                        name: 'Toggenburg-Wochenende',
+                        destination: 'Bei Mami & Papi',
+                        duration: '2–3 Tage',
+                        people: ['Michèle', 'Alex', 'Mila', 'Lene']
+                    },
+                    categories: {
+                        '👗 Kleider Lene': [
+                            { id: 201, text: 'Bodies (4–5)', checked: false, tag: 'Lene', note: '' },
+                            { id: 202, text: 'Strampler / Hosen (3)', checked: false, tag: 'Lene', note: '' },
+                            { id: 203, text: 'Jäckchen / Pullover', checked: false, tag: 'Lene', note: '' },
+                            { id: 204, text: 'Socken (3 Paar)', checked: false, tag: 'Lene', note: '' },
+                            { id: 205, text: 'Mütze (warm)', checked: false, tag: 'Lene', note: '' },
+                            { id: 206, text: 'Schlafsack', checked: false, tag: 'Lene', note: 'Bett ist da' },
+                            { id: 207, text: 'Nuschis (3–4)', checked: false, tag: 'Lene', note: '' },
+                            { id: 208, text: 'Lätzchen (3–4)', checked: false, tag: 'Lene', note: '' }
+                        ],
+                        '👗 Kleider Mila': [
+                            { id: 211, text: 'Hosen (2–3)', checked: false, tag: 'Mila', note: '' },
+                            { id: 212, text: 'Bodies / Shirts (3–4)', checked: false, tag: 'Mila', note: '' },
+                            { id: 213, text: 'Pyjama (2)', checked: false, tag: 'Mila', note: '' },
+                            { id: 214, text: 'Pullover / Jäckchen', checked: false, tag: 'Mila', note: '' },
+                            { id: 215, text: 'Unterhosen (4)', checked: false, tag: 'Mila', note: '' },
+                            { id: 216, text: 'Socken (3 Paar)', checked: false, tag: 'Mila', note: '' },
+                            { id: 217, text: 'Schuhe + Hausschuhe', checked: false, tag: 'Mila', note: '' },
+                            { id: 218, text: 'Jacke + Mütze', checked: false, tag: 'Mila', note: '' },
+                            { id: 219, text: 'Regenjacke', checked: false, tag: 'Mila', note: '' },
+                            { id: 220, text: 'Lieblings-Bettdecke', checked: false, tag: 'Mila', note: 'Bett ist da' }
+                        ],
+                        '👔 Michèle & Alex': [
+                            { id: 231, text: '2 Outfits gemäss Wetter', checked: false, tag: '', note: '' },
+                            { id: 232, text: 'Pyjamas', checked: false, tag: '', note: '' },
+                            { id: 233, text: 'Unterwäsche & Socken (3)', checked: false, tag: '', note: '' },
+                            { id: 234, text: 'Jacken', checked: false, tag: '', note: '' },
+                            { id: 235, text: 'Kulturbeutel (Zahnbürste, Cremes)', checked: false, tag: '', note: '' },
+                            { id: 236, text: 'BHs', checked: false, tag: 'Michèle', note: '' },
+                            { id: 237, text: 'Schminktäschchen', checked: false, tag: 'Michèle', note: '' }
+                        ],
+                        '🧷 Wickeln & Pflege': [
+                            { id: 241, text: 'Windeln Lene (ca. 20)', checked: false, tag: 'Lene', note: '' },
+                            { id: 242, text: 'Nacht-Windeln Mila', checked: false, tag: 'Mila', note: '' },
+                            { id: 243, text: 'Feuchttücher (1–2 Pack)', checked: false, tag: '', note: '' },
+                            { id: 244, text: 'Wickelunterlage', checked: false, tag: '', note: '' },
+                            { id: 245, text: 'Popocreme', checked: false, tag: '', note: '' },
+                            { id: 246, text: 'Zahnbürste & Zahnpasta Kinder', checked: false, tag: '', note: '' },
+                            { id: 247, text: 'Nuggis / Ersatznuggis', checked: false, tag: '', note: '' },
+                            { id: 248, text: 'Vitamin D', checked: false, tag: 'Lene', note: '' }
+                        ],
+                        '🍼 Lene-Spezial': [
+                            { id: 251, text: 'Brei / Gläschen (für 2–3 Tage)', checked: false, tag: 'Lene', note: '' },
+                            { id: 252, text: 'Milchpulver', checked: false, tag: 'Lene', note: '' },
+                            { id: 253, text: 'Schoppen + Sauger (2)', checked: false, tag: 'Lene', note: '' },
+                            { id: 254, text: 'Snacks (Reiswaffeln)', checked: false, tag: '', note: '' }
+                        ],
+                        '🎨 Schnüffel & Beschäftigung': [
+                            { id: 261, text: 'Walfisch / Hase (Schnüfftiere)', checked: false, tag: '', note: 'Nicht vergessen!' },
+                            { id: 262, text: 'Lieblingsbuch', checked: false, tag: '', note: '' },
+                            { id: 263, text: 'Malzeug & Stifte', checked: false, tag: 'Mila', note: '' }
+                        ],
+                        '🚗 Transport': [
+                            { id: 271, text: 'Kindersitze ins Auto', checked: false, tag: '', note: '' },
+                            { id: 272, text: 'Tragi (Ergobaby)', checked: false, tag: 'Lene', note: '' },
+                            { id: 273, text: 'Kinderwagen / Buggy', checked: false, tag: '', note: '' }
+                        ],
+                        '✅ Vor Abreise': [
+                            { id: 281, text: 'Hühner füttern / organisieren', checked: false, tag: '', note: '' },
+                            { id: 282, text: 'Pflanzen giessen', checked: false, tag: '', note: '' },
+                            { id: 283, text: 'Kühlschrank checken', checked: false, tag: '', note: '' },
+                            { id: 284, text: 'Müll rausbringen', checked: false, tag: '', note: '' }
+                        ]
+                    }
+                }
+            }
+        },
+        shopping: [
+            { id: 1, text: 'Rübeli', category: 'Gemüse', checked: false },
+            { id: 2, text: 'Spinat', category: 'Gemüse', checked: false },
+            { id: 3, text: 'Tomaten', category: 'Gemüse', checked: false },
+            { id: 4, text: 'Zwiebeln', category: 'Gemüse', checked: false },
+            { id: 5, text: 'Äpfel', category: 'Früchte', checked: false },
+            { id: 6, text: 'Poulet', category: 'Fleisch & Fisch', checked: false },
+            { id: 7, text: 'Eier', category: 'Milchprodukte', checked: false },
+            { id: 8, text: 'Milch', category: 'Milchprodukte', checked: false },
+            { id: 9, text: 'Brot', category: 'Brot & Gebäck', checked: false }
+        ],
+        todos: [
+            { id: 1, text: 'Altpapier rausbringen', checked: false, priority: 'high', assignee: 'beide' },
+            { id: 2, text: 'Zahnarzttermin vereinbaren', checked: false, priority: 'medium', assignee: 'Michèle' },
+            { id: 3, text: 'Wäsche aufhängen', checked: false, priority: 'low', assignee: 'beide' },
+            { id: 4, text: 'Elternabend Schule', checked: false, priority: 'high', assignee: 'beide' },
+            { id: 5, text: 'Velo-Pneu aufpumpen', checked: false, priority: 'low', assignee: 'Alex' }
+        ],
+        reinigung: [
+            { id: 1, text: 'Staubsaugen (alle Räume)', checked: false, frequency: 'weekly', lastDone: '', note: '' },
+            { id: 2, text: 'Böden wischen', checked: false, frequency: 'weekly', lastDone: '', note: '' },
+            { id: 3, text: 'Badezimmer reinigen', checked: false, frequency: 'weekly', lastDone: '', note: '' },
+            { id: 4, text: 'Küche gründlich reinigen', checked: false, frequency: 'weekly', lastDone: '', note: '' },
+            { id: 5, text: 'Staubwischen', checked: false, frequency: 'biweekly', lastDone: '', note: 'Putzfrau' },
+            { id: 6, text: 'Betten frisch beziehen', checked: false, frequency: 'biweekly', lastDone: '', note: '' },
+            { id: 7, text: 'Ecken und Ränder der Böden reinigen', checked: false, frequency: 'monthly', lastDone: '', note: 'Dort wo der Staubsauger nicht hinkommt' },
+            { id: 8, text: 'Spinnweben entfernen', checked: false, frequency: 'monthly', lastDone: '', note: 'Ecken, Decken, Keller' },
+            { id: 9, text: 'Kühlschrank auswischen', checked: false, frequency: 'monthly', lastDone: '', note: '' },
+            { id: 10, text: 'Backofen reinigen', checked: false, frequency: 'quarterly', lastDone: '', note: '' },
+            { id: 11, text: 'Abflüsse reinigen', checked: false, frequency: 'quarterly', lastDone: '', note: 'Bad, Küche, Dusche' },
+            { id: 12, text: 'Fenster putzen (innen)', checked: false, frequency: 'quarterly', lastDone: '', note: '' },
+            { id: 13, text: 'Waschmaschine reinigen (Hygienespüler)', checked: false, frequency: 'quarterly', lastDone: '', note: '' },
+            { id: 14, text: 'Wintergarten reinigen', checked: false, frequency: 'biannual', lastDone: '', note: 'Boden, Glasflächen, Möbel' },
+            { id: 15, text: 'Fenster putzen (aussen)', checked: false, frequency: 'biannual', lastDone: '', note: '' },
+            { id: 16, text: 'Matratzen absaugen & lüften', checked: false, frequency: 'biannual', lastDone: '', note: '' },
+            { id: 17, text: 'Vorhänge / Gardinen waschen', checked: false, frequency: 'biannual', lastDone: '', note: '' },
+            { id: 18, text: 'Tiefkühler abtauen', checked: false, frequency: 'biannual', lastDone: '', note: '' },
+            { id: 19, text: 'Dachrinnen kontrollieren / reinigen', checked: false, frequency: 'annual', lastDone: '', note: '' },
+            { id: 20, text: 'Teppiche / Polstermöbel tiefenreinigen', checked: false, frequency: 'annual', lastDone: '', note: '' },
+            { id: 21, text: 'Keller aufräumen & reinigen', checked: false, frequency: 'annual', lastDone: '', note: '' },
+            { id: 22, text: 'Garage / Abstellraum aufräumen', checked: false, frequency: 'annual', lastDone: '', note: '' },
+            { id: 23, text: 'Heizkörper reinigen', checked: false, frequency: 'annual', lastDone: '', note: '' },
+            { id: 24, text: 'Markisen / Storen reinigen', checked: false, frequency: 'annual', lastDone: '', note: '' },
+            { id: 25, text: 'Dunstabzugshaube / Filter reinigen', checked: false, frequency: 'quarterly', lastDone: '', note: '' },
+            { id: 26, text: 'Geschirrspüler reinigen', checked: false, frequency: 'quarterly', lastDone: '', note: '' }
+        ]
+    };
+
+    // Default-Menü für aktuelle + nächste Woche
+    (function() {
+        const weekKey = getWeekKey(0);
+        defaultData.menu[weekKey] = {
+            'Montag': { zmittag: 'Gemüsesuppe mit Brot', znacht: 'Gschwellti mit Käse' },
+            'Dienstag': { zmittag: 'Poulet-Curry mit Reis', znacht: 'Rüeblisalat & Brot' },
+            'Mittwoch': { zmittag: 'Ghackets mit Hörnli', znacht: 'Birchermüesli' },
+            'Donnerstag': { zmittag: 'Lachsfilet mit Kartoffeln', znacht: 'Tomatensuppe' },
+            'Freitag': { zmittag: 'Älplermagronen', znacht: 'Reste-Abend' },
+            'Samstag': { zmittag: 'Züri-Gschnetzelts mit Rösti', znacht: 'Flammkuchen' },
+            'Sonntag': { zmittag: 'Sonntagsbraten mit Ofengemüse', znacht: 'Zopf mit Butter & Konfi' }
+        };
+        const nextWeekKey = getWeekKey(1);
+        defaultData.menu[nextWeekKey] = {
+            'Montag': { zmittag: 'Resten-Gemüsesuppe', znacht: 'Brot & Käse' },
+            'Dienstag': { zmittag: 'Pouletgeschnetzeltes mit Reis', znacht: 'Omeletten' },
+            'Mittwoch': { zmittag: 'Pizza-Toast', znacht: 'Birchermüesli' },
+            'Donnerstag': { zmittag: 'Spaghetti Bolognese', znacht: 'Salatteller' },
+            'Freitag': { zmittag: 'Fischstäbchen & Rübeli', znacht: 'Reste-Abend' },
+            'Samstag': { zmittag: 'Pouletschenkel & Gemüse', znacht: 'Flammkuchen' },
+            'Sonntag': { zmittag: 'Sonntagsbraten', znacht: 'Znacht-Plättli' }
+        };
+    })();
+
+    // ============================================================
+    // DATA INTEGRITY (übernommen aus v1)
+    // ============================================================
+    function ensureDataIntegrity() {
+        if (!appData || typeof appData !== 'object') {
+            appData = JSON.parse(JSON.stringify(defaultData));
+            return;
+        }
+        if (!appData.menu || typeof appData.menu !== 'object') appData.menu = {};
+
+        if (!Array.isArray(appData.shopping)) {
+            appData.shopping = appData.shopping && typeof appData.shopping === 'object'
+                ? Object.values(appData.shopping) : [];
+        }
+        if (!Array.isArray(appData.todos)) {
+            appData.todos = appData.todos && typeof appData.todos === 'object'
+                ? Object.values(appData.todos) : [];
+        }
+        appData.todos = appData.todos.filter(t => t && typeof t === 'object' && t.text).map(t => ({
+            id: t.id || Date.now(),
+            text: t.text,
+            checked: !!t.checked,
+            priority: t.priority || 'medium',
+            assignee: t.assignee || 'beide'
+        }));
+        appData.shopping = appData.shopping.filter(i => i && typeof i === 'object' && i.text).map(i => ({
+            id: i.id || Date.now(),
+            text: i.text,
+            category: i.category || 'Sonstiges',
+            checked: !!i.checked
+        }));
+
+        if (!appData.packliste || typeof appData.packliste !== 'object') {
+            appData.packliste = JSON.parse(JSON.stringify(defaultData.packliste));
+        }
+        // Migrate old single-trip structure -> new trips structure
+        if (appData.packliste.trip || appData.packliste.categories) {
+            const migratedTrip = appData.packliste.trip || { name: 'Camperreise', destination: '', duration: '', people: ['Michèle', 'Alex', 'Mila', 'Lene'] };
+            const migratedCats = appData.packliste.categories || {};
+            appData.packliste = {
+                activeTrip: 'camperreise',
+                trips: {
+                    camperreise: { trip: migratedTrip, categories: migratedCats }
+                }
+            };
+        }
+        if (!appData.packliste.trips || typeof appData.packliste.trips !== 'object') {
+            appData.packliste.trips = {};
+        }
+        // Ensure both default trips exist (don't overwrite existing user data)
+        if (!appData.packliste.trips.camperreise && defaultData.packliste.trips.camperreise) {
+            appData.packliste.trips.camperreise = JSON.parse(JSON.stringify(defaultData.packliste.trips.camperreise));
+        }
+        if (!appData.packliste.trips.toggenburg && defaultData.packliste.trips.toggenburg) {
+            appData.packliste.trips.toggenburg = JSON.parse(JSON.stringify(defaultData.packliste.trips.toggenburg));
+        }
+        if (!appData.packliste.activeTrip || !appData.packliste.trips[appData.packliste.activeTrip]) {
+            appData.packliste.activeTrip = Object.keys(appData.packliste.trips)[0] || 'camperreise';
+        }
+        // Validate each trip
+        Object.keys(appData.packliste.trips).forEach(tripKey => {
+            const t = appData.packliste.trips[tripKey];
+            if (!t || typeof t !== 'object') {
+                appData.packliste.trips[tripKey] = { trip: {}, categories: {} };
+                return;
+            }
+            if (!t.trip) t.trip = {};
+            if (!t.categories || typeof t.categories !== 'object') t.categories = {};
+            Object.keys(t.categories).forEach(cat => {
+                const items = t.categories[cat];
+                if (!Array.isArray(items)) {
+                    t.categories[cat] = items && typeof items === 'object' ? Object.values(items) : [];
+                }
+            });
+        });
+
+        if (!Array.isArray(appData.reinigung)) {
+            appData.reinigung = appData.reinigung && typeof appData.reinigung === 'object'
+                ? Object.values(appData.reinigung) : JSON.parse(JSON.stringify(defaultData.reinigung));
+        }
+        appData.reinigung = appData.reinigung.filter(i => i && typeof i === 'object' && i.text).map(i => ({
+            id: i.id || Date.now(),
+            text: i.text,
+            checked: !!i.checked,
+            frequency: i.frequency || 'monthly',
+            lastDone: i.lastDone || '',
+            note: i.note || ''
+        }));
+    }
+
+    function loadData() {
+        try {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                appData = JSON.parse(saved);
+            } else {
+                appData = JSON.parse(JSON.stringify(defaultData));
+            }
+        } catch (e) {
+            appData = JSON.parse(JSON.stringify(defaultData));
+        }
+        ensureDataIntegrity();
+    }
+
+    function saveData() {
+        ensureDataIntegrity();
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+        } catch (e) {
+            console.warn('Lokales Speichern fehlgeschlagen:', e);
+        }
+        if (firebaseReady && dbRef) {
+            dbRef.set(appData).catch(err => console.warn('Firebase sync fehlgeschlagen:', err));
+        }
+    }
+
+    // ============================================================
+    // FIREBASE SYNC
+    // ============================================================
+    function initFirebase() {
+        try {
+            firebase.initializeApp(FIREBASE_CONFIG);
+            db = firebase.database();
+            dbRef = db.ref(FIREBASE_REF);
+
+            dbRef.on('value', snapshot => {
+                const remoteData = snapshot.val();
+                if (remoteData) {
+                    appData = remoteData;
+                    ensureDataIntegrity();
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+                    renderCurrentTab();
+                }
+                firebaseReady = true;
+                setSyncStatus('online');
+            });
+            db.ref('.info/connected').on('value', snap => {
+                setSyncStatus(snap.val() === true ? 'online' : 'offline');
+            });
+        } catch (e) {
+            console.warn('Firebase init fehlgeschlagen:', e);
+            setSyncStatus('offline', 'Sync-Fehler');
+        }
+    }
+
+    function setSyncStatus(state, customText) {
+        const el = document.getElementById('sync-status');
+        if (state === 'online') {
+            el.textContent = customText || '● Synchronisiert';
+            el.className = 'sync-status online';
+        } else {
+            el.textContent = customText || '● Offline';
+            el.className = 'sync-status offline';
+        }
+    }
+
+    function refreshFromCloud() {
+        if (!dbRef) return Promise.resolve();
+        return dbRef.once('value').then(snap => {
+            const remote = snap.val();
+            if (remote) {
+                appData = remote;
+                ensureDataIntegrity();
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+                renderCurrentTab();
+            }
+        }).catch(err => console.warn('Refresh fehlgeschlagen:', err));
+    }
+
+    // ============================================================
+    // RENDER DISPATCHER
+    // ============================================================
+    function renderCurrentTab() {
+        if (currentTab === 'dashboard') renderDashboard();
+        if (currentTab === 'menu') renderMenu();
+        if (currentTab === 'shopping') renderShopping();
+        if (currentTab === 'todos') renderTodos();
+        if (currentTab === 'packliste') renderPackliste();
+        if (currentTab === 'reinigung') renderCleaning();
+    }
+
+    // ============================================================
+    // USER
+    // ============================================================
+    function selectUser(name) {
+        currentUser = name;
+        localStorage.setItem(USER_KEY, name);
+        document.getElementById('setup-overlay').style.display = 'none';
+        document.getElementById('greeting').textContent = 'Hallo ' + name + '! 👋';
+        renderCurrentTab();
+    }
+
+    function checkUser() {
+        if (!currentUser) {
+            document.getElementById('setup-overlay').style.display = 'flex';
+        } else {
+            document.getElementById('greeting').textContent = 'Hallo ' + currentUser + '! 👋';
+        }
+    }
+
+    // ============================================================
+    // NAVIGATION
+    // ============================================================
+    function switchTab(tab) {
+        currentTab = tab;
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.getElementById('section-' + tab).classList.add('active');
+        document.querySelectorAll('.nav-item').forEach(n => {
+            n.classList.toggle('active', n.dataset.tab === tab);
+        });
+        renderCurrentTab();
+        buzz(5);
+    }
+
+    // ============================================================
+    // DASHBOARD
+    // ============================================================
+    function renderDashboard() {
+        const days = ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
+        const months = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+        const now = new Date();
+        const today = days[now.getDay()];
+        const dateStr = today + ', ' + now.getDate() + '. ' + months[now.getMonth()] + ' ' + now.getFullYear();
+        document.getElementById('dashboard-date').textContent = dateStr;
+
+        const weekKey = getWeekKey(0);
+        const weekMenu = appData.menu[weekKey] || {};
+        const todayMenu = weekMenu[today] || { zmittag: '–', znacht: '–' };
+
+        document.getElementById('today-menu-card').innerHTML =
+            '<h3>📋 Heute – ' + today + '</h3>' +
+            '<div class="today-meal"><span class="today-meal-label">Zmittag</span><span>' + escapeHtml(todayMenu.zmittag || '–') + '</span></div>' +
+            '<div class="today-meal"><span class="today-meal-label">Znacht</span><span>' + escapeHtml(todayMenu.znacht || '–') + '</span></div>';
+
+        // Wochen-Fortschritts-Ring
+        let mealsPlanned = 0;
+        const mealsTotal = 14;
+        ['Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag','Sonntag'].forEach(d => {
+            const m = weekMenu[d] || {};
+            if (m.zmittag && m.zmittag.trim()) mealsPlanned++;
+            if (m.znacht && m.znacht.trim()) mealsPlanned++;
+        });
+        const ringFill = document.getElementById('week-ring-fill');
+        const ringText = document.getElementById('week-ring-text');
+        const ringLabel = document.getElementById('week-ring-label');
+        const circumference = 2 * Math.PI * 40; // ≈ 251.3
+        const offset = circumference * (1 - mealsPlanned / mealsTotal);
+        ringFill.style.strokeDasharray = circumference;
+        ringFill.style.strokeDashoffset = offset;
+        ringText.textContent = mealsPlanned + '/' + mealsTotal;
+        if (mealsPlanned === mealsTotal) {
+            ringLabel.textContent = '🎉 Komplett geplant – chapeau!';
+        } else if (mealsPlanned >= 10) {
+            ringLabel.textContent = 'Fast komplett – nur noch ' + (mealsTotal - mealsPlanned) + ' offen';
+        } else {
+            ringLabel.textContent = 'Mahlzeiten dieser Woche geplant';
+        }
+
+        const openShopping = appData.shopping.filter(i => !i.checked).length;
+        document.getElementById('overview-shopping').textContent = openShopping;
+
+        const myTodos = appData.todos.filter(t => !t.checked && (currentUser === t.assignee || t.assignee === 'beide')).length;
+        document.getElementById('overview-todos').textContent = myTodos;
+
+        let packTotal = 0, packChecked = 0;
+        const activeTripData = (appData.packliste.trips && appData.packliste.trips[appData.packliste.activeTrip]) || { categories: {} };
+        Object.values(activeTripData.categories || {}).forEach(items => {
+            if (Array.isArray(items)) items.forEach(item => { packTotal++; if (item.checked) packChecked++; });
+        });
+        const packPct = packTotal > 0 ? Math.round((packChecked / packTotal) * 100) : 0;
+        const tripName = (activeTripData.trip && activeTripData.trip.name) ? activeTripData.trip.name : 'Packliste';
+        document.getElementById('overview-packliste').textContent = packPct + '%';
+        document.getElementById('overview-packliste-label').textContent = tripName + ' · ' + packChecked + ' / ' + packTotal + ' gepackt';
+
+        fetchWeather();
+    }
+
+    function fetchWeather() {
+        if (!navigator.geolocation) {
+            document.getElementById('weather-card').innerHTML = '<div style="font-size:0.75rem;opacity:0.85;">Wetter-API nicht verfügbar</div>';
+            return;
+        }
+        navigator.geolocation.getCurrentPosition(pos => {
+            fetch('https://api.open-meteo.com/v1/forecast?latitude=' + pos.coords.latitude + '&longitude=' + pos.coords.longitude + '&current=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto')
+                .then(r => r.json())
+                .then(data => renderWeather(data))
+                .catch(e => console.log('Weather fetch failed:', e));
+        }, () => {}, { timeout: 8000 });
+    }
+
+    function renderWeather(data) {
+        const current = data.current;
+        const daily = data.daily;
+        const wmoCode = current.weather_code;
+        const iconMap = {
+            0: '☀️', 1: '🌤️', 2: '⛅', 3: '☁️', 45: '🌫️', 48: '🌫️',
+            51: '🌧️', 53: '🌧️', 55: '🌧️', 61: '🌧️', 63: '⛈️', 65: '⛈️',
+            71: '🌨️', 73: '🌨️', 75: '🌨️', 80: '🌧️', 81: '⛈️', 82: '⛈️', 85: '🌨️', 86: '🌨️',
+            95: '⛈️', 96: '⛈️', 99: '⛈️'
+        };
+        const icon = iconMap[wmoCode] || '🌤️';
+        let html = '<div class="weather-main">' +
+            '<div><div class="weather-temp">' + Math.round(current.temperature_2m) + '°</div><div class="weather-desc">Zürich</div></div>' +
+            '<div class="weather-icon">' + icon + '</div></div>' +
+            '<div class="weather-forecast">';
+        for (let i = 0; i < Math.min(3, daily.weather_code.length); i++) {
+            const code = daily.weather_code[i];
+            html += '<div class="forecast-day"><div class="fc-icon">' + (iconMap[code] || '🌤️') + '</div>' +
+                '<div class="fc-temp">' + Math.round(daily.temperature_2m_max[i]) + '°</div></div>';
+        }
+        html += '</div><div class="weather-source">powered by Open-Meteo</div>';
+        document.getElementById('weather-card').innerHTML = html;
+    }
+
+    // ============================================================
+    // MENU PLAN
+    // ============================================================
+    function selectWeek(w) {
+        selectedWeek = w === 'next' ? 1 : 0;
+        document.querySelectorAll('.week-btn').forEach(b => {
+            b.classList.toggle('active',
+                (b.textContent.includes('Diese') && selectedWeek === 0) ||
+                (b.textContent.includes('Nächste') && selectedWeek === 1));
+        });
+        renderMenu();
+    }
+
+    function renderMenu() {
+        const days = ['Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag','Sonntag'];
+        const weekKey = getWeekKey(selectedWeek);
+        const weekMenu = appData.menu[weekKey] || {};
+        const now = new Date();
+        const todayIndex = (now.getDay() + 6) % 7;
+        const initialIdx = selectedWeek === 0 ? todayIndex : 0;
+
+        let chipsHtml = '';
+        days.forEach((day, idx) => {
+            const isToday = selectedWeek === 0 && idx === todayIndex;
+            chipsHtml += '<button class="day-chip ' + (isToday ? 'today' : '') + ' ' + (idx === initialIdx ? 'active' : '') + '" onclick="selectDay(' + idx + ')">' + day.substring(0, 3) + '</button>';
+        });
+        document.getElementById('day-chips').innerHTML = chipsHtml;
+
+        let contentHtml = '';
+        days.forEach((day, idx) => {
+            const meal = weekMenu[day] || { zmittag: '', znacht: '' };
+            contentHtml += '<div class="meal-card" style="display:' + (idx === initialIdx ? 'block' : 'none') + '" data-day="' + idx + '">' +
+                '<div class="meal-section">' +
+                '<div class="meal-label">Zmittag</div>' +
+                '<div class="meal-name ' + (meal.zmittag ? '' : 'empty') + '" onclick="editMeal(\'' + day + '\',\'zmittag\',' + selectedWeek + ')">' + escapeHtml(meal.zmittag || 'nicht geplant') + '</div></div>' +
+                '<div class="meal-section">' +
+                '<div class="meal-label">Znacht</div>' +
+                '<div class="meal-name ' + (meal.znacht ? '' : 'empty') + '" onclick="editMeal(\'' + day + '\',\'znacht\',' + selectedWeek + ')">' + escapeHtml(meal.znacht || 'nicht geplant') + '</div></div></div>';
+        });
+        document.getElementById('menu-content').innerHTML = contentHtml;
+    }
+
+    function selectDay(idx) {
+        document.querySelectorAll('.day-chip').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.day-chip')[idx].classList.add('active');
+        document.querySelectorAll('[data-day]').forEach(c => c.style.display = 'none');
+        const target = document.querySelector('[data-day="' + idx + '"]');
+        if (target) target.style.display = 'block';
+        buzz(3);
+    }
+
+    function editMeal(day, type, week) {
+        const weekKey = getWeekKey(week);
+        if (!appData.menu[weekKey]) appData.menu[weekKey] = {};
+        if (!appData.menu[weekKey][day]) appData.menu[weekKey][day] = { zmittag: '', znacht: '' };
+        const current = appData.menu[weekKey][day][type] || '';
+        const newVal = prompt('Bearbeite ' + type + ' für ' + day + ':', current);
+        if (newVal !== null) {
+            appData.menu[weekKey][day][type] = newVal;
+            saveData();
+            renderMenu();
+        }
+    }
+
+    function getWeekKey(offset) {
+        const now = new Date();
+        const dayOfWeek = now.getDay();
+        const diff = now.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1) + (offset * 7);
+        const monday = new Date(now.setDate(diff));
+        const year = monday.getFullYear();
+        const month = String(monday.getMonth() + 1).padStart(2, '0');
+        const day = String(monday.getDate()).padStart(2, '0');
+        return year + '-' + month + '-' + day;
+    }
+
+    // ============================================================
+    // SHOPPING (mit Swipe-to-delete + Drag-Sort innerhalb Kategorie)
+    // ============================================================
+    function renderShopping() {
+        const list = appData.shopping || [];
+        const total = list.length;
+        const checked = list.filter(i => i.checked).length;
+        const pct = total > 0 ? Math.round((checked / total) * 100) : 0;
+
+        document.getElementById('shopping-progress-fill').style.width = pct + '%';
+        document.getElementById('shopping-progress-text').textContent = checked + ' von ' + total + ' erledigt';
+
+        // Share-Button nur zeigen wenn etwas drin ist
+        const shareBtn = document.getElementById('share-shopping-btn');
+        if (shareBtn && navigator.share) {
+            shareBtn.style.display = list.length > 0 ? 'inline-block' : 'none';
+        }
+
+        const byCategory = {};
+        list.forEach(item => {
+            const cat = item.category || 'Sonstiges';
+            if (!byCategory[cat]) byCategory[cat] = [];
+            byCategory[cat].push(item);
+        });
+
+        let html = '';
+        Object.keys(byCategory).sort().forEach(cat => {
+            const items = byCategory[cat];
+            html += '<div class="category-header">' + escapeHtml(cat) + '</div>';
+            items.forEach(item => {
+                html += renderSwipeRow({
+                    type: 'shopping',
+                    id: item.id,
+                    inner: '<div class="shopping-item">' +
+                        '<span class="drag-handle" data-handle>≡</span>' +
+                        '<div class="checkbox ' + (item.checked ? 'checked' : '') + '" onclick="toggleShopping(' + item.id + ')"></div>' +
+                        '<div class="item-text ' + (item.checked ? 'checked' : '') + '">' + escapeHtml(item.text) + '</div>' +
+                        '<button class="delete-btn" onclick="deleteShopping(' + item.id + ')">×</button></div>'
+                });
+            });
+        });
+
+        if (list.length === 0) {
+            html = '<div class="empty-state"><div class="empty-state-icon">🛒</div>Alle Einkäufe erledigt!</div>';
+        }
+        document.getElementById('shopping-list').innerHTML = html;
+
+        attachSwipeHandlers('shopping-list', deleteShopping);
+        attachDragSort('shopping-list', (fromId, toId) => reorderShopping(fromId, toId));
+
+        // Konfetti wenn alles abgehakt + min 3 Items
+        if (total >= 3 && checked === total) maybeFireConfetti('shopping-done');
+    }
+
+    function toggleShopping(id) {
+        const item = appData.shopping.find(i => i.id === id);
+        if (item) {
+            item.checked = !item.checked;
+            buzz(item.checked ? 12 : 6);
+            saveData();
+            renderShopping();
+        }
+    }
+
+    function addShoppingItem() {
+        const input = document.getElementById('shopping-input');
+        const cat = document.getElementById('shopping-category').value;
+        const text = input.value.trim();
+        if (!text) return;
+        appData.shopping.push({ id: Date.now(), text: text, category: cat, checked: false });
+        input.value = '';
+        buzz(8);
+        saveData();
+        renderShopping();
+    }
+
+    function deleteShopping(id) {
+        const item = appData.shopping.find(i => i.id === id);
+        if (!item) return;
+        const snapshot = JSON.parse(JSON.stringify(item));
+        const idx = appData.shopping.findIndex(i => i.id === id);
+        appData.shopping.splice(idx, 1);
+        saveData();
+        renderShopping();
+        showToast(escapeHtml(snapshot.text) + ' gelöscht', () => {
+            appData.shopping.splice(idx, 0, snapshot);
+            saveData();
+            renderShopping();
+        });
+    }
+
+    function reorderShopping(fromId, toId) {
+        const fromIdx = appData.shopping.findIndex(i => i.id === fromId);
+        const toIdx = appData.shopping.findIndex(i => i.id === toId);
+        if (fromIdx < 0 || toIdx < 0 || fromIdx === toIdx) return;
+        const [moved] = appData.shopping.splice(fromIdx, 1);
+        appData.shopping.splice(toIdx, 0, moved);
+        saveData();
+        renderShopping();
+        buzz(10);
+    }
+
+    function shareShopping() {
+        if (!navigator.share) return;
+        const list = (appData.shopping || []).filter(i => !i.checked);
+        if (list.length === 0) {
+            showToast('Nichts mehr zu kaufen 🎉');
+            return;
+        }
+        const byCategory = {};
+        list.forEach(item => {
+            const cat = item.category || 'Sonstiges';
+            if (!byCategory[cat]) byCategory[cat] = [];
+            byCategory[cat].push(item);
+        });
+        let text = '🛒 Einkaufsliste:\n\n';
+        Object.keys(byCategory).sort().forEach(cat => {
+            text += cat + ':\n';
+            byCategory[cat].forEach(i => { text += '  • ' + i.text + '\n'; });
+            text += '\n';
+        });
+        navigator.share({ title: 'Einkaufsliste', text: text }).catch(() => {});
+    }
+
+    // ============================================================
+    // TODOS (Swipe + Drag-Sort)
+    // ============================================================
+    function renderTodos() {
+        const list = appData.todos || [];
+        const total = list.length;
+        const checked = list.filter(i => i.checked).length;
+        const pct = total > 0 ? Math.round((checked / total) * 100) : 0;
+
+        document.getElementById('todo-progress-fill').style.width = pct + '%';
+        document.getElementById('todo-progress-text').textContent = checked + ' von ' + total + ' erledigt';
+
+        let filtered = list;
+        if (todoFilter === 'meine') filtered = list.filter(t => t.assignee === currentUser || t.assignee === 'beide');
+        if (todoFilter === 'offen') filtered = list.filter(t => !t.checked);
+        if (todoFilter === 'erledigt') filtered = list.filter(t => t.checked);
+
+        let html = '';
+        filtered.forEach(item => {
+            const assigneeClass = 'assignee-' + (item.assignee === 'Michèle' ? 'michele' : item.assignee === 'beide' ? 'beide' : 'alex');
+            html += renderSwipeRow({
+                type: 'todo',
+                id: item.id,
+                inner: '<div class="todo-item">' +
+                    '<span class="drag-handle" data-handle>≡</span>' +
+                    '<div class="checkbox ' + (item.checked ? 'checked' : '') + '" onclick="toggleTodo(' + item.id + ')"></div>' +
+                    '<div style="flex:1;min-width:0;"><div class="item-text ' + (item.checked ? 'checked' : '') + '">' + escapeHtml(item.text) + '</div></div>' +
+                    '<div class="todo-meta"><span class="todo-priority priority-' + item.priority + '">' + (item.priority === 'high' ? 'Hoch' : item.priority === 'medium' ? 'Mittel' : 'Tief') + '</span>' +
+                    '<span class="todo-assignee ' + assigneeClass + '">' + escapeHtml(item.assignee) + '</span></div>' +
+                    '<button class="delete-btn" onclick="deleteTodo(' + item.id + ')">×</button></div>'
+            });
+        });
+
+        if (filtered.length === 0) {
+            html = '<div class="empty-state"><div class="empty-state-icon">✅</div>Keine Todos!</div>';
+        }
+        document.getElementById('todo-list').innerHTML = html;
+
+        attachSwipeHandlers('todo-list', deleteTodo);
+        attachDragSort('todo-list', (fromId, toId) => reorderTodo(fromId, toId));
+
+        if (total >= 3 && checked === total) maybeFireConfetti('todos-done');
+    }
+
+    function filterTodos(filter) {
+        todoFilter = filter;
+        document.querySelectorAll('#todo-filters .filter-tab').forEach(btn => {
+            btn.classList.toggle('active',
+                (filter === 'alle' && btn.textContent === 'Alle') ||
+                (filter === 'meine' && btn.textContent === 'Meine') ||
+                (filter === 'offen' && btn.textContent === 'Offen') ||
+                (filter === 'erledigt' && btn.textContent === 'Erledigt'));
+        });
+        renderTodos();
+    }
+
+    function toggleTodo(id) {
+        const item = appData.todos.find(i => i.id === id);
+        if (item) {
+            item.checked = !item.checked;
+            buzz(item.checked ? 12 : 6);
+            saveData();
+            renderTodos();
+        }
+    }
+
+    function addTodo() {
+        const input = document.getElementById('todo-input');
+        const assignee = document.getElementById('todo-assignee').value;
+        const text = input.value.trim();
+        if (!text) return;
+        appData.todos.push({ id: Date.now(), text: text, checked: false, priority: 'medium', assignee: assignee });
+        input.value = '';
+        buzz(8);
+        saveData();
+        renderTodos();
+    }
+
+    function deleteTodo(id) {
+        const item = appData.todos.find(i => i.id === id);
+        if (!item) return;
+        const snapshot = JSON.parse(JSON.stringify(item));
+        const idx = appData.todos.findIndex(i => i.id === id);
+        appData.todos.splice(idx, 1);
+        saveData();
+        renderTodos();
+        showToast('Todo „' + escapeHtml(snapshot.text) + '" gelöscht', () => {
+            appData.todos.splice(idx, 0, snapshot);
+            saveData();
+            renderTodos();
+        });
+    }
+
+    function reorderTodo(fromId, toId) {
+        const fromIdx = appData.todos.findIndex(i => i.id === fromId);
+        const toIdx = appData.todos.findIndex(i => i.id === toId);
+        if (fromIdx < 0 || toIdx < 0 || fromIdx === toIdx) return;
+        const [moved] = appData.todos.splice(fromIdx, 1);
+        appData.todos.splice(toIdx, 0, moved);
+        saveData();
+        renderTodos();
+        buzz(10);
+    }
+
+    // ============================================================
+    // PACKLISTE
+    // ============================================================
+    function getActivePackliste() {
+        let key = appData.packliste.activeTrip;
+        if (!appData.packliste.trips || !appData.packliste.trips[key]) {
+            const keys = Object.keys(appData.packliste.trips || {});
+            key = keys[0];
+            if (key) appData.packliste.activeTrip = key;
+        }
+        return appData.packliste.trips[key] || { trip: {}, categories: {} };
+    }
+
+    function switchPacklistTrip(tripKey) {
+        if (!appData.packliste.trips[tripKey]) return;
+        appData.packliste.activeTrip = tripKey;
+        packlistCollapsed = {};
+        buzz(8);
+        saveData();
+        renderPackliste();
+        renderDashboard();
+    }
+
+    function togglePacklistCat(cat) {
+        packlistCollapsed[cat] = !packlistCollapsed[cat];
+        renderPackliste();
+    }
+
+    function renderPackliste() {
+        const active = getActivePackliste();
+        const trip = active.trip || {};
+        const cats = active.categories || {};
+
+        // Trip-Switcher (Tabs)
+        const tripLabels = { camperreise: '🚐 Camperreise', toggenburg: '🏡 Toggenburg' };
+        let switcherHtml = '<div class="packlist-trip-switcher">';
+        Object.keys(appData.packliste.trips).forEach(tripKey => {
+            const fallback = (appData.packliste.trips[tripKey].trip && appData.packliste.trips[tripKey].trip.name) || tripKey;
+            const label = tripLabels[tripKey] || fallback;
+            const activeClass = tripKey === appData.packliste.activeTrip ? ' active' : '';
+            switcherHtml += '<button class="packlist-trip-tab' + activeClass + '" onclick="switchPacklistTrip(\'' + tripKey + '\')">' + escapeHtml(label) + '</button>';
+        });
+        switcherHtml += '</div>';
+
+        let tripHtml = switcherHtml + '<h3>' + escapeHtml(trip.name || 'Reise') + ' 🧳</h3>';
+        if (trip.destination || trip.duration) {
+            tripHtml += '<div class="packlist-trip-info">';
+            if (trip.destination) tripHtml += '<span class="packlist-badge">' + escapeHtml(trip.destination) + '</span>';
+            if (trip.duration) tripHtml += '<span class="packlist-badge">' + escapeHtml(trip.duration) + '</span>';
+            tripHtml += '</div>';
+        }
+        tripHtml += '<button class="packlist-edit-btn" onclick="editTripInfo()">✏️ Bearbeiten</button>';
+        document.getElementById('packlist-trip-card').innerHTML = tripHtml;
+
+        let total = 0, checked = 0;
+        Object.values(cats).forEach(items => {
+            if (Array.isArray(items)) items.forEach(item => { total++; if (item.checked) checked++; });
+        });
+        const pct = total > 0 ? Math.round((checked / total) * 100) : 0;
+        document.getElementById('packlist-progress-fill').style.width = pct + '%';
+        document.getElementById('packlist-progress-text').textContent = checked + ' von ' + total + ' erledigt';
+
+        const catSelect = document.getElementById('packlist-category');
+        catSelect.innerHTML = '';
+        Object.keys(cats).forEach(cat => {
+            const opt = document.createElement('option');
+            opt.value = cat;
+            opt.textContent = cat;
+            catSelect.appendChild(opt);
+        });
+
+        let listHtml = '';
+        Object.keys(cats).forEach(cat => {
+            const items = cats[cat] || [];
+            const catChecked = items.filter(i => i.checked).length;
+            const isCollapsed = packlistCollapsed[cat] || false;
+            const allDone = items.length > 0 && catChecked === items.length;
+            const doneStyle = allDone ? ' style="opacity:0.55;"' : '';
+            const catEsc = cat.replace(/'/g, "\\'");
+            listHtml += '<div class="packlist-cat-header" onclick="togglePacklistCat(\'' + catEsc + '\')"' + doneStyle + '><span><span class="packlist-cat-toggle ' + (isCollapsed ? 'collapsed' : '') + '">▼</span>' + escapeHtml(cat) + '</span><span class="packlist-cat-count">' + catChecked + '/' + items.length + '</span></div>';
+            listHtml += '<div class="packlist-cat-items ' + (isCollapsed ? 'collapsed' : '') + '">';
+            items.forEach(item => {
+                const tagClass = item.tag ? 'tag-person-' + (trip.people && trip.people.indexOf(item.tag) >= 0 ? trip.people.indexOf(item.tag) : 'alle') : '';
+                const tagHtml = item.tag ? '<span class="packlist-item-tag ' + tagClass + '">' + escapeHtml(item.tag) + '</span>' : '';
+                listHtml += '<div class="packlist-item">' +
+                    '<div class="checkbox ' + (item.checked ? 'checked' : '') + '" onclick="togglePacklist(' + item.id + ',\'' + catEsc + '\')"></div>' +
+                    '<div class="packlist-item-info"><span class="packlist-item-text ' + (item.checked ? 'checked' : '') + '">' + escapeHtml(item.text) + tagHtml + '</span>' +
+                    (item.note ? '<div class="packlist-item-tag" style="background:none;padding:0;margin:0;margin-top:2px;color:var(--text-muted);font-style:italic;">' + escapeHtml(item.note) + '</div>' : '') + '</div>' +
+                    '<button class="delete-btn" onclick="deletePacklist(' + item.id + ',\'' + catEsc + '\')">×</button></div>';
+            });
+            listHtml += '</div>';
+        });
+
+        document.getElementById('packlist-list').innerHTML = listHtml;
+
+        if (total >= 5 && checked === total) maybeFireConfetti('packlist-done');
+    }
+
+    function togglePacklist(id, cat) {
+        const active = getActivePackliste();
+        const items = active.categories[cat] || [];
+        const item = items.find(i => i.id === id);
+        if (item) {
+            item.checked = !item.checked;
+            buzz(item.checked ? 12 : 6);
+            saveData();
+            renderPackliste();
+            renderDashboard();
+        }
+    }
+
+    function addPacklistItem() {
+        const input = document.getElementById('packlist-input');
+        const cat = document.getElementById('packlist-category').value;
+        const text = input.value.trim();
+        if (!text || !cat) return;
+        const active = getActivePackliste();
+        if (!active.categories[cat]) active.categories[cat] = [];
+        let maxId = 0;
+        Object.values(active.categories).forEach(items => {
+            if (Array.isArray(items)) items.forEach(i => { maxId = Math.max(maxId, i.id || 0); });
+        });
+        active.categories[cat].push({ id: maxId + 1, text: text, checked: false, tag: '', note: '' });
+        input.value = '';
+        buzz(8);
+        saveData();
+        renderPackliste();
+    }
+
+    function deletePacklist(id, cat) {
+        const active = getActivePackliste();
+        if (!active.categories[cat]) return;
+        const idx = active.categories[cat].findIndex(i => i.id === id);
+        if (idx < 0) return;
+        const snapshot = active.categories[cat][idx];
+        active.categories[cat].splice(idx, 1);
+        saveData();
+        renderPackliste();
+        showToast('„' + escapeHtml(snapshot.text) + '" gelöscht', () => {
+            active.categories[cat].splice(idx, 0, snapshot);
+            saveData();
+            renderPackliste();
+        });
+    }
+
+    function addPacklistCategory() {
+        const input = document.getElementById('packlist-new-cat');
+        const cat = input.value.trim();
+        if (!cat) return;
+        const active = getActivePackliste();
+        if (!active.categories[cat]) {
+            active.categories[cat] = [];
+            saveData();
+            renderPackliste();
+            input.value = '';
+        }
+    }
+
+    function editTripInfo() {
+        const active = getActivePackliste();
+        const name = prompt('Reisename:', active.trip.name || '');
+        if (name === null) return;
+        active.trip.name = name;
+        const dest = prompt('Ziel:', active.trip.destination || '');
+        if (dest === null) return;
+        active.trip.destination = dest;
+        const dur = prompt('Dauer:', active.trip.duration || '');
+        if (dur === null) return;
+        active.trip.duration = dur;
+        saveData();
+        renderPackliste();
+        renderDashboard();
+    }
+
+    function resetPackliste() {
+        const active = getActivePackliste();
+        const label = (active.trip && active.trip.name) ? active.trip.name : 'dieser Packliste';
+        if (!confirm('Alle Häkchen in «' + label + '» zurücksetzen?')) return;
+        Object.values(active.categories).forEach(items => {
+            if (Array.isArray(items)) items.forEach(i => { i.checked = false; });
+        });
+        saveData();
+        renderPackliste();
+        renderDashboard();
+    }
+
+    // ============================================================
+    // REINIGUNG
+    // ============================================================
+    const frequencyLabels = {
+        'weekly': 'Wöchentlich',
+        'biweekly': 'Alle 2 Wochen',
+        'monthly': 'Monatlich',
+        'quarterly': 'Vierteljährlich',
+        'biannual': 'Halbjährlich',
+        'annual': 'Jährlich'
+    };
+    const frequencyOrder = ['weekly', 'biweekly', 'monthly', 'quarterly', 'biannual', 'annual'];
+
+    function renderCleaning() {
+        const list = appData.reinigung || [];
+        const total = list.length;
+        const checked = list.filter(i => i.checked).length;
+        const pct = total > 0 ? Math.round((checked / total) * 100) : 0;
+
+        document.getElementById('cleaning-progress-fill').style.width = pct + '%';
+        document.getElementById('cleaning-progress-text').textContent = checked + ' von ' + total + ' erledigt';
+
+        let filtered = list;
+        if (cleaningFilter === 'offen') filtered = list.filter(i => !i.checked);
+        if (cleaningFilter === 'erledigt') filtered = list.filter(i => i.checked);
+
+        const groups = {};
+        filtered.forEach(item => {
+            const freq = item.frequency || 'monthly';
+            if (!groups[freq]) groups[freq] = [];
+            groups[freq].push(item);
+        });
+
+        let html = '';
+        frequencyOrder.forEach(freq => {
+            const items = groups[freq];
+            if (!items || items.length === 0) return;
+            const freqLabel = frequencyLabels[freq] || freq;
+            const freqChecked = items.filter(i => i.checked).length;
+            html += '<div class="cleaning-frequency-header"><span>' + freqLabel + '</span><span class="cleaning-frequency-badge freq-' + freq + '">' + freqChecked + '/' + items.length + '</span></div>';
+            items.forEach(item => {
+                const noteHtml = item.note ? '<div class="cleaning-note">' + escapeHtml(item.note) + '</div>' : '';
+                const lastDoneHtml = item.lastDone ? '<div class="cleaning-last-done">Zuletzt erledigt: ' + escapeHtml(item.lastDone) + '</div>' : '';
+                html += renderSwipeRow({
+                    type: 'cleaning',
+                    id: item.id,
+                    inner: '<div class="cleaning-item">' +
+                        '<div class="checkbox ' + (item.checked ? 'checked' : '') + '" onclick="toggleCleaning(' + item.id + ')"></div>' +
+                        '<div class="cleaning-item-info"><span class="cleaning-item-text ' + (item.checked ? 'checked' : '') + '">' + escapeHtml(item.text) + '</span>' + noteHtml + lastDoneHtml + '</div>' +
+                        '<button class="delete-btn" onclick="deleteCleaning(' + item.id + ')">×</button></div>'
+                });
+            });
+        });
+
+        if (filtered.length === 0) {
+            html = '<div class="empty-state"><div class="empty-state-icon">✨</div>Alles sauber!</div>';
+        }
+        document.getElementById('cleaning-list').innerHTML = html;
+        attachSwipeHandlers('cleaning-list', deleteCleaning);
+    }
+
+    function filterCleaning(filter) {
+        cleaningFilter = filter;
+        document.querySelectorAll('#cleaning-filters .filter-tab').forEach(btn => {
+            btn.classList.toggle('active',
+                (filter === 'alle' && btn.textContent === 'Alle') ||
+                (filter === 'offen' && btn.textContent === 'Offen') ||
+                (filter === 'erledigt' && btn.textContent === 'Erledigt'));
+        });
+        renderCleaning();
+    }
+
+    function toggleCleaning(id) {
+        const item = (appData.reinigung || []).find(i => i.id === id);
+        if (item) {
+            item.checked = !item.checked;
+            if (item.checked) {
+                const now = new Date();
+                item.lastDone = now.getDate() + '.' + (now.getMonth()+1) + '.' + now.getFullYear();
+            }
+            buzz(item.checked ? 12 : 6);
+            saveData();
+            renderCleaning();
+        }
+    }
+
+    function deleteCleaning(id) {
+        const idx = (appData.reinigung || []).findIndex(i => i.id === id);
+        if (idx < 0) return;
+        const snapshot = appData.reinigung[idx];
+        appData.reinigung.splice(idx, 1);
+        saveData();
+        renderCleaning();
+        showToast('„' + escapeHtml(snapshot.text) + '" gelöscht', () => {
+            appData.reinigung.splice(idx, 0, snapshot);
+            saveData();
+            renderCleaning();
+        });
+    }
+
+    function addCleaningItem() {
+        const input = document.getElementById('cleaning-input');
+        const freq = document.getElementById('cleaning-frequency').value;
+        const text = input.value.trim();
+        if (!text) return;
+        if (!Array.isArray(appData.reinigung)) appData.reinigung = [];
+        const maxId = appData.reinigung.reduce((max, i) => Math.max(max, i.id || 0), 0);
+        appData.reinigung.push({ id: maxId + 1, text: text, checked: false, frequency: freq, lastDone: '', note: '' });
+        input.value = '';
+        buzz(8);
+        saveData();
+        renderCleaning();
+    }
+
+    function resetCleaning() {
+        if (!confirm('Alle Reinigungsaufgaben zurücksetzen?')) return;
+        (appData.reinigung || []).forEach(item => { item.checked = false; });
+        saveData();
+        renderCleaning();
+    }
+
+    // ============================================================
+    // SWIPE-TO-DELETE + DRAG-SORT (Pointer-Events, funktioniert auf Pixel)
+    // ============================================================
+    function renderSwipeRow({ type, id, inner }) {
+        return '<div class="sortable-item swipe-wrapper" data-type="' + type + '" data-id="' + id + '">' +
+            '<div class="swipe-bg">🗑️ Löschen</div>' +
+            '<div class="swipe-content">' + inner + '</div>' +
+        '</div>';
+    }
+
+    const SWIPE_THRESHOLD = 90;
+    const SWIPE_MAX = 140;
+
+    function attachSwipeHandlers(containerId, deleteFn) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        container.querySelectorAll('.swipe-wrapper').forEach(wrapper => {
+            const content = wrapper.querySelector('.swipe-content');
+            if (!content || content._swipeBound) return;
+            content._swipeBound = true;
+
+            let startX = 0, startY = 0, dx = 0, swiping = false, decided = false;
+
+            content.addEventListener('pointerdown', (e) => {
+                // Drag-Handle hat Vorrang → kein Swipe
+                if (e.target.closest('[data-handle]')) return;
+                // Buttons / Checkboxen: kein Swipe
+                if (e.target.closest('.checkbox') || e.target.closest('button')) return;
+                if (e.pointerType === 'mouse' && e.button !== 0) return;
+
+                startX = e.clientX;
+                startY = e.clientY;
+                dx = 0;
+                swiping = true;
+                decided = false;
+                content.classList.add('swiping');
+            });
+
+            content.addEventListener('pointermove', (e) => {
+                if (!swiping) return;
+                const ddx = e.clientX - startX;
+                const ddy = e.clientY - startY;
+
+                if (!decided) {
+                    if (Math.abs(ddy) > Math.abs(ddx) + 6) {
+                        // Vertical → kein Swipe (User scrollt)
+                        swiping = false;
+                        content.classList.remove('swiping');
+                        content.style.transform = '';
+                        return;
+                    }
+                    if (Math.abs(ddx) > 8) decided = true;
+                }
+                if (!decided) return;
+
+                dx = Math.max(Math.min(ddx, 30), -SWIPE_MAX);
+                content.style.transform = 'translateX(' + dx + 'px)';
+            });
+
+            const finish = () => {
+                if (!swiping) return;
+                swiping = false;
+                content.classList.remove('swiping');
+                if (dx <= -SWIPE_THRESHOLD) {
+                    content.classList.add('deleting');
+                    buzz(15);
+                    setTimeout(() => {
+                        const id = parseInt(wrapper.dataset.id);
+                        deleteFn(id);
+                    }, 200);
+                } else {
+                    content.style.transform = '';
+                }
+            };
+
+            content.addEventListener('pointerup', finish);
+            content.addEventListener('pointercancel', finish);
+            content.addEventListener('pointerleave', (e) => {
+                // Nur bei Maus-Leave finalisieren
+                if (e.pointerType === 'mouse') finish();
+            });
+        });
+    }
+
+    // Drag-Sort via Pointer Events auf den Drag-Handles
+    function attachDragSort(containerId, onReorder) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+
+        container.querySelectorAll('[data-handle]').forEach(handle => {
+            if (handle._dragBound) return;
+            handle._dragBound = true;
+
+            let dragItem = null;
+            let placeholder = null;
+            let allItems = [];
+            let dragId = null;
+
+            handle.addEventListener('pointerdown', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dragItem = handle.closest('.sortable-item');
+                if (!dragItem) return;
+
+                dragId = parseInt(dragItem.dataset.id);
+                allItems = Array.from(container.querySelectorAll('.sortable-item'));
+                dragItem.classList.add('is-dragging');
+                handle.setPointerCapture(e.pointerId);
+                buzz(10);
+            });
+
+            handle.addEventListener('pointermove', (e) => {
+                if (!dragItem) return;
+                e.preventDefault();
+                const y = e.clientY;
+                allItems.forEach(other => {
+                    if (other === dragItem) return;
+                    other.classList.remove('drag-target-above', 'drag-target-below');
+                });
+                const target = allItems.find(other => {
+                    if (other === dragItem) return false;
+                    const rect = other.getBoundingClientRect();
+                    return y >= rect.top && y <= rect.bottom;
+                });
+                if (target) {
+                    const rect = target.getBoundingClientRect();
+                    if (y < rect.top + rect.height / 2) {
+                        target.classList.add('drag-target-above');
+                    } else {
+                        target.classList.add('drag-target-below');
+                    }
+                }
+            });
+
+            const endDrag = (e) => {
+                if (!dragItem) return;
+                const targetEl = container.querySelector('.drag-target-above, .drag-target-below');
+                if (targetEl) {
+                    const targetId = parseInt(targetEl.dataset.id);
+                    if (!isNaN(targetId) && targetId !== dragId) {
+                        onReorder(dragId, targetId);
+                    }
+                }
+                allItems.forEach(it => it.classList.remove('drag-target-above', 'drag-target-below', 'is-dragging'));
+                dragItem = null;
+                placeholder = null;
+                allItems = [];
+                dragId = null;
+            };
+            handle.addEventListener('pointerup', endDrag);
+            handle.addEventListener('pointercancel', endDrag);
+        });
+    }
+
+    // ============================================================
+    // TOAST mit Undo
+    // ============================================================
+    function showToast(text, undoFn, duration) {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        const ms = duration || 5000;
+
+        const textEl = document.createElement('div');
+        textEl.className = 'toast-text';
+        textEl.innerHTML = text;
+        toast.appendChild(textEl);
+
+        if (typeof undoFn === 'function') {
+            const btn = document.createElement('button');
+            btn.className = 'toast-action';
+            btn.textContent = 'Rückgängig';
+            btn.onclick = () => {
+                undoFn();
+                buzz(8);
+                dismiss();
+            };
+            toast.appendChild(btn);
+        }
+
+        const dismiss = () => {
+            toast.classList.add('leaving');
+            setTimeout(() => { toast.remove(); }, 250);
+        };
+        container.appendChild(toast);
+        setTimeout(dismiss, ms);
+    }
+
+    // ============================================================
+    // PULL-TO-REFRESH
+    // ============================================================
+    function setupPullToRefresh() {
+        const indicator = document.getElementById('pull-indicator');
+        let startY = 0;
+        let dy = 0;
+        let pulling = false;
+        let refreshing = false;
+        const THRESHOLD = 70;
+        const MAX = 100;
+
+        document.addEventListener('touchstart', (e) => {
+            if (refreshing) return;
+            if (window.scrollY > 0) return;
+            // Nicht bei Eingabefeldern / Modals
+            if (document.getElementById('password-overlay').style.display !== 'none') return;
+            if (e.target.closest('.swipe-wrapper, .day-chips')) return;
+            startY = e.touches[0].clientY;
+            pulling = true;
+            dy = 0;
+        }, { passive: true });
+
+        document.addEventListener('touchmove', (e) => {
+            if (!pulling || refreshing) return;
+            const y = e.touches[0].clientY;
+            dy = y - startY;
+            if (dy > 0 && window.scrollY === 0) {
+                const visible = Math.min(dy, MAX);
+                indicator.style.transform = 'translateY(' + (visible - 60) + 'px)';
+                indicator.classList.add('visible');
+            } else if (dy <= 0) {
+                indicator.classList.remove('visible');
+                indicator.style.transform = '';
+            }
+        }, { passive: true });
+
+        document.addEventListener('touchend', () => {
+            if (!pulling) return;
+            pulling = false;
+            if (dy >= THRESHOLD && !refreshing) {
+                refreshing = true;
+                indicator.classList.add('refreshing');
+                indicator.style.transform = 'translateY(0)';
+                indicator.classList.add('visible');
+                buzz(15);
+                Promise.all([refreshFromCloud(), new Promise(r => setTimeout(r, 600))]).then(() => {
+                    refreshing = false;
+                    indicator.classList.remove('refreshing', 'visible');
+                    indicator.style.transform = '';
+                    showToast('Aktualisiert ✓', null, 1500);
+                });
+            } else {
+                indicator.classList.remove('visible');
+                indicator.style.transform = '';
+            }
+        });
+    }
+
+    // ============================================================
+    // CONFETTI 🎉
+    // ============================================================
+    const confettiFiredFor = {};
+    function maybeFireConfetti(key) {
+        if (confettiFiredFor[key]) return;
+        confettiFiredFor[key] = true;
+        setTimeout(() => fireConfetti(), 200);
+    }
+
+    function fireConfetti() {
+        const canvas = document.getElementById('confetti-canvas');
+        canvas.style.display = 'block';
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        const colors = ['#57856F', '#A1BFB0', '#3D6350', '#FFD700', '#FF8FA3', '#7AC4F0'];
+        const particles = [];
+        const count = 90;
+        for (let i = 0; i < count; i++) {
+            particles.push({
+                x: window.innerWidth / 2 + (Math.random() - 0.5) * 100,
+                y: window.innerHeight / 2,
+                vx: (Math.random() - 0.5) * 14,
+                vy: (Math.random() - 0.5) * 12 - 8,
+                size: 6 + Math.random() * 6,
+                color: colors[Math.floor(Math.random() * colors.length)],
+                angle: Math.random() * Math.PI * 2,
+                spin: (Math.random() - 0.5) * 0.4,
+                life: 0
+            });
+        }
+        buzz([15, 30, 15]);
+        let frames = 0;
+        const max = 140;
+        function animate() {
+            frames++;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.45;
+                p.vx *= 0.99;
+                p.angle += p.spin;
+                p.life++;
+                ctx.save();
+                ctx.translate(p.x, p.y);
+                ctx.rotate(p.angle);
+                ctx.fillStyle = p.color;
+                ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 1.4);
+                ctx.restore();
+            });
+            if (frames < max) {
+                requestAnimationFrame(animate);
+            } else {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                canvas.style.display = 'none';
+            }
+        }
+        animate();
+    }
+
+    // ============================================================
+    // INSTALL PROMPT (Android Chrome)
+    // ============================================================
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredInstallPrompt = e;
+        if (localStorage.getItem(INSTALL_DISMISS_KEY) === 'true') return;
+        document.getElementById('install-banner').classList.add('show');
+        document.getElementById('install-btn').style.display = 'flex';
+    });
+
+    window.addEventListener('appinstalled', () => {
+        document.getElementById('install-banner').classList.remove('show');
+        document.getElementById('install-btn').style.display = 'none';
+        deferredInstallPrompt = null;
+        showToast('App installiert ✨ Schau auf dem Home-Screen.', null, 4000);
+    });
+
+    function triggerInstall() {
+        if (!deferredInstallPrompt) {
+            showToast('Tipp: über Browser-Menü „Zum Startbildschirm hinzufügen" wählen', null, 4000);
+            return;
+        }
+        deferredInstallPrompt.prompt();
+        deferredInstallPrompt.userChoice.then(choice => {
+            if (choice.outcome === 'accepted') {
+                document.getElementById('install-banner').classList.remove('show');
+            }
+            deferredInstallPrompt = null;
+        });
+    }
+
+    function dismissInstallBanner() {
+        document.getElementById('install-banner').classList.remove('show');
+        localStorage.setItem(INSTALL_DISMISS_KEY, 'true');
+    }
+
+    // ============================================================
+    // SERVICE WORKER REGISTRATION
+    // ============================================================
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('sw.js')
+                .then(reg => {
+                    // Auto-Update wenn neue Version verfügbar
+                    reg.addEventListener('updatefound', () => {
+                        const sw = reg.installing;
+                        if (!sw) return;
+                        sw.addEventListener('statechange', () => {
+                            if (sw.state === 'installed' && navigator.serviceWorker.controller) {
+                                showToast('Neue Version verfügbar 🔄', () => location.reload(), 8000);
+                            }
+                        });
+                    });
+                })
+                .catch(err => console.warn('SW Registrierung fehlgeschlagen:', err));
+        });
+    }
+
+    // ============================================================
+    // KEYBOARD
+    // ============================================================
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            if (e.target.id === 'shopping-input') addShoppingItem();
+            if (e.target.id === 'todo-input') addTodo();
+            if (e.target.id === 'packlist-input') addPacklistItem();
+            if (e.target.id === 'cleaning-input') addCleaningItem();
+        }
+    });
+
+    // ============================================================
+    // HELPERS
+    // ============================================================
+    function escapeHtml(str) {
+        if (str === null || str === undefined) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    // ============================================================
+    // SETTINGS PANEL
+    // ============================================================
+    function openSettings() {
+        document.getElementById('api-key-input').value = localStorage.getItem(API_KEY_STORAGE) || '';
+        document.getElementById('settings-user').value = currentUser || 'Michèle';
+        updateAiStatusBadge();
+        document.getElementById('settings-overlay').classList.add('show');
+    }
+    function closeSettings() {
+        document.getElementById('settings-overlay').classList.remove('show');
+    }
+    function saveSettings() {
+        const key = document.getElementById('api-key-input').value.trim();
+        if (key) {
+            localStorage.setItem(API_KEY_STORAGE, key);
+        } else {
+            localStorage.removeItem(API_KEY_STORAGE);
+        }
+        const user = document.getElementById('settings-user').value;
+        if (user && user !== currentUser) {
+            currentUser = user;
+            localStorage.setItem(USER_KEY, user);
+            document.getElementById('greeting').textContent = 'Hallo ' + user + '! 👋';
+        }
+        updateAiStatusBadge();
+        closeSettings();
+        showToast('Gespeichert ✓', null, 1500);
+        renderCurrentTab();
+    }
+    function updateAiStatusBadge() {
+        const badge = document.getElementById('ai-status');
+        if (!badge) return;
+        const hasKey = !!localStorage.getItem(API_KEY_STORAGE);
+        badge.textContent = hasKey ? 'aktiv' : 'fehlt';
+        badge.className = 'ai-status ' + (hasKey ? 'on' : 'off');
+    }
+    function getApiKey() {
+        return localStorage.getItem(API_KEY_STORAGE);
+    }
+    function requireApiKey(action) {
+        if (!getApiKey()) {
+            showToast('API-Key fehlt – ⚙️ oben rechts', () => openSettings(), 6000);
+            return false;
+        }
+        return true;
+    }
+
+    // ============================================================
+    // ANTHROPIC API CLIENT
+    // ============================================================
+    async function callClaude({ system, messages, maxTokens = 1024, model }) {
+        const key = getApiKey();
+        if (!key) throw new Error('Kein API-Key konfiguriert');
+        const body = {
+            model: model || 'claude-haiku-4-5-20251001',
+            max_tokens: maxTokens,
+            messages: messages
+        };
+        if (system) body.system = system;
+        const res = await fetch('https://api.anthropic.com/v1/messages', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': key,
+                'anthropic-version': '2023-06-01',
+                'anthropic-dangerous-direct-browser-access': 'true'
+            },
+            body: JSON.stringify(body)
+        });
+        if (!res.ok) {
+            const errText = await res.text();
+            throw new Error('API-Fehler ' + res.status + ': ' + errText.slice(0, 200));
+        }
+        const data = await res.json();
+        return data.content && data.content[0] && data.content[0].text || '';
+    }
+
+    function extractJson(text) {
+        // Versucht JSON aus einer Claude-Antwort zu extrahieren (auch wenn Markdown drum)
+        const codeBlock = text.match(/```(?:json)?\s*([\s\S]*?)```/);
+        const candidate = codeBlock ? codeBlock[1] : text;
+        const firstBrace = Math.min(...['{','['].map(c => candidate.indexOf(c)).filter(i => i >= 0));
+        const lastBrace = Math.max(candidate.lastIndexOf('}'), candidate.lastIndexOf(']'));
+        if (firstBrace < 0 || lastBrace < 0) throw new Error('Kein JSON in Antwort gefunden');
+        return JSON.parse(candidate.slice(firstBrace, lastBrace + 1));
+    }
+
+    // ============================================================
+    // VOICE QUICK-ADD (Web Speech API – nativ, kein API-Key nötig)
+    // ============================================================
+    let voiceRecognition = null;
+    let voiceListening = false;
+
+    function initVoice() {
+        const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const fab = document.getElementById('fab-mic');
+        if (!SR || !fab) {
+            return; // Nicht unterstützt → FAB bleibt versteckt
+        }
+        fab.style.display = 'flex';
+        voiceRecognition = new SR();
+        voiceRecognition.lang = 'de-CH';
+        voiceRecognition.continuous = false;
+        voiceRecognition.interimResults = true;
+        voiceRecognition.maxAlternatives = 1;
+
+        let lastTranscript = '';
+        voiceRecognition.onresult = (e) => {
+            let text = '';
+            for (let i = e.resultIndex; i < e.results.length; i++) {
+                text += e.results[i][0].transcript;
+            }
+            lastTranscript = text;
+            const txtEl = document.getElementById('voice-text');
+            if (txtEl) txtEl.textContent = text || '…';
+        };
+        voiceRecognition.onerror = (e) => {
+            console.warn('Voice error:', e.error);
+            stopVoice();
+            if (e.error === 'not-allowed') {
+                showToast('Mikrofon-Zugriff verweigert', null, 4000);
+            } else if (e.error !== 'no-speech' && e.error !== 'aborted') {
+                showToast('Spracherkennung-Fehler: ' + e.error, null, 3000);
+            }
+        };
+        voiceRecognition.onend = () => {
+            stopVoice();
+            if (lastTranscript && lastTranscript.trim()) {
+                processVoiceText(lastTranscript.trim());
+            }
+            lastTranscript = '';
+        };
+    }
+
+    function toggleVoice() {
+        if (!voiceRecognition) {
+            showToast('Spracherkennung nicht unterstützt', null, 3000);
+            return;
+        }
+        if (voiceListening) {
+            voiceRecognition.stop();
+        } else {
+            startVoice();
+        }
+    }
+    function startVoice() {
+        try {
+            voiceRecognition.start();
+            voiceListening = true;
+            document.getElementById('fab-mic').classList.add('listening');
+            document.getElementById('voice-text').textContent = '…';
+            document.getElementById('voice-bubble').classList.add('show');
+            buzz(20);
+        } catch (e) {
+            console.warn('Voice start failed:', e);
+        }
+    }
+    function stopVoice() {
+        voiceListening = false;
+        document.getElementById('fab-mic').classList.remove('listening');
+        document.getElementById('voice-bubble').classList.remove('show');
+    }
+
+    function processVoiceText(text) {
+        // Entscheide basierend auf aktivem Tab + Keywords, wo das Item hingehört.
+        const lower = text.toLowerCase();
+        let target = currentTab;
+
+        // Keywords als Override
+        if (/\b(kauf|einkauf|liste|migros|coop|brot|milch|gemüse|früchte)\b/.test(lower)) target = 'shopping';
+        else if (/\b(todo|aufgabe|erinnern|nicht vergess|muss noch)\b/.test(lower)) target = 'todos';
+        else if (/\b(putzen|reinig|saugen|wischen)\b/.test(lower)) target = 'reinigung';
+        else if (/\b(packen|kofferpacken)\b/.test(lower)) target = 'packliste';
+        else if (target === 'menu' || target === 'dashboard') target = 'shopping'; // Default-Fallback
+
+        // Kommas/und-Trennung → mehrere Items
+        const items = text.split(/,| und | sowie /i).map(s => s.trim()).filter(s => s.length > 0);
+
+        let added = 0;
+        items.forEach(item => {
+            // Sätze "ich brauche / kauf mir" → bereinigen
+            let clean = item.replace(/^(ich (brauche|will|möchte)|kauf(?: mir)?|notier(?: mir)?|merk(?: dir)?|bitte|noch)\s+/i, '').trim();
+            if (!clean) return;
+            // Erstes Wort gross
+            clean = clean.charAt(0).toUpperCase() + clean.slice(1);
+
+            if (target === 'shopping') {
+                appData.shopping.push({ id: Date.now() + added, text: clean, category: guessCategory(clean), checked: false });
+            } else if (target === 'todos') {
+                appData.todos.push({ id: Date.now() + added, text: clean, checked: false, priority: 'medium', assignee: currentUser || 'beide' });
+            } else if (target === 'reinigung') {
+                if (!Array.isArray(appData.reinigung)) appData.reinigung = [];
+                const maxId = appData.reinigung.reduce((m, i) => Math.max(m, i.id || 0), 0);
+                appData.reinigung.push({ id: maxId + 1 + added, text: clean, checked: false, frequency: 'weekly', lastDone: '', note: '' });
+            }
+            added++;
+        });
+
+        if (added > 0) {
+            saveData();
+            switchTab(target);
+            buzz(15);
+            const labels = { shopping: 'Einkauf', todos: 'Todos', reinigung: 'Reinigung', packliste: 'Packliste' };
+            showToast('✓ ' + added + ' Eintrag/Einträge in ' + (labels[target] || target), null, 2500);
+        } else {
+            showToast('Konnte nichts erkennen 🤔', null, 2500);
+        }
+    }
+
+    function guessCategory(text) {
+        const t = text.toLowerCase();
+        if (/\b(rüebli|tomate|salat|gurke|spinat|zwiebel|knoblauch|kartoffel|peperoni|broccoli|blumenkohl|gemüse|aubergine|zucchini|kürbis|pilz|champignon)\b/.test(t)) return 'Gemüse';
+        if (/\b(apfel|äpfel|banane|orange|zitrone|beere|trauben|kirsch|pfirsich|melon|frucht|birne|mango|himbeer|erdbeer|heidelbeer)\b/.test(t)) return 'Früchte';
+        if (/\b(milch|butter|käse|joghurt|rahm|quark|sahne|ei|eier|frischkäse|mozzarella)\b/.test(t)) return 'Milchprodukte';
+        if (/\b(poulet|fleisch|wurst|schinken|speck|fisch|lachs|thon|hähn|huhn|rind|hack|cervelat)\b/.test(t)) return 'Fleisch & Fisch';
+        if (/\b(brot|gipfeli|brötli|zopf|baguette|toast|brötchen|knäcke)\b/.test(t)) return 'Brot & Gebäck';
+        if (/\b(saft|wasser|cola|sirup|wein|bier|tee|kaffee|getränk)\b/.test(t)) return 'Getränke';
+        if (/\b(seife|wasch|wc|toiletten|spüli|putz|reinig|spül|haushalt|alu|tasche|sack|abfall|müll)\b/.test(t)) return 'Haushalt';
+        return 'Sonstiges';
+    }
+
+    // ============================================================
+    // PHOTO → SHOPPING (Claude Vision)
+    // ============================================================
+    function triggerPhoto() {
+        if (!requireApiKey()) return;
+        document.getElementById('photo-input').click();
+    }
+
+    async function handlePhotoSelected(event) {
+        const file = event.target.files && event.target.files[0];
+        event.target.value = ''; // Reset
+        if (!file) return;
+        if (!requireApiKey()) return;
+
+        const resultEl = document.getElementById('ocr-result');
+        resultEl.innerHTML = '<div class="ocr-panel"><div class="ocr-loading"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3.51-7.13"/><polyline points="21 4 21 12 13 12"/></svg>Foto wird ausgewertet…</div></div>';
+
+        try {
+            const base64 = await fileToBase64(file);
+            const mediaType = file.type || 'image/jpeg';
+            const response = await callClaude({
+                model: 'claude-sonnet-4-6',
+                maxTokens: 2048,
+                system: 'Du analysierst Fotos von Einkaufslisten oder Kassenzetteln. Antworte AUSSCHLIESSLICH mit einem JSON-Array von Objekten {"text": "Artikelname", "category": "Gemüse|Früchte|Milchprodukte|Fleisch & Fisch|Brot & Gebäck|Getränke|Haushalt|Sonstiges"}. Schweizerdeutsche Begriffe verwenden wenn passend (Rüebli, Poulet, Gipfeli). Mengenangaben weglassen. Keine Erklärungen.',
+                messages: [{
+                    role: 'user',
+                    content: [
+                        { type: 'image', source: { type: 'base64', media_type: mediaType, data: base64 } },
+                        { type: 'text', text: 'Lies die Artikel aus diesem Bild und gib sie als JSON-Array zurück.' }
+                    ]
+                }]
+            });
+            const items = extractJson(response);
+            if (!Array.isArray(items) || items.length === 0) {
+                throw new Error('Keine Artikel erkannt');
+            }
+            renderOcrResult(items);
+            buzz(12);
+        } catch (e) {
+            console.error(e);
+            resultEl.innerHTML = '<div class="ocr-panel" style="border-color:var(--danger);"><div class="ocr-panel-title">⚠️ Fehler</div><div style="color:var(--danger);font-size:0.78rem;">' + escapeHtml(e.message) + '</div><div class="ocr-actions"><button class="ghost-btn" onclick="document.getElementById(\'ocr-result\').innerHTML=\'\'">Schliessen</button></div></div>';
+        }
+    }
+
+    function renderOcrResult(items) {
+        const cats = ['Gemüse','Früchte','Milchprodukte','Fleisch & Fisch','Brot & Gebäck','Getränke','Haushalt','Sonstiges'];
+        let html = '<div class="ocr-panel"><div class="ocr-panel-title"><span>📷 ' + items.length + ' erkannte Artikel</span><span style="font-size:0.65rem;color:var(--text-muted);">Anpassen + übernehmen</span></div>';
+        items.forEach((item, i) => {
+            const cat = cats.includes(item.category) ? item.category : 'Sonstiges';
+            const catOpts = cats.map(c => '<option value="' + c + '"' + (c === cat ? ' selected' : '') + '>' + c + '</option>').join('');
+            html += '<div class="ocr-item"><input type="checkbox" id="ocr-cb-' + i + '" checked style="width:18px;height:18px;accent-color:var(--primary-green);"><input type="text" id="ocr-text-' + i + '" value="' + escapeHtml(item.text || '') + '"><select id="ocr-cat-' + i + '">' + catOpts + '</select></div>';
+        });
+        html += '<div class="ocr-actions"><button class="ghost-btn" onclick="document.getElementById(\'ocr-result\').innerHTML=\'\'">Verwerfen</button><button class="add-btn" onclick="applyOcrItems(' + items.length + ')">Übernehmen</button></div></div>';
+        document.getElementById('ocr-result').innerHTML = html;
+    }
+
+    function applyOcrItems(count) {
+        let added = 0;
+        for (let i = 0; i < count; i++) {
+            const cb = document.getElementById('ocr-cb-' + i);
+            if (!cb || !cb.checked) continue;
+            const text = (document.getElementById('ocr-text-' + i).value || '').trim();
+            const cat = document.getElementById('ocr-cat-' + i).value;
+            if (!text) continue;
+            appData.shopping.push({ id: Date.now() + added, text: text, category: cat, checked: false });
+            added++;
+        }
+        document.getElementById('ocr-result').innerHTML = '';
+        if (added > 0) {
+            saveData();
+            renderShopping();
+            buzz(15);
+            showToast('✓ ' + added + ' Artikel hinzugefügt', null, 2500);
+        }
+    }
+
+    function fileToBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => {
+                const result = reader.result;
+                const comma = result.indexOf(',');
+                resolve(comma >= 0 ? result.slice(comma + 1) : result);
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+    }
+
+    // ============================================================
+    // MENU SUGGESTION (Claude Text)
+    // ============================================================
+
+    // Familien-Lieblingsgerichte – primärer Pool für Wochenplan-Vorschläge.
+    // Allgemein = ganzjährig, dazu jeweils saisonale Ergänzungen.
+    const FAMILY_RECIPES = {
+        allgemein: [
+            'Grüner Spargel mit Sauce Hollandaise und St. Galler Kartoffeln',
+            'Tomaten-Mozzarella-Salat mit frischem Brot',
+            'Bündner Gerstensuppe',
+            'Baked Feta Pasta',
+            'Pho Bo',
+            'Pizza Alex',
+            'Wurst vom Grill mit Salat',
+            'Risotto',
+            'Ungarisches Gulasch',
+            'Spaghetti Bolognese',
+            'Wienerli im Teig mit Salat',
+            'Ricotta-Gnocchi',
+            'Szegediner Gulasch',
+            'Flammkuchen',
+            'Croque Monsieur',
+            'Tiroler Speckknödel',
+            'Gefüllte Omelette mit Champignons & Hackfleisch',
+            'Blumenkohl-Steak mit Bohnenpüree & Chimichurri',
+            'Pouletgeschnetzeltes mit Salat',
+            'Fondue',
+            'Selbstgemachte Pasta',
+            'Lasagne',
+            'Asiatische Nudeln mit Rindfleisch & Gemüse',
+            'Ofengemüse mit Fleisch',
+            'Borschtsch',
+            'Ofengemüse mit Fisch',
+            'Raclette',
+            'Hacktätschli mit Reis und Champignonsauce',
+            'Fleischkäse mit Salat',
+            'Ricotta aus dem Backofen mit Salat',
+            'Lasagne mit Kürbis & Ziegenkäse',
+            'Kartoffel-Lauch-Suppe',
+            'Gebackener Camembert mit Salat'
+        ],
+        fruehling: [
+            'Bärlauchrisotto mit Parmesan',
+            'Pasta mit grünen Erbsen, Minze und Ricotta',
+            'Ofen-Lachs mit grünem Spargel',
+            'Spinat-Quiche mit Frühlingszwiebeln',
+            'Bärlauchpasta mit gerösteten Pinienkernen',
+            'Lauwarmer Linsensalat mit gebratenem Spargel',
+            'Spargelrisotto mit Zitronen-Crème-fraîche',
+            'Rhabarber-Apero-Wähe pikant mit Salat',
+            'Spinat-Cannelloni mit Ricotta',
+            'Frühlings-Frittata mit jungem Spinat'
+        ],
+        sommer: [
+            'Melonen-Feta-Salat mit Minze und Limettendressing',
+            'Linsensalat mit Rucola, roten Zwiebeln und Zitrusdressing',
+            'Frittata mit Sommerkräutern',
+            'Couscous-Salat mit Kichererbsen, Gurke und Zitrone',
+            'Shakshuka mit frischem Brot',
+            'Thai-Nudel-Bowl mit Erdnuss-Dressing',
+            'Lachs-Wraps mit Frischkäse und Rucola',
+            'Asia-Nudeln mit Sesam und Gemüse'
+        ],
+        herbst: [
+            'Kürbissuppe mit Kürbiskernöl',
+            'Kürbisrisotto mit Salbei',
+            'Pilzrisotto mit Steinpilzen',
+            'Pasta mit Steinpilzen und Petersilie',
+            'Rote-Bete-Risotto mit Ziegenkäse',
+            'Geröstete Kürbisspalten mit Halloumi und Granatapfel',
+            'Linseneintopf mit Wurst',
+            'Ofen-Süsskartoffeln mit Hummus und Granatapfel',
+            'Kürbis-Käse-Tarte mit Salat',
+            'Ofenpoulet mit Wurzelgemüse'
+        ],
+        winter: [
+            'Älplermagronen mit Apfelmus',
+            'Käseschnitten mit Spiegelei und Salat',
+            'Wirsing-Hackfleisch-Pfanne',
+            'Schweinsbraten mit Rotkraut und Knödel',
+            'Rotkraut-Dattel-Salat mit Feta und Granatapfel',
+            'Linsen-Dal mit Naan-Brot',
+            'Pastinaken-Cremesuppe mit Brot',
+            'Bratwurst mit Zwiebelsauce und Rösti',
+            'Kartoffelgratin mit Wintergemüse',
+            'Kürbis-Curry mit Kichererbsen'
+        ],
+        // Kuratierte Klassiker aus swissmilk.ch / fooby.ch / migusto.migros.ch –
+        // Standard-Schweizer-Familienküche, ergänzt deine 4 Listen, keine Doppelungen.
+        klassiker_ch: [
+            'Zürcher Geschnetzeltes mit Rösti',
+            'Cordon Bleu mit Pommes Frites und Salat',
+            'Capuns mit Speck und Sbrinz',
+            'Maluns mit Apfelmus und Bergkäse',
+            'Pizokel mit Speck und Käse',
+            'Polenta mit Brasato (Bündner Schmorbraten)',
+            'Bramata mit Pilzragout',
+            'Saltimbocca alla Romana mit Polenta',
+            'Gnocchi alla Sorrentina',
+            'Pasta Carbonara',
+            'Pasta alla Norma mit Auberginen',
+            'Tortellini in Brodo',
+            'Falafel-Bowl mit Hummus und Tabouleh',
+            'Pouletcurry mit Basmatireis und Naan',
+            'Lachs mit Honig-Senf-Glasur und Ofengemüse',
+            'Forelle Müllerin Art mit Petersilienkartoffeln',
+            'Chili sin Carne mit Maisbrot',
+            'Burrito-Bowl mit schwarzen Bohnen und Avocado',
+            'Pulled-Pork-Sandwich mit Coleslaw',
+            'Gemüse-Pad-Thai mit Erdnüssen',
+            'Tofu-Curry mit Kokosmilch und Jasminreis',
+            'Bibimbap mit eingelegtem Gemüse',
+            'Quinoa-Bowl mit gerösteter Süsskartoffel und Avocado',
+            'Pilz-Stroganoff mit Spätzli',
+            'Süsskartoffel-Curry mit Kokosmilch',
+            'Tessiner Minestrone mit Pesto',
+            'Marokkanische Couscous-Suppe mit Kichererbsen',
+            'Schweinsmedaillons im Speckmantel mit Kartoffelgratin'
+        ]
+    };
+
+    function currentSeason(date) {
+        const m = (date || new Date()).getMonth();
+        if (m >= 2 && m <= 4) return { key: 'fruehling', label: 'Frühling' };
+        if (m >= 5 && m <= 7) return { key: 'sommer', label: 'Sommer' };
+        if (m >= 8 && m <= 10) return { key: 'herbst', label: 'Herbst' };
+        return { key: 'winter', label: 'Winter' };
+    }
+
+    async function suggestMenu() {
+        if (!requireApiKey()) return;
+        const resultEl = document.getElementById('suggest-result');
+        resultEl.innerHTML = '<div class="suggest-result"><div class="ocr-loading"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3.51-7.13"/><polyline points="21 4 21 12 13 12"/></svg>Vorschlag wird generiert…</div></div>';
+
+        try {
+            const weekKey = getWeekKey(selectedWeek);
+            const existing = appData.menu[weekKey] || {};
+            const months = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+            const now = new Date();
+            const targetDate = new Date(now);
+            targetDate.setDate(targetDate.getDate() + selectedWeek * 7);
+            const monthName = months[targetDate.getMonth()];
+            const season = currentSeason(targetDate);
+            const days = ['Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag','Sonntag'];
+
+            // Sammle die letzten paar Wochen als Inspirationsquelle
+            const recentMenus = [];
+            Object.keys(appData.menu).sort().slice(-3).forEach(wk => {
+                const week = appData.menu[wk] || {};
+                days.forEach(d => {
+                    const m = week[d] || {};
+                    if (m.zmittag) recentMenus.push(m.zmittag);
+                    if (m.znacht) recentMenus.push(m.znacht);
+                });
+            });
+
+            const targetWeekLabel = selectedWeek === 0 ? 'diese Woche' : 'nächste Woche';
+            const allgemeinList = FAMILY_RECIPES.allgemein.map(r => '- ' + r).join('\n');
+            const seasonList = (FAMILY_RECIPES[season.key] || []).map(r => '- ' + r).join('\n');
+            const klassikerList = FAMILY_RECIPES.klassiker_ch.map(r => '- ' + r).join('\n');
+
+            const system = 'Du bist eine Schweizer Familien-Köchin für Familie Heinecke (Michèle, Alex, Mila ~2.5J, Lene ~7Mt). Du planst Wochenmenus mit Schweizer Familienküche und schweizerdeutschen Begriffen (Zmittag, Znacht, Rüebli, Poulet, Gschnetzelts, Älplermagronen, Birchermüesli, Gschwellti, Wähe, Käseschnitten, etc).\n\n' +
+                'FAMILIEN-RAHMEN:\n' +
+                '- 2× Vegi pro Woche beim Znacht (Di–So)\n' +
+                '- Keine Allergien – ABER keine ROHEN Karotten/Rüebli (gekocht/geraffelt-gekocht ist OK)\n' +
+                '- Aufwand Mo–Fr: max. 30 Min Kochzeit\n' +
+                '- Sa/So darf länger dauern, gerne aufwändigere Gerichte\n' +
+                '- Mila (2.5J) und Lene (7Mt) essen alles – nicht künstlich «kinderüblich» einschränken\n\n' +
+                'FESTE REGELN:\n' +
+                '1. MONTAG ZNACHT ist IMMER wörtlich "Alex Special" (Alex kocht spontan – kein konkretes Gericht vorschlagen).\n' +
+                '2. ZMITTAG (Mo–Fr) als MIX über die Woche:\n' +
+                '   - Manche Tage: "Reste vom [Vortag]" – referenziere konkret das Znacht des Vortags (z.B. "Reste von der Lasagne")\n' +
+                '   - Andere Tage: einfaches Schnellgericht (Spaghetti Pesto, Wähe, Käseschnitten, Rösti mit Spiegelei, Birchermüesli, Sandwiches, Suppe & Brot, Gschwellti mit Käse, Omelette)\n' +
+                '   - Sa/So darf Zmittag aufwändiger sein.\n' +
+                '3. ZNACHT (Di–So) – QUELLEN-MIX: 6 Znacht-Slots zu füllen, davon:\n' +
+                '   - Mind. 3 aus FAMILIEN-LIEBLINGSGERICHTEN (Pool A: Allgemein + Saison)\n' +
+                '   - 1–2 aus KURATIERTEN KLASSIKERN swissmilk/fooby/migusto (Pool B unten)\n' +
+                '   - Max. 1 darfst du selbst ERFINDEN im Stil von swissmilk/fooby/migusto (alltagstauglich, kindergerecht, ≤45 Min)\n' +
+                '4. KEINE GLEICHARTIGEN HAUPTGERICHTE INNERHALB DERSELBEN WOCHE: max. 1× Risotto, max. 1× Pasta-Gericht, max. 1× Gulasch/Eintopf, max. 1× Suppe als Znacht, max. 1× Pilz-basiertes Gericht. Auch verschiedene Risotto-Varianten (Pilzrisotto, Spargelrisotto, Bärlauchrisotto, …) zählen ALLE als Risotto – nur eines pro Woche!\n' +
+                '5. ABWECHSLUNG bei Hauptproteinen: nicht 3× Fleisch hintereinander, nicht 3× Pasta hintereinander.\n\n' +
+                'POOL A – FAMILIEN-LIEBLINGSGERICHTE (hier am häufigsten greifen):\n\n' +
+                'ALLGEMEIN (ganzjährig):\n' + allgemeinList + '\n\n' +
+                'SAISON ' + season.label.toUpperCase() + ' (passt jetzt besonders gut):\n' + seasonList + '\n\n' +
+                'POOL B – KURATIERTE KLASSIKER aus swissmilk.ch / fooby.ch / migusto.migros.ch (1–2 pro Woche einbauen):\n' + klassikerList + '\n\n' +
+                'Antworte AUSSCHLIESSLICH als JSON-Objekt: {"Montag": {"zmittag": "…", "znacht": "Alex Special"}, "Dienstag": {…}, …}. Bestehende Einträge respektieren – nicht überschreiben.';
+
+            const userMsg = 'Plane das Menü für ' + targetWeekLabel + ' (Monat: ' + monthName + ', Saison: ' + season.label + ').\n\n' +
+                'Bereits geplant (NICHT überschreiben, leere Werte ergänzen):\n' +
+                JSON.stringify(existing, null, 2) +
+                (recentMenus.length > 0 ? '\n\nLetzte Wochen (zur Inspiration, NICHT direkt wiederholen):\n' + recentMenus.slice(-15).join(', ') : '') +
+                '\n\nDenk dran: Mo Znacht = "Alex Special" (wörtlich). Zmittag = Mix aus Resten + Schnellgerichten. 6 Znacht-Slots: ≥3 aus Pool A (Familie), 1–2 aus Pool B (Klassiker), max. 1 selbst erfunden. KEIN doppeltes Risotto/Pasta/Suppe. 2× Vegi pro Woche. Keine rohen Rüebli.';
+
+            const response = await callClaude({
+                model: 'claude-haiku-4-5-20251001',
+                maxTokens: 1500,
+                system: system,
+                messages: [{ role: 'user', content: userMsg }]
+            });
+            const plan = extractJson(response);
+            // Hard rule: Mo Znacht ist immer "Alex Special"
+            if (!plan.Montag) plan.Montag = { zmittag: '', znacht: '' };
+            plan.Montag.znacht = 'Alex Special';
+            renderSuggestResult(plan, weekKey);
+            buzz(12);
+        } catch (e) {
+            console.error(e);
+            resultEl.innerHTML = '<div class="suggest-result" style="border-color:var(--danger);"><div class="suggest-day-name" style="color:var(--danger);">⚠️ Fehler</div><div style="color:var(--danger);font-size:0.78rem;">' + escapeHtml(e.message) + '</div><div class="ocr-actions"><button class="ghost-btn" onclick="document.getElementById(\'suggest-result\').innerHTML=\'\'">Schliessen</button></div></div>';
+        }
+    }
+
+    function renderSuggestResult(plan, weekKey) {
+        const days = ['Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag','Sonntag'];
+        let html = '<div class="suggest-result"><div class="ocr-panel-title"><span>✨ Wochenplan-Vorschlag</span><span style="font-size:0.65rem;color:var(--text-muted);">Tippe einzeln zum Übernehmen</span></div>';
+        days.forEach(day => {
+            const meal = plan[day] || {};
+            const existing = (appData.menu[weekKey] && appData.menu[weekKey][day]) || {};
+            html += '<div class="suggest-day"><div class="suggest-day-name">' + day + '</div>';
+            ['zmittag','znacht'].forEach(slot => {
+                const proposal = (meal[slot] || '').trim();
+                const isExisting = (existing[slot] || '').trim();
+                const label = slot === 'zmittag' ? 'Zmittag' : 'Znacht';
+                if (isExisting) {
+                    html += '<div class="suggest-meal"><span class="suggest-meal-label">' + label + ' (schon geplant):</span> ' + escapeHtml(isExisting) + '</div>';
+                } else if (proposal) {
+                    const propEsc = proposal.replace(/'/g, "\\'");
+                    html += '<div class="suggest-meal" onclick="applySuggestion(\'' + day + '\',\'' + slot + '\',\'' + propEsc + '\',this)" style="cursor:pointer;padding:6px 8px;border-radius:8px;background:var(--card);transition:background 0.2s;"><span class="suggest-meal-label">' + label + ':</span> ' + escapeHtml(proposal) + ' <span style="color:var(--primary-green);font-weight:700;">＋</span></div>';
+                } else {
+                    html += '<div class="suggest-meal"><span class="suggest-meal-label">' + label + ':</span> –</div>';
+                }
+            });
+            html += '</div>';
+        });
+        html += '<div class="ocr-actions"><button class="ghost-btn" onclick="document.getElementById(\'suggest-result\').innerHTML=\'\'">Schliessen</button><button class="add-btn" onclick="applyAllSuggestions()" id="apply-all-btn" data-plan=\'' + JSON.stringify(plan).replace(/'/g, '&#39;') + '\'>Alle übernehmen</button></div></div>';
+        document.getElementById('suggest-result').innerHTML = html;
+    }
+
+    function applySuggestion(day, slot, value, el) {
+        const weekKey = getWeekKey(selectedWeek);
+        if (!appData.menu[weekKey]) appData.menu[weekKey] = {};
+        if (!appData.menu[weekKey][day]) appData.menu[weekKey][day] = { zmittag: '', znacht: '' };
+        appData.menu[weekKey][day][slot] = value;
+        saveData();
+        renderMenu();
+        if (el) {
+            el.style.background = 'var(--success-bg)';
+            el.style.color = 'var(--success)';
+            el.innerHTML = el.innerHTML.replace('＋', '✓');
+            el.onclick = null;
+        }
+        buzz(8);
+    }
+
+    function applyAllSuggestions() {
+        const btn = document.getElementById('apply-all-btn');
+        if (!btn) return;
+        const plan = JSON.parse(btn.dataset.plan.replace(/&#39;/g, "'"));
+        const weekKey = getWeekKey(selectedWeek);
+        if (!appData.menu[weekKey]) appData.menu[weekKey] = {};
+        let added = 0;
+        Object.keys(plan).forEach(day => {
+            if (!appData.menu[weekKey][day]) appData.menu[weekKey][day] = { zmittag: '', znacht: '' };
+            ['zmittag','znacht'].forEach(slot => {
+                const val = (plan[day][slot] || '').trim();
+                const existing = (appData.menu[weekKey][day][slot] || '').trim();
+                if (val && !existing) {
+                    appData.menu[weekKey][day][slot] = val;
+                    added++;
+                }
+            });
+        });
+        saveData();
+        document.getElementById('suggest-result').innerHTML = '';
+        renderMenu();
+        buzz(20);
+        showToast('✨ ' + added + ' Mahlzeiten übernommen', null, 2500);
+    }
+
+    // ============================================================
+    // STARTUP
+    // ============================================================
+    function startApp() {
+        loadData();
+        checkUser();
+        initFirebase();
+        switchTab('dashboard');
+        setupPullToRefresh();
+        initVoice();
+        updateAiStatusBadge();
+    }
+
+    // Theme zuerst, damit kein FOUC
+    initTheme();
+
+    // Auth-Check, dann App
+    if (checkAuth()) {
+        startApp();
+    }
+    </script>
+</body>
+</html>
