@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="de" data-theme="light">
 <head>
@@ -26,7 +25,7 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-        /* ==================== DESIGN TOKENS – LIGHT ==================== */
+        /* ==================== DESIGN TOKENS ‚Äì LIGHT ==================== */
         :root, [data-theme="light"] {
             --primary-green: #57856F;
             --button-green: #A1BFB0;
@@ -51,7 +50,7 @@
             --overlay-bg: rgba(0,0,0,0.4);
         }
 
-        /* ==================== DESIGN TOKENS – DARK ==================== */
+        /* ==================== DESIGN TOKENS ‚Äì DARK ==================== */
         [data-theme="dark"] {
             --primary-green: #7aa48b;
             --button-green: #5a7a68;
@@ -390,7 +389,7 @@
             margin-top: 8px;
         }
 
-        /* Swipe wrapper – relative position, contains the swipe-bg + swipe-content */
+        /* Swipe wrapper ‚Äì relative position, contains the swipe-bg + swipe-content */
         .swipe-wrapper {
             position: relative;
             overflow: hidden;
@@ -800,7 +799,7 @@
         .weather-source { font-size: 0.5rem; opacity: 0.5; text-align: right; margin-top: 6px; }
 
         /* ==================== PACKLISTE ==================== */
-        /* Packliste – Trip-Switcher */
+        /* Packliste ‚Äì Trip-Switcher */
         .packlist-trip-switcher {
             display: flex;
             gap: 6px;
@@ -1144,7 +1143,7 @@
         }
         .ai-btn:active { transform: scale(0.96); }
         .ai-btn[disabled] { opacity: 0.5; cursor: not-allowed; }
-        .ai-btn.purple { background: linear-gradient(135deg, #b39ddb, #7e57c2); box-shadow: 0 2px 6px rgba(126,87,194,0.3); }
+        .ai-btn.blue { background: linear-gradient(135deg, #B0C9DB, #6F8DA8); box-shadow: 0 2px 6px rgba(111,141,168,0.3); }
         .ai-btn.green { background: linear-gradient(135deg, #A1BFB0, #57856F); box-shadow: 0 2px 6px rgba(87,133,111,0.3); }
         .ai-btn svg { width: 16px; height: 16px; }
 
@@ -1156,10 +1155,10 @@
             width: 56px;
             height: 56px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #ff6b9d, #c44ec7);
+            background: linear-gradient(135deg, #9FBAD0, #5C7C95);
             color: #ffffff;
             border: none;
-            box-shadow: 0 6px 18px rgba(196,78,199,0.4);
+            box-shadow: 0 6px 18px rgba(92,124,149,0.4);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1169,12 +1168,12 @@
         }
         .fab-mic:active { transform: scale(0.92); }
         .fab-mic.listening {
-            background: linear-gradient(135deg, #ff5252, #c4194e);
+            background: linear-gradient(135deg, #FF7B6B, #C0392B);
             animation: pulse 1.2s ease-in-out infinite;
         }
         @keyframes pulse {
-            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255,82,82,0.5); }
-            50% { transform: scale(1.06); box-shadow: 0 0 0 14px rgba(255,82,82,0); }
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255,123,107,0.5); }
+            50% { transform: scale(1.06); box-shadow: 0 0 0 14px rgba(255,123,107,0); }
         }
         .fab-mic svg { width: 26px; height: 26px; }
 
@@ -1326,11 +1325,11 @@
     <!-- ==================== PASSWORD SCREEN ==================== -->
     <div class="password-overlay" id="password-overlay">
         <div class="password-card">
-            <div class="lock-icon">🔒</div>
+            <div class="lock-icon">üîí</div>
             <h2>Familie Heinecke</h2>
             <p>Bitte Kennwort eingeben</p>
             <input type="password" class="password-input" id="password-input" placeholder="Kennwort..." autocomplete="current-password" onkeydown="if(event.key==='Enter') checkPassword()">
-            <div class="password-error" id="password-error">Falsches Kennwort – bitte nochmals versuchen</div>
+            <div class="password-error" id="password-error">Falsches Kennwort ‚Äì bitte nochmals versuchen</div>
             <button class="password-btn" onclick="checkPassword()">Einloggen</button>
         </div>
     </div>
@@ -1340,7 +1339,7 @@
         <div class="setup-card">
             <h2>Willkommen!</h2>
             <p>Wer bist du?</p>
-            <button class="setup-btn" onclick="selectUser('Michèle')" style="margin-bottom:8px;">Michèle</button>
+            <button class="setup-btn" onclick="selectUser('Mich√®le')" style="margin-bottom:8px;">Mich√®le</button>
             <button class="setup-btn" onclick="selectUser('Alex')" style="background:var(--button-green);color:var(--dark-green);">Alex</button>
         </div>
     </div>
@@ -1375,18 +1374,18 @@
     <!-- ==================== SETTINGS OVERLAY ==================== -->
     <div class="settings-overlay" id="settings-overlay" onclick="if(event.target===this) closeSettings()">
         <div class="settings-card">
-            <h2>⚙️ Einstellungen</h2>
-            <p>Hier richtest du die KI-Funktionen ein. API-Key wird nur lokal auf diesem Gerät gespeichert (im Browser, nicht synchronisiert).</p>
+            <h2>‚öôÔ∏è Einstellungen</h2>
+            <p>Hier richtest du die KI-Funktionen ein. API-Key wird nur lokal auf diesem Ger√§t gespeichert (im Browser, nicht synchronisiert).</p>
 
-            <label>Anthropic API-Key <span class="ai-status" id="ai-status">…</span></label>
-            <input type="password" id="api-key-input" placeholder="sk-ant-…" autocomplete="off">
+            <label>Anthropic API-Key <span class="ai-status" id="ai-status">‚Ä¶</span></label>
+            <input type="password" id="api-key-input" placeholder="sk-ant-‚Ä¶" autocomplete="off">
             <p style="margin-top:6px;margin-bottom:0;">
-                <a class="ai-link" href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">→ Key erstellen auf console.anthropic.com</a>
+                <a class="ai-link" href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">‚Üí Key erstellen auf console.anthropic.com</a>
             </p>
 
             <label style="margin-top:18px;">Wer bist du?</label>
             <select id="settings-user" style="width:100%;padding:10px 12px;border:2px solid var(--button-green);border-radius:10px;font-family:'Comfortaa',sans-serif;font-size:0.85rem;background:var(--card-alt);color:var(--text);">
-                <option value="Michèle">Michèle</option>
+                <option value="Mich√®le">Mich√®le</option>
                 <option value="Alex">Alex</option>
             </select>
 
@@ -1396,34 +1395,34 @@
             </div>
 
             <details style="margin-top:18px;font-size:0.75rem;color:var(--text-muted);">
-                <summary style="cursor:pointer;">Über die KI-Features</summary>
+                <summary style="cursor:pointer;">√úber die KI-Features</summary>
                 <p style="margin-top:8px;font-size:0.75rem;">
-                    <strong>🎤 Mikrofon (gratis):</strong> Diktieren über Web Speech API. Wird im richtigen Bereich abgelegt.<br><br>
-                    <strong>📷 Foto → Einkauf (mit API-Key):</strong> Kassenzettel oder Liste fotografieren, Claude liest die Items aus und schlägt Einträge vor.<br><br>
-                    <strong>✨ Menü-Vorschlag (mit API-Key):</strong> Claude generiert einen Wochenplan basierend auf Saison und schon geplanten Mahlzeiten.<br><br>
+                    <strong>üé§ Mikrofon (gratis):</strong> Diktieren √ºber Web Speech API. Wird im richtigen Bereich abgelegt.<br><br>
+                    <strong>üì∑ Foto ‚Üí Einkauf (mit API-Key):</strong> Kassenzettel oder Liste fotografieren, Claude liest die Items aus und schl√§gt Eintr√§ge vor.<br><br>
+                    <strong>‚ú® Men√º-Vorschlag (mit API-Key):</strong> Claude generiert einen Wochenplan basierend auf Saison und schon geplanten Mahlzeiten.<br><br>
                     Kosten pro Anfrage: ~1-3 Rappen. API-Key wird nur lokal gespeichert.
                 </p>
             </details>
         </div>
     </div>
 
-    <!-- Hidden Photo Input für Foto-OCR -->
+    <!-- Hidden Photo Input f√ºr Foto-OCR -->
     <input type="file" id="photo-input" accept="image/*" capture="environment" style="display:none;" onchange="handlePhotoSelected(event)">
 
     <!-- Voice transcript bubble -->
     <div class="voice-bubble" id="voice-bubble">
-        <div class="vb-label">Höre zu… sprich jetzt</div>
-        <div id="voice-text">…</div>
+        <div class="vb-label">H√∂re zu‚Ä¶ sprich jetzt</div>
+        <div id="voice-text">‚Ä¶</div>
     </div>
 
     <!-- ==================== INSTALL BANNER ==================== -->
     <div class="install-banner" id="install-banner">
         <div class="install-banner-text">
-            <strong>📲 Als App installieren</strong>
+            <strong>üì≤ Als App installieren</strong>
             Ein Tap und sie liegt am Home-Screen wie eine echte App.
         </div>
         <button onclick="triggerInstall()">Installieren</button>
-        <button class="close-btn" onclick="dismissInstallBanner()" aria-label="Schliessen">×</button>
+        <button class="close-btn" onclick="dismissInstallBanner()" aria-label="Schliessen">√ó</button>
     </div>
 
     <!-- ==================== DASHBOARD ==================== -->
@@ -1443,7 +1442,7 @@
                 <div class="week-ring-text" id="week-ring-text">0/14</div>
             </div>
             <div class="week-ring-info">
-                <h4>Wochen-Menü 🍽️</h4>
+                <h4>Wochen-Men√º üçΩÔ∏è</h4>
                 <p id="week-ring-label">Mahlzeiten dieser Woche geplant</p>
             </div>
         </div>
@@ -1452,7 +1451,7 @@
             <div class="overview-card" onclick="switchTab('shopping')">
                 <div class="overview-icon">&#x1F6D2;</div>
                 <div class="overview-number" id="overview-shopping">0</div>
-                <div class="overview-label">Einkäufe offen</div>
+                <div class="overview-label">Eink√§ufe offen</div>
             </div>
             <div class="overview-card" onclick="switchTab('todos')">
                 <div class="overview-icon">&#x2705;</div>
@@ -1474,9 +1473,9 @@
     <!-- ==================== MENU PLAN ==================== -->
     <div class="section" id="section-menu">
         <h2 class="section-title">&#x1F37D;&#xFE0F; Wochenmenu</h2>
-        <p style="font-size:0.7rem;color:var(--text-muted);margin-bottom:10px;">Tippe auf ein Gericht, um es zu ändern &#x270F;&#xFE0F;</p>
+        <p style="font-size:0.7rem;color:var(--text-muted);margin-bottom:10px;">Tippe auf ein Gericht, um es zu √§ndern &#x270F;&#xFE0F;</p>
         <div class="ai-action-bar">
-            <button class="ai-btn purple" onclick="suggestMenu()">
+            <button class="ai-btn blue" onclick="suggestMenu()">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                 Wochenplan vorschlagen
             </button>
@@ -1484,7 +1483,7 @@
         <div id="suggest-result"></div>
         <div class="week-toggle" id="week-toggle">
             <button class="week-btn active" onclick="selectWeek('current')">Diese Woche</button>
-            <button class="week-btn" onclick="selectWeek('next')">Nächste Woche</button>
+            <button class="week-btn" onclick="selectWeek('next')">N√§chste Woche</button>
         </div>
         <div class="day-chips" id="day-chips"></div>
         <div id="menu-content"></div>
@@ -1496,7 +1495,7 @@
         <div class="ai-action-bar">
             <button class="ai-btn green" onclick="triggerPhoto()">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-                Foto → Liste
+                Foto ‚Üí Liste
             </button>
         </div>
         <div id="ocr-result"></div>
@@ -1505,14 +1504,14 @@
             <div class="progress-text" id="shopping-progress-text"></div>
         </div>
         <div class="add-form">
-            <input type="text" class="add-input" id="shopping-input" placeholder="Artikel hinzufügen...">
+            <input type="text" class="add-input" id="shopping-input" placeholder="Artikel hinzuf√ºgen...">
             <select class="category-select" id="shopping-category">
-                <option value="Gemüse">Gemüse</option>
-                <option value="Früchte">Früchte</option>
+                <option value="Gem√ºse">Gem√ºse</option>
+                <option value="Fr√ºchte">Fr√ºchte</option>
                 <option value="Milchprodukte">Milchprodukte</option>
                 <option value="Fleisch &amp; Fisch">Fleisch &amp; Fisch</option>
-                <option value="Brot &amp; Gebäck">Brot &amp; Gebäck</option>
-                <option value="Getränke">Getränke</option>
+                <option value="Brot &amp; Geb√§ck">Brot &amp; Geb√§ck</option>
+                <option value="Getr√§nke">Getr√§nke</option>
                 <option value="Haushalt">Haushalt</option>
                 <option value="Sonstiges">Sonstiges</option>
             </select>
@@ -1520,7 +1519,7 @@
         </div>
         <div id="shopping-list"></div>
         <div style="text-align:center;margin-top:18px;">
-            <button class="ghost-btn" id="share-shopping-btn" onclick="shareShopping()" style="display:none;">📤 Liste teilen</button>
+            <button class="ghost-btn" id="share-shopping-btn" onclick="shareShopping()" style="display:none;">üì§ Liste teilen</button>
         </div>
     </div>
 
@@ -1541,7 +1540,7 @@
             <input type="text" class="add-input" id="todo-input" placeholder="Neues Todo...">
             <select class="assignee-select" id="todo-assignee">
                 <option value="beide">Beide</option>
-                <option value="Michèle">Michèle</option>
+                <option value="Mich√®le">Mich√®le</option>
                 <option value="Alex">Alex</option>
             </select>
             <button class="add-btn" onclick="addTodo()">+</button>
@@ -1568,14 +1567,14 @@
         </div>
         <div id="packlist-list"></div>
         <div style="text-align:center;margin-top:24px;margin-bottom:16px;">
-            <button class="ghost-btn" onclick="resetPackliste()">↩ Alle Häkchen zurücksetzen</button>
+            <button class="ghost-btn" onclick="resetPackliste()">‚Ü© Alle H√§kchen zur√ºcksetzen</button>
         </div>
     </div>
 
     <!-- ==================== REINIGUNG ==================== -->
     <div class="section" id="section-reinigung">
-        <h2 class="section-title">🧹 Reinigung</h2>
-        <p style="font-size:0.7rem;color:var(--text-muted);margin-bottom:10px;">Putzfrau kommt alle 2 Wochen – hier die wiederkehrenden Aufgaben</p>
+        <h2 class="section-title">üßπ Reinigung</h2>
+        <p style="font-size:0.7rem;color:var(--text-muted);margin-bottom:10px;">Putzfrau kommt alle 2 Wochen ‚Äì hier die wiederkehrenden Aufgaben</p>
         <div class="progress-container" id="cleaning-progress">
             <div class="progress-bar"><div class="progress-fill" id="cleaning-progress-fill"></div></div>
             <div class="progress-text" id="cleaning-progress-text"></div>
@@ -1588,18 +1587,18 @@
         <div class="add-form">
             <input type="text" class="add-input" id="cleaning-input" placeholder="Neue Aufgabe...">
             <select class="category-select" id="cleaning-frequency">
-                <option value="weekly">Wöchentlich</option>
+                <option value="weekly">W√∂chentlich</option>
                 <option value="biweekly">Alle 2 Wochen</option>
                 <option value="monthly">Monatlich</option>
-                <option value="quarterly">Vierteljährlich</option>
-                <option value="biannual">Halbjährlich</option>
-                <option value="annual">Jährlich</option>
+                <option value="quarterly">Viertelj√§hrlich</option>
+                <option value="biannual">Halbj√§hrlich</option>
+                <option value="annual">J√§hrlich</option>
             </select>
             <button class="add-btn" onclick="addCleaningItem()">+</button>
         </div>
         <div id="cleaning-list"></div>
         <div style="text-align:center;margin-top:24px;margin-bottom:16px;">
-            <button class="ghost-btn" onclick="resetCleaning()">↩ Alle Häkchen zurücksetzen</button>
+            <button class="ghost-btn" onclick="resetCleaning()">‚Ü© Alle H√§kchen zur√ºcksetzen</button>
         </div>
     </div>
 
@@ -1650,7 +1649,7 @@
     'use strict';
 
     // ============================================================
-    // CONSTANTS – v2 nutzt eigene Storage Keys + Firebase Pfad
+    // CONSTANTS ‚Äì v2 nutzt eigene Storage Keys + Firebase Pfad
     // ============================================================
     const APP_VERSION = 'v2.0.0';
     const STORAGE_KEY = 'familieHeineckeAppV2';
@@ -1660,7 +1659,7 @@
     const SORT_KEY = 'familieHeineckeSortV2';      // saved manual sort orders
     const INSTALL_DISMISS_KEY = 'familieHeineckeInstallDismissedV2';
     // Shared Firebase-Pfad mit v1: beide Apps lesen/schreiben dieselben Daten.
-    // → v1 läuft weiter, v2 hat sofort aktuelle Daten, keine Migration nötig.
+    // ‚Üí v1 l√§uft weiter, v2 hat sofort aktuelle Daten, keine Migration n√∂tig.
     const FIREBASE_REF = 'familyApp';
     const API_KEY_STORAGE = 'familieHeineckeApiKeyV2';
 
@@ -1687,7 +1686,7 @@
     let deferredInstallPrompt = null;
 
     // ============================================================
-    // VIBRATION (Android haptic) – degradiert lautlos auf iOS
+    // VIBRATION (Android haptic) ‚Äì degradiert lautlos auf iOS
     // ============================================================
     function buzz(pattern) {
         if ('vibrate' in navigator) {
@@ -1756,7 +1755,7 @@
     }
 
     // ============================================================
-    // DEFAULT DATA – identisch zu v1, damit Migration möglich ist
+    // DEFAULT DATA ‚Äì identisch zu v1, damit Migration m√∂glich ist
     // ============================================================
     const defaultData = {
         menu: {},
@@ -1768,85 +1767,85 @@
                         name: 'Camperreise',
                         destination: '',
                         duration: '',
-                        people: ['Michèle', 'Alex', 'Mila', 'Lene']
+                        people: ['Mich√®le', 'Alex', 'Mila', 'Lene']
                     },
                     categories: {
-                '👗 Kleider Lene': [
+                'üëó Kleider Lene': [
                     { id: 1, text: 'Sonnenbad / UV-Schutzkleidung', checked: false, tag: 'Lene', note: '' },
                     { id: 2, text: 'Wollwalk-Anzug', checked: false, tag: 'Lene', note: '' },
-                    { id: 3, text: 'Strampler (5–6)', checked: false, tag: 'Lene', note: '' },
-                    { id: 4, text: 'Jäckchen (2–3)', checked: false, tag: 'Lene', note: '' },
-                    { id: 5, text: 'Mützen (Sonne + warm)', checked: false, tag: 'Lene', note: '' },
+                    { id: 3, text: 'Strampler (5‚Äì6)', checked: false, tag: 'Lene', note: '' },
+                    { id: 4, text: 'J√§ckchen (2‚Äì3)', checked: false, tag: 'Lene', note: '' },
+                    { id: 5, text: 'M√ºtzen (Sonne + warm)', checked: false, tag: 'Lene', note: '' },
                     { id: 6, text: 'Schlafsack', checked: false, tag: 'Lene', note: '' },
-                    { id: 7, text: 'Bodies (8–10)', checked: false, tag: 'Lene', note: '' },
+                    { id: 7, text: 'Bodies (8‚Äì10)', checked: false, tag: 'Lene', note: '' },
                     { id: 8, text: 'Socken / Strumpfhosen', checked: false, tag: 'Lene', note: '' },
-                    { id: 9, text: 'Hosen (4–5)', checked: false, tag: 'Lene', note: '' },
-                    { id: 10, text: 'Nuschis / Spucktücher (5–6)', checked: false, tag: 'Lene', note: '' },
-                    { id: 11, text: 'Lätzchen (6–8)', checked: false, tag: 'Lene', note: '' }
+                    { id: 9, text: 'Hosen (4‚Äì5)', checked: false, tag: 'Lene', note: '' },
+                    { id: 10, text: 'Nuschis / Spuckt√ºcher (5‚Äì6)', checked: false, tag: 'Lene', note: '' },
+                    { id: 11, text: 'L√§tzchen (6‚Äì8)', checked: false, tag: 'Lene', note: '' }
                 ],
-                '👗 Kleider Mila': [
+                'üëó Kleider Mila': [
                     { id: 12, text: 'Schuhe (Alltag + Sandalen)', checked: false, tag: 'Mila', note: '' },
                     { id: 13, text: 'Bettdecke Mila', checked: false, tag: 'Mila', note: '' },
                     { id: 14, text: 'Wollwalk und Jacke', checked: false, tag: 'Mila', note: '' },
-                    { id: 15, text: 'Mützen (Sonne + warm)', checked: false, tag: 'Mila', note: '' },
+                    { id: 15, text: 'M√ºtzen (Sonne + warm)', checked: false, tag: 'Mila', note: '' },
                     { id: 16, text: 'Sonnencap', checked: false, tag: 'Mila', note: '' },
-                    { id: 17, text: 'Pyjamas (3–4)', checked: false, tag: 'Mila', note: '' },
-                    { id: 18, text: 'Jäckchen oder Pullover (2–3)', checked: false, tag: 'Mila', note: '' },
+                    { id: 17, text: 'Pyjamas (3‚Äì4)', checked: false, tag: 'Mila', note: '' },
+                    { id: 18, text: 'J√§ckchen oder Pullover (2‚Äì3)', checked: false, tag: 'Mila', note: '' },
                     { id: 19, text: 'Socken / Strumpfhosen', checked: false, tag: 'Mila', note: '' },
-                    { id: 20, text: 'Hosen (5–6)', checked: false, tag: 'Mila', note: '' },
+                    { id: 20, text: 'Hosen (5‚Äì6)', checked: false, tag: 'Mila', note: '' },
                     { id: 21, text: 'Bodies / T-Shirts / Langarmshirts', checked: false, tag: 'Mila', note: '' },
                     { id: 22, text: 'Unterhosen', checked: false, tag: 'Mila', note: '' },
                     { id: 23, text: 'Schlafsack', checked: false, tag: 'Mila', note: '' },
                     { id: 24, text: 'Nuschis', checked: false, tag: 'Mila', note: '' },
                     { id: 25, text: 'Regenjacke & Regenhose', checked: false, tag: 'Mila', note: '' }
                 ],
-                '🧷 Wickeln & Co': [
-                    { id: 26, text: 'Walfisch / Hase (Kuscheltiere)', checked: false, tag: '', note: 'Schnüfftiere nicht vergessen!' },
+                'üß∑ Wickeln & Co': [
+                    { id: 26, text: 'Walfisch / Hase (Kuscheltiere)', checked: false, tag: '', note: 'Schn√ºfftiere nicht vergessen!' },
                     { id: 27, text: 'Vitamin D', checked: false, tag: 'Lene', note: '' },
                     { id: 28, text: 'Popocreme', checked: false, tag: '', note: '' },
-                    { id: 29, text: 'Zahnpasta und Zahnbürste Kinder', checked: false, tag: '', note: '' },
+                    { id: 29, text: 'Zahnpasta und Zahnb√ºrste Kinder', checked: false, tag: '', note: '' },
                     { id: 30, text: 'Nuggies / Ersatznuggies', checked: false, tag: '', note: '' },
                     { id: 31, text: 'Schnullerketten', checked: false, tag: '', note: '' },
-                    { id: 32, text: 'Feuchttücher (6–7 Packungen)', checked: false, tag: '', note: '' },
+                    { id: 32, text: 'Feuchtt√ºcher (6‚Äì7 Packungen)', checked: false, tag: '', note: '' },
                     { id: 33, text: 'Wickelunterlage (faltbar)', checked: false, tag: '', note: '' },
-                    { id: 34, text: 'Windeln Lene (ca. 80–100)', checked: false, tag: 'Lene', note: 'ca. 6–8 pro Tag' },
+                    { id: 34, text: 'Windeln Lene (ca. 80‚Äì100)', checked: false, tag: 'Lene', note: 'ca. 6‚Äì8 pro Tag' },
                     { id: 35, text: 'Nacht-Windeln Mila', checked: false, tag: 'Mila', note: '' },
-                    { id: 36, text: 'Reise-Töpfchen / Toilettensitz', checked: false, tag: 'Mila', note: '' }
+                    { id: 36, text: 'Reise-T√∂pfchen / Toilettensitz', checked: false, tag: 'Mila', note: '' }
                 ],
-                '🍼 Küche Mädels': [
+                'üçº K√ºche M√§dels': [
                     { id: 37, text: 'Snacks (Reiswaffeln, Fruchtriegel)', checked: false, tag: '', note: '' },
                     { id: 38, text: 'Schoppen mit Aufsatz', checked: false, tag: 'Lene', note: '' },
                     { id: 39, text: 'Flaschen & Sauger (3 Stk.)', checked: false, tag: 'Lene', note: '' },
-                    { id: 40, text: 'Teller / Besteck Mädels', checked: false, tag: '', note: '' },
-                    { id: 41, text: 'Latz / Lätzchen', checked: false, tag: '', note: '' },
+                    { id: 40, text: 'Teller / Besteck M√§dels', checked: false, tag: '', note: '' },
+                    { id: 41, text: 'Latz / L√§tzchen', checked: false, tag: '', note: '' },
                     { id: 42, text: 'Brei / Milchpulver / Beikost', checked: false, tag: 'Lene', note: '' },
                     { id: 43, text: 'Trinkflaschen Kinder', checked: false, tag: '', note: '' }
                 ],
-                '👔 Michèle & Alex': [
+                'üëî Mich√®le & Alex': [
                     { id: 44, text: 'Haarwachs und Deo Alex', checked: false, tag: 'Alex', note: '' },
                     { id: 45, text: 'Jacken', checked: false, tag: '', note: '' },
-                    { id: 46, text: 'Socken (je 8–10 Paar)', checked: false, tag: '', note: '' },
-                    { id: 47, text: 'Abschminkpads', checked: false, tag: 'Michèle', note: '' },
+                    { id: 46, text: 'Socken (je 8‚Äì10 Paar)', checked: false, tag: '', note: '' },
+                    { id: 47, text: 'Abschminkpads', checked: false, tag: 'Mich√®le', note: '' },
                     { id: 48, text: 'Jogger / Pyjamas', checked: false, tag: '', note: '' },
-                    { id: 49, text: 'Cremes (Gesicht, Körper)', checked: false, tag: '', note: '' },
-                    { id: 50, text: 'Zahnbürste und Zahnpasta', checked: false, tag: '', note: '' },
-                    { id: 51, text: 'Schminktäschchen', checked: false, tag: 'Michèle', note: '' },
-                    { id: 52, text: 'BHs', checked: false, tag: 'Michèle', note: '' },
+                    { id: 49, text: 'Cremes (Gesicht, K√∂rper)', checked: false, tag: '', note: '' },
+                    { id: 50, text: 'Zahnb√ºrste und Zahnpasta', checked: false, tag: '', note: '' },
+                    { id: 51, text: 'Schminkt√§schchen', checked: false, tag: 'Mich√®le', note: '' },
+                    { id: 52, text: 'BHs', checked: false, tag: 'Mich√®le', note: '' },
                     { id: 53, text: 'Unterhosen', checked: false, tag: '', note: '' },
-                    { id: 54, text: '4 Outfits gemäss Wetter', checked: false, tag: '', note: '' },
+                    { id: 54, text: '4 Outfits gem√§ss Wetter', checked: false, tag: '', note: '' },
                     { id: 55, text: 'Shampoo / Duschgel', checked: false, tag: '', note: '' },
-                    { id: 56, text: 'Badetücher und Handtücher', checked: false, tag: '', note: '' },
+                    { id: 56, text: 'Badet√ºcher und Handt√ºcher', checked: false, tag: '', note: '' },
                     { id: 57, text: 'Bikini und Badehosen', checked: false, tag: '', note: '' },
                     { id: 58, text: 'Sonnencreme LSF 50+', checked: false, tag: '', note: '' },
                     { id: 59, text: 'Sonnenbrillen', checked: false, tag: '', note: '' }
                 ],
-                '💊 Reiseapotheke': [
+                'üíä Reiseapotheke': [
                     { id: 60, text: 'Fieberthermometer', checked: false, tag: '', note: '' },
                     { id: 61, text: 'Nasenspray Baby & Kinder', checked: false, tag: '', note: '' },
                     { id: 62, text: 'Hustensirup Kinder', checked: false, tag: '', note: '' },
                     { id: 63, text: 'Salzwasser-Nasentropfen', checked: false, tag: '', note: '' },
                     { id: 64, text: 'Pflaster & Verbandmaterial', checked: false, tag: '', note: '' },
-                    { id: 65, text: 'Zäpfli (Fieber, Schmerzen)', checked: false, tag: '', note: 'Baby + Kleinkind-Dosis' },
+                    { id: 65, text: 'Z√§pfli (Fieber, Schmerzen)', checked: false, tag: '', note: 'Baby + Kleinkind-Dosis' },
                     { id: 66, text: 'Ibuprofen Erwachsene', checked: false, tag: '', note: '' },
                     { id: 67, text: 'Wundsalbe / Bepanthen', checked: false, tag: '', note: '' },
                     { id: 68, text: 'Sonnenbrand-Gel', checked: false, tag: '', note: '' },
@@ -1856,72 +1855,72 @@
                     { id: 72, text: 'Baby-Sonnencreme LSF 50+', checked: false, tag: '', note: '' },
                     { id: 73, text: 'Medikamente (eigene)', checked: false, tag: '', note: '' }
                 ],
-                '🚗 Transport & Unterwegs': [
+                'üöó Transport & Unterwegs': [
                     { id: 74, text: 'Kindersitz', checked: false, tag: '', note: '' },
                     { id: 75, text: 'Tragetuch', checked: false, tag: 'Lene', note: '' },
-                    { id: 76, text: 'Tragi (Ergobaby o.ä.)', checked: false, tag: '', note: '' },
+                    { id: 76, text: 'Tragi (Ergobaby o.√§.)', checked: false, tag: '', note: '' },
                     { id: 77, text: 'Kinderwagen mit Regencover', checked: false, tag: '', note: '' },
                     { id: 78, text: 'Thule mit Regencover', checked: false, tag: '', note: '' },
                     { id: 79, text: 'Kumja', checked: false, tag: '', note: '' },
-                    { id: 80, text: 'Fahrräder', checked: false, tag: '', note: '' },
-                    { id: 81, text: 'Akkus / Stromkabel Fahrräder', checked: false, tag: '', note: '' },
+                    { id: 80, text: 'Fahrr√§der', checked: false, tag: '', note: '' },
+                    { id: 81, text: 'Akkus / Stromkabel Fahrr√§der', checked: false, tag: '', note: '' },
                     { id: 82, text: 'Sonnensegel Buggy & Auto', checked: false, tag: '', note: '' }
                 ],
-                '🎨 Spielen & Beschäftigung': [
+                'üé® Spielen & Besch√§ftigung': [
                     { id: 83, text: 'Spielzeug', checked: false, tag: '', note: '' },
-                    { id: 84, text: 'Vorlesebücher / Gutenachtgeschichten', checked: false, tag: '', note: '' },
+                    { id: 84, text: 'Vorleseb√ºcher / Gutenachtgeschichten', checked: false, tag: '', note: '' },
                     { id: 85, text: 'Malzeug / Stifte & Malbuch', checked: false, tag: 'Mila', note: '' },
                     { id: 86, text: 'Laptop / iPad', checked: false, tag: '', note: '' },
-                    { id: 87, text: 'Kopfhörer (Kinder + Erwachsene)', checked: false, tag: '', note: '' },
+                    { id: 87, text: 'Kopfh√∂rer (Kinder + Erwachsene)', checked: false, tag: '', note: '' },
                     { id: 88, text: 'Sandspielzeug', checked: false, tag: 'Mila', note: '' },
                     { id: 89, text: 'Badekleider / Badewindeln', checked: false, tag: '', note: '' }
                 ],
-                '🍳 Küche & Verpflegung': [
-                    { id: 90, text: 'Grundvorrat Gewürze und Kochzeug', checked: false, tag: '', note: '' },
+                'üç≥ K√ºche & Verpflegung': [
+                    { id: 90, text: 'Grundvorrat Gew√ºrze und Kochzeug', checked: false, tag: '', note: '' },
                     { id: 91, text: 'Pasta, Reis, Couscous', checked: false, tag: '', note: '' },
-                    { id: 92, text: 'Müesli / Haferflocken', checked: false, tag: '', note: '' },
+                    { id: 92, text: 'M√ºesli / Haferflocken', checked: false, tag: '', note: '' },
                     { id: 93, text: 'Kaffee / Tee', checked: false, tag: '', note: '' },
                     { id: 94, text: 'Milch', checked: false, tag: '', note: '' },
                     { id: 95, text: 'Tupperware', checked: false, tag: '', note: '' },
-                    { id: 96, text: 'Abfallsäcke', checked: false, tag: '', note: '' },
-                    { id: 97, text: 'Spüli, Schwamm und Lappen', checked: false, tag: '', note: '' },
-                    { id: 98, text: 'Küchentücher', checked: false, tag: '', note: '' },
-                    { id: 99, text: 'Altglas Behälter', checked: false, tag: '', note: '' }
+                    { id: 96, text: 'Abfalls√§cke', checked: false, tag: '', note: '' },
+                    { id: 97, text: 'Sp√ºli, Schwamm und Lappen', checked: false, tag: '', note: '' },
+                    { id: 98, text: 'K√ºchent√ºcher', checked: false, tag: '', note: '' },
+                    { id: 99, text: 'Altglas Beh√§lter', checked: false, tag: '', note: '' }
                 ],
-                '⚡ Technik & Camper': [
-                    { id: 100, text: 'Ladekabel für alles', checked: false, tag: '', note: '' },
+                '‚ö° Technik & Camper': [
+                    { id: 100, text: 'Ladekabel f√ºr alles', checked: false, tag: '', note: '' },
                     { id: 101, text: 'Powerbank', checked: false, tag: '', note: '' },
                     { id: 102, text: 'Teufel Musikbox mit Kabel', checked: false, tag: '', note: '' },
                     { id: 103, text: 'Licht Ei', checked: false, tag: '', note: '' },
                     { id: 104, text: 'Feuerhand Laterne', checked: false, tag: '', note: '' },
                     { id: 105, text: 'Uhren', checked: false, tag: '', note: '' },
                     { id: 106, text: 'Kleiner Staubsauger', checked: false, tag: '', note: '' },
-                    { id: 107, text: 'Campingstühle / Tisch', checked: false, tag: '', note: '' },
+                    { id: 107, text: 'Campingst√ºhle / Tisch', checked: false, tag: '', note: '' },
                     { id: 108, text: 'Picknick Decke', checked: false, tag: '', note: '' },
                     { id: 109, text: 'Keile, Kabel (Camper)', checked: false, tag: '', note: '' },
                     { id: 110, text: 'WC Papier', checked: false, tag: '', note: '' },
-                    { id: 111, text: 'Wäschesack', checked: false, tag: '', note: '' },
-                    { id: 112, text: 'Wäscheleine & Klammern', checked: false, tag: '', note: '' },
+                    { id: 111, text: 'W√§schesack', checked: false, tag: '', note: '' },
+                    { id: 112, text: 'W√§scheleine & Klammern', checked: false, tag: '', note: '' },
                     { id: 113, text: 'Bettbezug / Reserve Leintuch', checked: false, tag: '', note: '' }
                 ],
-                '📄 Dokumente & Finanzen': [
+                'üìÑ Dokumente & Finanzen': [
                     { id: 114, text: 'Ausweise und Krankenkassenkarten', checked: false, tag: '', note: 'Kinder brauchen eigenen Pass/ID' },
-                    { id: 115, text: 'Europäische Krankenversicherungskarte', checked: false, tag: '', note: '' },
-                    { id: 116, text: 'Fahrzeugpapiere / Führerausweis', checked: false, tag: '', note: '' },
-                    { id: 117, text: 'Campingplatz-Buchungsbestätigungen', checked: false, tag: '', note: '' },
+                    { id: 115, text: 'Europ√§ische Krankenversicherungskarte', checked: false, tag: '', note: '' },
+                    { id: 116, text: 'Fahrzeugpapiere / F√ºhrerausweis', checked: false, tag: '', note: '' },
+                    { id: 117, text: 'Campingplatz-Buchungsbest√§tigungen', checked: false, tag: '', note: '' },
                     { id: 118, text: 'Bargeld / Karten', checked: false, tag: '', note: '' },
                     { id: 119, text: 'Notfallnummern-Liste', checked: false, tag: '', note: 'Kinderarzt, Pannendienst' },
                     { id: 120, text: 'Impfausweis Kinder', checked: false, tag: '', note: '' }
                 ],
-                '✅ Vor Abreise': [
-                    { id: 121, text: 'Gas prüfen', checked: false, tag: '', note: '' },
-                    { id: 122, text: 'Luftdruck Reifen prüfen', checked: false, tag: '', note: '' },
-                    { id: 123, text: 'Kühlschrank leeren', checked: false, tag: '', note: '' },
+                '‚úÖ Vor Abreise': [
+                    { id: 121, text: 'Gas pr√ºfen', checked: false, tag: '', note: '' },
+                    { id: 122, text: 'Luftdruck Reifen pr√ºfen', checked: false, tag: '', note: '' },
+                    { id: 123, text: 'K√ºhlschrank leeren', checked: false, tag: '', note: '' },
                     { id: 124, text: 'Pflanzen giessen / organisieren', checked: false, tag: '', note: '' },
-                    { id: 125, text: 'Hühner füttern / alles bereitstellen', checked: false, tag: '', note: '' },
-                    { id: 126, text: 'Wasser auffüllen (Camper)', checked: false, tag: '', note: '' },
-                    { id: 127, text: 'Wasserflaschen füllen', checked: false, tag: '', note: '' },
-                    { id: 128, text: 'Müll rausbringen', checked: false, tag: '', note: '' }
+                    { id: 125, text: 'H√ºhner f√ºttern / alles bereitstellen', checked: false, tag: '', note: '' },
+                    { id: 126, text: 'Wasser auff√ºllen (Camper)', checked: false, tag: '', note: '' },
+                    { id: 127, text: 'Wasserflaschen f√ºllen', checked: false, tag: '', note: '' },
+                    { id: 128, text: 'M√ºll rausbringen', checked: false, tag: '', note: '' }
                 ]
                     }
                 },
@@ -1929,151 +1928,151 @@
                     trip: {
                         name: 'Toggenburg-Wochenende',
                         destination: 'Bei Mami & Papi',
-                        duration: '2–3 Tage',
-                        people: ['Michèle', 'Alex', 'Mila', 'Lene']
+                        duration: '2‚Äì3 Tage',
+                        people: ['Mich√®le', 'Alex', 'Mila', 'Lene']
                     },
                     categories: {
-                        '👗 Kleider Lene': [
-                            { id: 201, text: 'Bodies (4–5)', checked: false, tag: 'Lene', note: '' },
+                        'üëó Kleider Lene': [
+                            { id: 201, text: 'Bodies (4‚Äì5)', checked: false, tag: 'Lene', note: '' },
                             { id: 202, text: 'Strampler / Hosen (3)', checked: false, tag: 'Lene', note: '' },
-                            { id: 203, text: 'Jäckchen / Pullover', checked: false, tag: 'Lene', note: '' },
+                            { id: 203, text: 'J√§ckchen / Pullover', checked: false, tag: 'Lene', note: '' },
                             { id: 204, text: 'Socken (3 Paar)', checked: false, tag: 'Lene', note: '' },
-                            { id: 205, text: 'Mütze (warm)', checked: false, tag: 'Lene', note: '' },
+                            { id: 205, text: 'M√ºtze (warm)', checked: false, tag: 'Lene', note: '' },
                             { id: 206, text: 'Schlafsack', checked: false, tag: 'Lene', note: 'Bett ist da' },
-                            { id: 207, text: 'Nuschis (3–4)', checked: false, tag: 'Lene', note: '' },
-                            { id: 208, text: 'Lätzchen (3–4)', checked: false, tag: 'Lene', note: '' }
+                            { id: 207, text: 'Nuschis (3‚Äì4)', checked: false, tag: 'Lene', note: '' },
+                            { id: 208, text: 'L√§tzchen (3‚Äì4)', checked: false, tag: 'Lene', note: '' }
                         ],
-                        '👗 Kleider Mila': [
-                            { id: 211, text: 'Hosen (2–3)', checked: false, tag: 'Mila', note: '' },
-                            { id: 212, text: 'Bodies / Shirts (3–4)', checked: false, tag: 'Mila', note: '' },
+                        'üëó Kleider Mila': [
+                            { id: 211, text: 'Hosen (2‚Äì3)', checked: false, tag: 'Mila', note: '' },
+                            { id: 212, text: 'Bodies / Shirts (3‚Äì4)', checked: false, tag: 'Mila', note: '' },
                             { id: 213, text: 'Pyjama (2)', checked: false, tag: 'Mila', note: '' },
-                            { id: 214, text: 'Pullover / Jäckchen', checked: false, tag: 'Mila', note: '' },
+                            { id: 214, text: 'Pullover / J√§ckchen', checked: false, tag: 'Mila', note: '' },
                             { id: 215, text: 'Unterhosen (4)', checked: false, tag: 'Mila', note: '' },
                             { id: 216, text: 'Socken (3 Paar)', checked: false, tag: 'Mila', note: '' },
                             { id: 217, text: 'Schuhe + Hausschuhe', checked: false, tag: 'Mila', note: '' },
-                            { id: 218, text: 'Jacke + Mütze', checked: false, tag: 'Mila', note: '' },
+                            { id: 218, text: 'Jacke + M√ºtze', checked: false, tag: 'Mila', note: '' },
                             { id: 219, text: 'Regenjacke', checked: false, tag: 'Mila', note: '' },
                             { id: 220, text: 'Lieblings-Bettdecke', checked: false, tag: 'Mila', note: 'Bett ist da' }
                         ],
-                        '👔 Michèle & Alex': [
-                            { id: 231, text: '2 Outfits gemäss Wetter', checked: false, tag: '', note: '' },
+                        'üëî Mich√®le & Alex': [
+                            { id: 231, text: '2 Outfits gem√§ss Wetter', checked: false, tag: '', note: '' },
                             { id: 232, text: 'Pyjamas', checked: false, tag: '', note: '' },
-                            { id: 233, text: 'Unterwäsche & Socken (3)', checked: false, tag: '', note: '' },
+                            { id: 233, text: 'Unterw√§sche & Socken (3)', checked: false, tag: '', note: '' },
                             { id: 234, text: 'Jacken', checked: false, tag: '', note: '' },
-                            { id: 235, text: 'Kulturbeutel (Zahnbürste, Cremes)', checked: false, tag: '', note: '' },
-                            { id: 236, text: 'BHs', checked: false, tag: 'Michèle', note: '' },
-                            { id: 237, text: 'Schminktäschchen', checked: false, tag: 'Michèle', note: '' }
+                            { id: 235, text: 'Kulturbeutel (Zahnb√ºrste, Cremes)', checked: false, tag: '', note: '' },
+                            { id: 236, text: 'BHs', checked: false, tag: 'Mich√®le', note: '' },
+                            { id: 237, text: 'Schminkt√§schchen', checked: false, tag: 'Mich√®le', note: '' }
                         ],
-                        '🧷 Wickeln & Pflege': [
+                        'üß∑ Wickeln & Pflege': [
                             { id: 241, text: 'Windeln Lene (ca. 20)', checked: false, tag: 'Lene', note: '' },
                             { id: 242, text: 'Nacht-Windeln Mila', checked: false, tag: 'Mila', note: '' },
-                            { id: 243, text: 'Feuchttücher (1–2 Pack)', checked: false, tag: '', note: '' },
+                            { id: 243, text: 'Feuchtt√ºcher (1‚Äì2 Pack)', checked: false, tag: '', note: '' },
                             { id: 244, text: 'Wickelunterlage', checked: false, tag: '', note: '' },
                             { id: 245, text: 'Popocreme', checked: false, tag: '', note: '' },
-                            { id: 246, text: 'Zahnbürste & Zahnpasta Kinder', checked: false, tag: '', note: '' },
+                            { id: 246, text: 'Zahnb√ºrste & Zahnpasta Kinder', checked: false, tag: '', note: '' },
                             { id: 247, text: 'Nuggis / Ersatznuggis', checked: false, tag: '', note: '' },
                             { id: 248, text: 'Vitamin D', checked: false, tag: 'Lene', note: '' }
                         ],
-                        '🍼 Lene-Spezial': [
-                            { id: 251, text: 'Brei / Gläschen (für 2–3 Tage)', checked: false, tag: 'Lene', note: '' },
+                        'üçº Lene-Spezial': [
+                            { id: 251, text: 'Brei / Gl√§schen (f√ºr 2‚Äì3 Tage)', checked: false, tag: 'Lene', note: '' },
                             { id: 252, text: 'Milchpulver', checked: false, tag: 'Lene', note: '' },
                             { id: 253, text: 'Schoppen + Sauger (2)', checked: false, tag: 'Lene', note: '' },
                             { id: 254, text: 'Snacks (Reiswaffeln)', checked: false, tag: '', note: '' }
                         ],
-                        '🎨 Schnüffel & Beschäftigung': [
-                            { id: 261, text: 'Walfisch / Hase (Schnüfftiere)', checked: false, tag: '', note: 'Nicht vergessen!' },
+                        'üé® Schn√ºffel & Besch√§ftigung': [
+                            { id: 261, text: 'Walfisch / Hase (Schn√ºfftiere)', checked: false, tag: '', note: 'Nicht vergessen!' },
                             { id: 262, text: 'Lieblingsbuch', checked: false, tag: '', note: '' },
                             { id: 263, text: 'Malzeug & Stifte', checked: false, tag: 'Mila', note: '' }
                         ],
-                        '🚗 Transport': [
+                        'üöó Transport': [
                             { id: 271, text: 'Kindersitze ins Auto', checked: false, tag: '', note: '' },
                             { id: 272, text: 'Tragi (Ergobaby)', checked: false, tag: 'Lene', note: '' },
                             { id: 273, text: 'Kinderwagen / Buggy', checked: false, tag: '', note: '' }
                         ],
-                        '✅ Vor Abreise': [
-                            { id: 281, text: 'Hühner füttern / organisieren', checked: false, tag: '', note: '' },
+                        '‚úÖ Vor Abreise': [
+                            { id: 281, text: 'H√ºhner f√ºttern / organisieren', checked: false, tag: '', note: '' },
                             { id: 282, text: 'Pflanzen giessen', checked: false, tag: '', note: '' },
-                            { id: 283, text: 'Kühlschrank checken', checked: false, tag: '', note: '' },
-                            { id: 284, text: 'Müll rausbringen', checked: false, tag: '', note: '' }
+                            { id: 283, text: 'K√ºhlschrank checken', checked: false, tag: '', note: '' },
+                            { id: 284, text: 'M√ºll rausbringen', checked: false, tag: '', note: '' }
                         ]
                     }
                 }
             }
         },
         shopping: [
-            { id: 1, text: 'Rübeli', category: 'Gemüse', checked: false },
-            { id: 2, text: 'Spinat', category: 'Gemüse', checked: false },
-            { id: 3, text: 'Tomaten', category: 'Gemüse', checked: false },
-            { id: 4, text: 'Zwiebeln', category: 'Gemüse', checked: false },
-            { id: 5, text: 'Äpfel', category: 'Früchte', checked: false },
+            { id: 1, text: 'R√ºbeli', category: 'Gem√ºse', checked: false },
+            { id: 2, text: 'Spinat', category: 'Gem√ºse', checked: false },
+            { id: 3, text: 'Tomaten', category: 'Gem√ºse', checked: false },
+            { id: 4, text: 'Zwiebeln', category: 'Gem√ºse', checked: false },
+            { id: 5, text: '√Ñpfel', category: 'Fr√ºchte', checked: false },
             { id: 6, text: 'Poulet', category: 'Fleisch & Fisch', checked: false },
             { id: 7, text: 'Eier', category: 'Milchprodukte', checked: false },
             { id: 8, text: 'Milch', category: 'Milchprodukte', checked: false },
-            { id: 9, text: 'Brot', category: 'Brot & Gebäck', checked: false }
+            { id: 9, text: 'Brot', category: 'Brot & Geb√§ck', checked: false }
         ],
         todos: [
             { id: 1, text: 'Altpapier rausbringen', checked: false, priority: 'high', assignee: 'beide' },
-            { id: 2, text: 'Zahnarzttermin vereinbaren', checked: false, priority: 'medium', assignee: 'Michèle' },
-            { id: 3, text: 'Wäsche aufhängen', checked: false, priority: 'low', assignee: 'beide' },
+            { id: 2, text: 'Zahnarzttermin vereinbaren', checked: false, priority: 'medium', assignee: 'Mich√®le' },
+            { id: 3, text: 'W√§sche aufh√§ngen', checked: false, priority: 'low', assignee: 'beide' },
             { id: 4, text: 'Elternabend Schule', checked: false, priority: 'high', assignee: 'beide' },
             { id: 5, text: 'Velo-Pneu aufpumpen', checked: false, priority: 'low', assignee: 'Alex' }
         ],
         reinigung: [
-            { id: 1, text: 'Staubsaugen (alle Räume)', checked: false, frequency: 'weekly', lastDone: '', note: '' },
-            { id: 2, text: 'Böden wischen', checked: false, frequency: 'weekly', lastDone: '', note: '' },
+            { id: 1, text: 'Staubsaugen (alle R√§ume)', checked: false, frequency: 'weekly', lastDone: '', note: '' },
+            { id: 2, text: 'B√∂den wischen', checked: false, frequency: 'weekly', lastDone: '', note: '' },
             { id: 3, text: 'Badezimmer reinigen', checked: false, frequency: 'weekly', lastDone: '', note: '' },
-            { id: 4, text: 'Küche gründlich reinigen', checked: false, frequency: 'weekly', lastDone: '', note: '' },
+            { id: 4, text: 'K√ºche gr√ºndlich reinigen', checked: false, frequency: 'weekly', lastDone: '', note: '' },
             { id: 5, text: 'Staubwischen', checked: false, frequency: 'biweekly', lastDone: '', note: 'Putzfrau' },
             { id: 6, text: 'Betten frisch beziehen', checked: false, frequency: 'biweekly', lastDone: '', note: '' },
-            { id: 7, text: 'Ecken und Ränder der Böden reinigen', checked: false, frequency: 'monthly', lastDone: '', note: 'Dort wo der Staubsauger nicht hinkommt' },
+            { id: 7, text: 'Ecken und R√§nder der B√∂den reinigen', checked: false, frequency: 'monthly', lastDone: '', note: 'Dort wo der Staubsauger nicht hinkommt' },
             { id: 8, text: 'Spinnweben entfernen', checked: false, frequency: 'monthly', lastDone: '', note: 'Ecken, Decken, Keller' },
-            { id: 9, text: 'Kühlschrank auswischen', checked: false, frequency: 'monthly', lastDone: '', note: '' },
+            { id: 9, text: 'K√ºhlschrank auswischen', checked: false, frequency: 'monthly', lastDone: '', note: '' },
             { id: 10, text: 'Backofen reinigen', checked: false, frequency: 'quarterly', lastDone: '', note: '' },
-            { id: 11, text: 'Abflüsse reinigen', checked: false, frequency: 'quarterly', lastDone: '', note: 'Bad, Küche, Dusche' },
+            { id: 11, text: 'Abfl√ºsse reinigen', checked: false, frequency: 'quarterly', lastDone: '', note: 'Bad, K√ºche, Dusche' },
             { id: 12, text: 'Fenster putzen (innen)', checked: false, frequency: 'quarterly', lastDone: '', note: '' },
-            { id: 13, text: 'Waschmaschine reinigen (Hygienespüler)', checked: false, frequency: 'quarterly', lastDone: '', note: '' },
-            { id: 14, text: 'Wintergarten reinigen', checked: false, frequency: 'biannual', lastDone: '', note: 'Boden, Glasflächen, Möbel' },
+            { id: 13, text: 'Waschmaschine reinigen (Hygienesp√ºler)', checked: false, frequency: 'quarterly', lastDone: '', note: '' },
+            { id: 14, text: 'Wintergarten reinigen', checked: false, frequency: 'biannual', lastDone: '', note: 'Boden, Glasfl√§chen, M√∂bel' },
             { id: 15, text: 'Fenster putzen (aussen)', checked: false, frequency: 'biannual', lastDone: '', note: '' },
-            { id: 16, text: 'Matratzen absaugen & lüften', checked: false, frequency: 'biannual', lastDone: '', note: '' },
-            { id: 17, text: 'Vorhänge / Gardinen waschen', checked: false, frequency: 'biannual', lastDone: '', note: '' },
-            { id: 18, text: 'Tiefkühler abtauen', checked: false, frequency: 'biannual', lastDone: '', note: '' },
+            { id: 16, text: 'Matratzen absaugen & l√ºften', checked: false, frequency: 'biannual', lastDone: '', note: '' },
+            { id: 17, text: 'Vorh√§nge / Gardinen waschen', checked: false, frequency: 'biannual', lastDone: '', note: '' },
+            { id: 18, text: 'Tiefk√ºhler abtauen', checked: false, frequency: 'biannual', lastDone: '', note: '' },
             { id: 19, text: 'Dachrinnen kontrollieren / reinigen', checked: false, frequency: 'annual', lastDone: '', note: '' },
-            { id: 20, text: 'Teppiche / Polstermöbel tiefenreinigen', checked: false, frequency: 'annual', lastDone: '', note: '' },
-            { id: 21, text: 'Keller aufräumen & reinigen', checked: false, frequency: 'annual', lastDone: '', note: '' },
-            { id: 22, text: 'Garage / Abstellraum aufräumen', checked: false, frequency: 'annual', lastDone: '', note: '' },
-            { id: 23, text: 'Heizkörper reinigen', checked: false, frequency: 'annual', lastDone: '', note: '' },
+            { id: 20, text: 'Teppiche / Polsterm√∂bel tiefenreinigen', checked: false, frequency: 'annual', lastDone: '', note: '' },
+            { id: 21, text: 'Keller aufr√§umen & reinigen', checked: false, frequency: 'annual', lastDone: '', note: '' },
+            { id: 22, text: 'Garage / Abstellraum aufr√§umen', checked: false, frequency: 'annual', lastDone: '', note: '' },
+            { id: 23, text: 'Heizk√∂rper reinigen', checked: false, frequency: 'annual', lastDone: '', note: '' },
             { id: 24, text: 'Markisen / Storen reinigen', checked: false, frequency: 'annual', lastDone: '', note: '' },
             { id: 25, text: 'Dunstabzugshaube / Filter reinigen', checked: false, frequency: 'quarterly', lastDone: '', note: '' },
-            { id: 26, text: 'Geschirrspüler reinigen', checked: false, frequency: 'quarterly', lastDone: '', note: '' }
+            { id: 26, text: 'Geschirrsp√ºler reinigen', checked: false, frequency: 'quarterly', lastDone: '', note: '' }
         ]
     };
 
-    // Default-Menü für aktuelle + nächste Woche
+    // Default-Men√º f√ºr aktuelle + n√§chste Woche
     (function() {
         const weekKey = getWeekKey(0);
         defaultData.menu[weekKey] = {
-            'Montag': { zmittag: 'Gemüsesuppe mit Brot', znacht: 'Gschwellti mit Käse' },
-            'Dienstag': { zmittag: 'Poulet-Curry mit Reis', znacht: 'Rüeblisalat & Brot' },
-            'Mittwoch': { zmittag: 'Ghackets mit Hörnli', znacht: 'Birchermüesli' },
+            'Montag': { zmittag: 'Gem√ºsesuppe mit Brot', znacht: 'Gschwellti mit K√§se' },
+            'Dienstag': { zmittag: 'Poulet-Curry mit Reis', znacht: 'R√ºeblisalat & Brot' },
+            'Mittwoch': { zmittag: 'Ghackets mit H√∂rnli', znacht: 'Bircherm√ºesli' },
             'Donnerstag': { zmittag: 'Lachsfilet mit Kartoffeln', znacht: 'Tomatensuppe' },
-            'Freitag': { zmittag: 'Älplermagronen', znacht: 'Reste-Abend' },
-            'Samstag': { zmittag: 'Züri-Gschnetzelts mit Rösti', znacht: 'Flammkuchen' },
-            'Sonntag': { zmittag: 'Sonntagsbraten mit Ofengemüse', znacht: 'Zopf mit Butter & Konfi' }
+            'Freitag': { zmittag: '√Ñlplermagronen', znacht: 'Reste-Abend' },
+            'Samstag': { zmittag: 'Z√ºri-Gschnetzelts mit R√∂sti', znacht: 'Flammkuchen' },
+            'Sonntag': { zmittag: 'Sonntagsbraten mit Ofengem√ºse', znacht: 'Zopf mit Butter & Konfi' }
         };
         const nextWeekKey = getWeekKey(1);
         defaultData.menu[nextWeekKey] = {
-            'Montag': { zmittag: 'Resten-Gemüsesuppe', znacht: 'Brot & Käse' },
+            'Montag': { zmittag: 'Resten-Gem√ºsesuppe', znacht: 'Brot & K√§se' },
             'Dienstag': { zmittag: 'Pouletgeschnetzeltes mit Reis', znacht: 'Omeletten' },
-            'Mittwoch': { zmittag: 'Pizza-Toast', znacht: 'Birchermüesli' },
+            'Mittwoch': { zmittag: 'Pizza-Toast', znacht: 'Bircherm√ºesli' },
             'Donnerstag': { zmittag: 'Spaghetti Bolognese', znacht: 'Salatteller' },
-            'Freitag': { zmittag: 'Fischstäbchen & Rübeli', znacht: 'Reste-Abend' },
-            'Samstag': { zmittag: 'Pouletschenkel & Gemüse', znacht: 'Flammkuchen' },
-            'Sonntag': { zmittag: 'Sonntagsbraten', znacht: 'Znacht-Plättli' }
+            'Freitag': { zmittag: 'Fischst√§bchen & R√ºbeli', znacht: 'Reste-Abend' },
+            'Samstag': { zmittag: 'Pouletschenkel & Gem√ºse', znacht: 'Flammkuchen' },
+            'Sonntag': { zmittag: 'Sonntagsbraten', znacht: 'Znacht-Pl√§ttli' }
         };
     })();
 
     // ============================================================
-    // DATA INTEGRITY (übernommen aus v1)
+    // DATA INTEGRITY (√ºbernommen aus v1)
     // ============================================================
     function ensureDataIntegrity() {
         if (!appData || typeof appData !== 'object') {
@@ -2109,7 +2108,7 @@
         }
         // Migrate old single-trip structure -> new trips structure
         if (appData.packliste.trip || appData.packliste.categories) {
-            const migratedTrip = appData.packliste.trip || { name: 'Camperreise', destination: '', duration: '', people: ['Michèle', 'Alex', 'Mila', 'Lene'] };
+            const migratedTrip = appData.packliste.trip || { name: 'Camperreise', destination: '', duration: '', people: ['Mich√®le', 'Alex', 'Mila', 'Lene'] };
             const migratedCats = appData.packliste.categories || {};
             appData.packliste = {
                 activeTrip: 'camperreise',
@@ -2220,10 +2219,10 @@
     function setSyncStatus(state, customText) {
         const el = document.getElementById('sync-status');
         if (state === 'online') {
-            el.textContent = customText || '● Synchronisiert';
+            el.textContent = customText || '‚óè Synchronisiert';
             el.className = 'sync-status online';
         } else {
-            el.textContent = customText || '● Offline';
+            el.textContent = customText || '‚óè Offline';
             el.className = 'sync-status offline';
         }
     }
@@ -2260,7 +2259,7 @@
         currentUser = name;
         localStorage.setItem(USER_KEY, name);
         document.getElementById('setup-overlay').style.display = 'none';
-        document.getElementById('greeting').textContent = 'Hallo ' + name + '! 👋';
+        document.getElementById('greeting').textContent = 'Hallo ' + name + '! üëã';
         renderCurrentTab();
     }
 
@@ -2268,7 +2267,7 @@
         if (!currentUser) {
             document.getElementById('setup-overlay').style.display = 'flex';
         } else {
-            document.getElementById('greeting').textContent = 'Hallo ' + currentUser + '! 👋';
+            document.getElementById('greeting').textContent = 'Hallo ' + currentUser + '! üëã';
         }
     }
 
@@ -2291,7 +2290,7 @@
     // ============================================================
     function renderDashboard() {
         const days = ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
-        const months = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+        const months = ['Januar','Februar','M√§rz','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
         const now = new Date();
         const today = days[now.getDay()];
         const dateStr = today + ', ' + now.getDate() + '. ' + months[now.getMonth()] + ' ' + now.getFullYear();
@@ -2299,12 +2298,12 @@
 
         const weekKey = getWeekKey(0);
         const weekMenu = appData.menu[weekKey] || {};
-        const todayMenu = weekMenu[today] || { zmittag: '–', znacht: '–' };
+        const todayMenu = weekMenu[today] || { zmittag: '‚Äì', znacht: '‚Äì' };
 
         document.getElementById('today-menu-card').innerHTML =
-            '<h3>📋 Heute – ' + today + '</h3>' +
-            '<div class="today-meal"><span class="today-meal-label">Zmittag</span><span>' + escapeHtml(todayMenu.zmittag || '–') + '</span></div>' +
-            '<div class="today-meal"><span class="today-meal-label">Znacht</span><span>' + escapeHtml(todayMenu.znacht || '–') + '</span></div>';
+            '<h3>üìã Heute ‚Äì ' + today + '</h3>' +
+            '<div class="today-meal"><span class="today-meal-label">Zmittag</span><span>' + escapeHtml(todayMenu.zmittag || '‚Äì') + '</span></div>' +
+            '<div class="today-meal"><span class="today-meal-label">Znacht</span><span>' + escapeHtml(todayMenu.znacht || '‚Äì') + '</span></div>';
 
         // Wochen-Fortschritts-Ring
         let mealsPlanned = 0;
@@ -2317,15 +2316,15 @@
         const ringFill = document.getElementById('week-ring-fill');
         const ringText = document.getElementById('week-ring-text');
         const ringLabel = document.getElementById('week-ring-label');
-        const circumference = 2 * Math.PI * 40; // ≈ 251.3
+        const circumference = 2 * Math.PI * 40; // ‚âà 251.3
         const offset = circumference * (1 - mealsPlanned / mealsTotal);
         ringFill.style.strokeDasharray = circumference;
         ringFill.style.strokeDashoffset = offset;
         ringText.textContent = mealsPlanned + '/' + mealsTotal;
         if (mealsPlanned === mealsTotal) {
-            ringLabel.textContent = '🎉 Komplett geplant – chapeau!';
+            ringLabel.textContent = 'üéâ Komplett geplant ‚Äì chapeau!';
         } else if (mealsPlanned >= 10) {
-            ringLabel.textContent = 'Fast komplett – nur noch ' + (mealsTotal - mealsPlanned) + ' offen';
+            ringLabel.textContent = 'Fast komplett ‚Äì nur noch ' + (mealsTotal - mealsPlanned) + ' offen';
         } else {
             ringLabel.textContent = 'Mahlzeiten dieser Woche geplant';
         }
@@ -2344,14 +2343,14 @@
         const packPct = packTotal > 0 ? Math.round((packChecked / packTotal) * 100) : 0;
         const tripName = (activeTripData.trip && activeTripData.trip.name) ? activeTripData.trip.name : 'Packliste';
         document.getElementById('overview-packliste').textContent = packPct + '%';
-        document.getElementById('overview-packliste-label').textContent = tripName + ' · ' + packChecked + ' / ' + packTotal + ' gepackt';
+        document.getElementById('overview-packliste-label').textContent = tripName + ' ¬∑ ' + packChecked + ' / ' + packTotal + ' gepackt';
 
         fetchWeather();
     }
 
     function fetchWeather() {
         if (!navigator.geolocation) {
-            document.getElementById('weather-card').innerHTML = '<div style="font-size:0.75rem;opacity:0.85;">Wetter-API nicht verfügbar</div>';
+            document.getElementById('weather-card').innerHTML = '<div style="font-size:0.75rem;opacity:0.85;">Wetter-API nicht verf√ºgbar</div>';
             return;
         }
         navigator.geolocation.getCurrentPosition(pos => {
@@ -2367,20 +2366,20 @@
         const daily = data.daily;
         const wmoCode = current.weather_code;
         const iconMap = {
-            0: '☀️', 1: '🌤️', 2: '⛅', 3: '☁️', 45: '🌫️', 48: '🌫️',
-            51: '🌧️', 53: '🌧️', 55: '🌧️', 61: '🌧️', 63: '⛈️', 65: '⛈️',
-            71: '🌨️', 73: '🌨️', 75: '🌨️', 80: '🌧️', 81: '⛈️', 82: '⛈️', 85: '🌨️', 86: '🌨️',
-            95: '⛈️', 96: '⛈️', 99: '⛈️'
+            0: '‚òÄÔ∏è', 1: 'üå§Ô∏è', 2: '‚õÖ', 3: '‚òÅÔ∏è', 45: 'üå´Ô∏è', 48: 'üå´Ô∏è',
+            51: 'üåßÔ∏è', 53: 'üåßÔ∏è', 55: 'üåßÔ∏è', 61: 'üåßÔ∏è', 63: '‚õàÔ∏è', 65: '‚õàÔ∏è',
+            71: 'üå®Ô∏è', 73: 'üå®Ô∏è', 75: 'üå®Ô∏è', 80: 'üåßÔ∏è', 81: '‚õàÔ∏è', 82: '‚õàÔ∏è', 85: 'üå®Ô∏è', 86: 'üå®Ô∏è',
+            95: '‚õàÔ∏è', 96: '‚õàÔ∏è', 99: '‚õàÔ∏è'
         };
-        const icon = iconMap[wmoCode] || '🌤️';
+        const icon = iconMap[wmoCode] || 'üå§Ô∏è';
         let html = '<div class="weather-main">' +
-            '<div><div class="weather-temp">' + Math.round(current.temperature_2m) + '°</div><div class="weather-desc">Zürich</div></div>' +
+            '<div><div class="weather-temp">' + Math.round(current.temperature_2m) + '¬∞</div><div class="weather-desc">Z√ºrich</div></div>' +
             '<div class="weather-icon">' + icon + '</div></div>' +
             '<div class="weather-forecast">';
         for (let i = 0; i < Math.min(3, daily.weather_code.length); i++) {
             const code = daily.weather_code[i];
-            html += '<div class="forecast-day"><div class="fc-icon">' + (iconMap[code] || '🌤️') + '</div>' +
-                '<div class="fc-temp">' + Math.round(daily.temperature_2m_max[i]) + '°</div></div>';
+            html += '<div class="forecast-day"><div class="fc-icon">' + (iconMap[code] || 'üå§Ô∏è') + '</div>' +
+                '<div class="fc-temp">' + Math.round(daily.temperature_2m_max[i]) + '¬∞</div></div>';
         }
         html += '</div><div class="weather-source">powered by Open-Meteo</div>';
         document.getElementById('weather-card').innerHTML = html;
@@ -2394,7 +2393,7 @@
         document.querySelectorAll('.week-btn').forEach(b => {
             b.classList.toggle('active',
                 (b.textContent.includes('Diese') && selectedWeek === 0) ||
-                (b.textContent.includes('Nächste') && selectedWeek === 1));
+                (b.textContent.includes('N√§chste') && selectedWeek === 1));
         });
         renderMenu();
     }
@@ -2442,7 +2441,7 @@
         if (!appData.menu[weekKey]) appData.menu[weekKey] = {};
         if (!appData.menu[weekKey][day]) appData.menu[weekKey][day] = { zmittag: '', znacht: '' };
         const current = appData.menu[weekKey][day][type] || '';
-        const newVal = prompt('Bearbeite ' + type + ' für ' + day + ':', current);
+        const newVal = prompt('Bearbeite ' + type + ' f√ºr ' + day + ':', current);
         if (newVal !== null) {
             appData.menu[weekKey][day][type] = newVal;
             saveData();
@@ -2495,16 +2494,16 @@
                     type: 'shopping',
                     id: item.id,
                     inner: '<div class="shopping-item">' +
-                        '<span class="drag-handle" data-handle>≡</span>' +
+                        '<span class="drag-handle" data-handle>‚â°</span>' +
                         '<div class="checkbox ' + (item.checked ? 'checked' : '') + '" onclick="toggleShopping(' + item.id + ')"></div>' +
                         '<div class="item-text ' + (item.checked ? 'checked' : '') + '">' + escapeHtml(item.text) + '</div>' +
-                        '<button class="delete-btn" onclick="deleteShopping(' + item.id + ')">×</button></div>'
+                        '<button class="delete-btn" onclick="deleteShopping(' + item.id + ')">√ó</button></div>'
                 });
             });
         });
 
         if (list.length === 0) {
-            html = '<div class="empty-state"><div class="empty-state-icon">🛒</div>Alle Einkäufe erledigt!</div>';
+            html = '<div class="empty-state"><div class="empty-state-icon">üõí</div>Alle Eink√§ufe erledigt!</div>';
         }
         document.getElementById('shopping-list').innerHTML = html;
 
@@ -2545,7 +2544,7 @@
         appData.shopping.splice(idx, 1);
         saveData();
         renderShopping();
-        showToast(escapeHtml(snapshot.text) + ' gelöscht', () => {
+        showToast(escapeHtml(snapshot.text) + ' gel√∂scht', () => {
             appData.shopping.splice(idx, 0, snapshot);
             saveData();
             renderShopping();
@@ -2567,7 +2566,7 @@
         if (!navigator.share) return;
         const list = (appData.shopping || []).filter(i => !i.checked);
         if (list.length === 0) {
-            showToast('Nichts mehr zu kaufen 🎉');
+            showToast('Nichts mehr zu kaufen üéâ');
             return;
         }
         const byCategory = {};
@@ -2576,10 +2575,10 @@
             if (!byCategory[cat]) byCategory[cat] = [];
             byCategory[cat].push(item);
         });
-        let text = '🛒 Einkaufsliste:\n\n';
+        let text = 'üõí Einkaufsliste:\n\n';
         Object.keys(byCategory).sort().forEach(cat => {
             text += cat + ':\n';
-            byCategory[cat].forEach(i => { text += '  • ' + i.text + '\n'; });
+            byCategory[cat].forEach(i => { text += '  ‚Ä¢ ' + i.text + '\n'; });
             text += '\n';
         });
         navigator.share({ title: 'Einkaufsliste', text: text }).catch(() => {});
@@ -2604,22 +2603,22 @@
 
         let html = '';
         filtered.forEach(item => {
-            const assigneeClass = 'assignee-' + (item.assignee === 'Michèle' ? 'michele' : item.assignee === 'beide' ? 'beide' : 'alex');
+            const assigneeClass = 'assignee-' + (item.assignee === 'Mich√®le' ? 'michele' : item.assignee === 'beide' ? 'beide' : 'alex');
             html += renderSwipeRow({
                 type: 'todo',
                 id: item.id,
                 inner: '<div class="todo-item">' +
-                    '<span class="drag-handle" data-handle>≡</span>' +
+                    '<span class="drag-handle" data-handle>‚â°</span>' +
                     '<div class="checkbox ' + (item.checked ? 'checked' : '') + '" onclick="toggleTodo(' + item.id + ')"></div>' +
                     '<div style="flex:1;min-width:0;"><div class="item-text ' + (item.checked ? 'checked' : '') + '">' + escapeHtml(item.text) + '</div></div>' +
                     '<div class="todo-meta"><span class="todo-priority priority-' + item.priority + '">' + (item.priority === 'high' ? 'Hoch' : item.priority === 'medium' ? 'Mittel' : 'Tief') + '</span>' +
                     '<span class="todo-assignee ' + assigneeClass + '">' + escapeHtml(item.assignee) + '</span></div>' +
-                    '<button class="delete-btn" onclick="deleteTodo(' + item.id + ')">×</button></div>'
+                    '<button class="delete-btn" onclick="deleteTodo(' + item.id + ')">√ó</button></div>'
             });
         });
 
         if (filtered.length === 0) {
-            html = '<div class="empty-state"><div class="empty-state-icon">✅</div>Keine Todos!</div>';
+            html = '<div class="empty-state"><div class="empty-state-icon">‚úÖ</div>Keine Todos!</div>';
         }
         document.getElementById('todo-list').innerHTML = html;
 
@@ -2671,7 +2670,7 @@
         appData.todos.splice(idx, 1);
         saveData();
         renderTodos();
-        showToast('Todo „' + escapeHtml(snapshot.text) + '" gelöscht', () => {
+        showToast('Todo ‚Äû' + escapeHtml(snapshot.text) + '" gel√∂scht', () => {
             appData.todos.splice(idx, 0, snapshot);
             saveData();
             renderTodos();
@@ -2723,7 +2722,7 @@
         const cats = active.categories || {};
 
         // Trip-Switcher (Tabs)
-        const tripLabels = { camperreise: '🚐 Camperreise', toggenburg: '🏡 Toggenburg' };
+        const tripLabels = { camperreise: 'üöê Camperreise', toggenburg: 'üè° Toggenburg' };
         let switcherHtml = '<div class="packlist-trip-switcher">';
         Object.keys(appData.packliste.trips).forEach(tripKey => {
             const fallback = (appData.packliste.trips[tripKey].trip && appData.packliste.trips[tripKey].trip.name) || tripKey;
@@ -2733,14 +2732,14 @@
         });
         switcherHtml += '</div>';
 
-        let tripHtml = switcherHtml + '<h3>' + escapeHtml(trip.name || 'Reise') + ' 🧳</h3>';
+        let tripHtml = switcherHtml + '<h3>' + escapeHtml(trip.name || 'Reise') + ' üß≥</h3>';
         if (trip.destination || trip.duration) {
             tripHtml += '<div class="packlist-trip-info">';
             if (trip.destination) tripHtml += '<span class="packlist-badge">' + escapeHtml(trip.destination) + '</span>';
             if (trip.duration) tripHtml += '<span class="packlist-badge">' + escapeHtml(trip.duration) + '</span>';
             tripHtml += '</div>';
         }
-        tripHtml += '<button class="packlist-edit-btn" onclick="editTripInfo()">✏️ Bearbeiten</button>';
+        tripHtml += '<button class="packlist-edit-btn" onclick="editTripInfo()">‚úèÔ∏è Bearbeiten</button>';
         document.getElementById('packlist-trip-card').innerHTML = tripHtml;
 
         let total = 0, checked = 0;
@@ -2768,7 +2767,7 @@
             const allDone = items.length > 0 && catChecked === items.length;
             const doneStyle = allDone ? ' style="opacity:0.55;"' : '';
             const catEsc = cat.replace(/'/g, "\\'");
-            listHtml += '<div class="packlist-cat-header" onclick="togglePacklistCat(\'' + catEsc + '\')"' + doneStyle + '><span><span class="packlist-cat-toggle ' + (isCollapsed ? 'collapsed' : '') + '">▼</span>' + escapeHtml(cat) + '</span><span class="packlist-cat-count">' + catChecked + '/' + items.length + '</span></div>';
+            listHtml += '<div class="packlist-cat-header" onclick="togglePacklistCat(\'' + catEsc + '\')"' + doneStyle + '><span><span class="packlist-cat-toggle ' + (isCollapsed ? 'collapsed' : '') + '">‚ñº</span>' + escapeHtml(cat) + '</span><span class="packlist-cat-count">' + catChecked + '/' + items.length + '</span></div>';
             listHtml += '<div class="packlist-cat-items ' + (isCollapsed ? 'collapsed' : '') + '">';
             items.forEach(item => {
                 const tagClass = item.tag ? 'tag-person-' + (trip.people && trip.people.indexOf(item.tag) >= 0 ? trip.people.indexOf(item.tag) : 'alle') : '';
@@ -2777,7 +2776,7 @@
                     '<div class="checkbox ' + (item.checked ? 'checked' : '') + '" onclick="togglePacklist(' + item.id + ',\'' + catEsc + '\')"></div>' +
                     '<div class="packlist-item-info"><span class="packlist-item-text ' + (item.checked ? 'checked' : '') + '">' + escapeHtml(item.text) + tagHtml + '</span>' +
                     (item.note ? '<div class="packlist-item-tag" style="background:none;padding:0;margin:0;margin-top:2px;color:var(--text-muted);font-style:italic;">' + escapeHtml(item.note) + '</div>' : '') + '</div>' +
-                    '<button class="delete-btn" onclick="deletePacklist(' + item.id + ',\'' + catEsc + '\')">×</button></div>';
+                    '<button class="delete-btn" onclick="deletePacklist(' + item.id + ',\'' + catEsc + '\')">√ó</button></div>';
             });
             listHtml += '</div>';
         });
@@ -2827,7 +2826,7 @@
         active.categories[cat].splice(idx, 1);
         saveData();
         renderPackliste();
-        showToast('„' + escapeHtml(snapshot.text) + '" gelöscht', () => {
+        showToast('‚Äû' + escapeHtml(snapshot.text) + '" gel√∂scht', () => {
             active.categories[cat].splice(idx, 0, snapshot);
             saveData();
             renderPackliste();
@@ -2866,7 +2865,7 @@
     function resetPackliste() {
         const active = getActivePackliste();
         const label = (active.trip && active.trip.name) ? active.trip.name : 'dieser Packliste';
-        if (!confirm('Alle Häkchen in «' + label + '» zurücksetzen?')) return;
+        if (!confirm('Alle H√§kchen in ¬´' + label + '¬ª zur√ºcksetzen?')) return;
         Object.values(active.categories).forEach(items => {
             if (Array.isArray(items)) items.forEach(i => { i.checked = false; });
         });
@@ -2879,12 +2878,12 @@
     // REINIGUNG
     // ============================================================
     const frequencyLabels = {
-        'weekly': 'Wöchentlich',
+        'weekly': 'W√∂chentlich',
         'biweekly': 'Alle 2 Wochen',
         'monthly': 'Monatlich',
-        'quarterly': 'Vierteljährlich',
-        'biannual': 'Halbjährlich',
-        'annual': 'Jährlich'
+        'quarterly': 'Viertelj√§hrlich',
+        'biannual': 'Halbj√§hrlich',
+        'annual': 'J√§hrlich'
     };
     const frequencyOrder = ['weekly', 'biweekly', 'monthly', 'quarterly', 'biannual', 'annual'];
 
@@ -2924,13 +2923,13 @@
                     inner: '<div class="cleaning-item">' +
                         '<div class="checkbox ' + (item.checked ? 'checked' : '') + '" onclick="toggleCleaning(' + item.id + ')"></div>' +
                         '<div class="cleaning-item-info"><span class="cleaning-item-text ' + (item.checked ? 'checked' : '') + '">' + escapeHtml(item.text) + '</span>' + noteHtml + lastDoneHtml + '</div>' +
-                        '<button class="delete-btn" onclick="deleteCleaning(' + item.id + ')">×</button></div>'
+                        '<button class="delete-btn" onclick="deleteCleaning(' + item.id + ')">√ó</button></div>'
                 });
             });
         });
 
         if (filtered.length === 0) {
-            html = '<div class="empty-state"><div class="empty-state-icon">✨</div>Alles sauber!</div>';
+            html = '<div class="empty-state"><div class="empty-state-icon">‚ú®</div>Alles sauber!</div>';
         }
         document.getElementById('cleaning-list').innerHTML = html;
         attachSwipeHandlers('cleaning-list', deleteCleaning);
@@ -2968,7 +2967,7 @@
         appData.reinigung.splice(idx, 1);
         saveData();
         renderCleaning();
-        showToast('„' + escapeHtml(snapshot.text) + '" gelöscht', () => {
+        showToast('‚Äû' + escapeHtml(snapshot.text) + '" gel√∂scht', () => {
             appData.reinigung.splice(idx, 0, snapshot);
             saveData();
             renderCleaning();
@@ -2990,7 +2989,7 @@
     }
 
     function resetCleaning() {
-        if (!confirm('Alle Reinigungsaufgaben zurücksetzen?')) return;
+        if (!confirm('Alle Reinigungsaufgaben zur√ºcksetzen?')) return;
         (appData.reinigung || []).forEach(item => { item.checked = false; });
         saveData();
         renderCleaning();
@@ -3001,7 +3000,7 @@
     // ============================================================
     function renderSwipeRow({ type, id, inner }) {
         return '<div class="sortable-item swipe-wrapper" data-type="' + type + '" data-id="' + id + '">' +
-            '<div class="swipe-bg">🗑️ Löschen</div>' +
+            '<div class="swipe-bg">üóëÔ∏è L√∂schen</div>' +
             '<div class="swipe-content">' + inner + '</div>' +
         '</div>';
     }
@@ -3020,7 +3019,7 @@
             let startX = 0, startY = 0, dx = 0, swiping = false, decided = false;
 
             content.addEventListener('pointerdown', (e) => {
-                // Drag-Handle hat Vorrang → kein Swipe
+                // Drag-Handle hat Vorrang ‚Üí kein Swipe
                 if (e.target.closest('[data-handle]')) return;
                 // Buttons / Checkboxen: kein Swipe
                 if (e.target.closest('.checkbox') || e.target.closest('button')) return;
@@ -3041,7 +3040,7 @@
 
                 if (!decided) {
                     if (Math.abs(ddy) > Math.abs(ddx) + 6) {
-                        // Vertical → kein Swipe (User scrollt)
+                        // Vertical ‚Üí kein Swipe (User scrollt)
                         swiping = false;
                         content.classList.remove('swiping');
                         content.style.transform = '';
@@ -3167,7 +3166,7 @@
         if (typeof undoFn === 'function') {
             const btn = document.createElement('button');
             btn.className = 'toast-action';
-            btn.textContent = 'Rückgängig';
+            btn.textContent = 'R√ºckg√§ngig';
             btn.onclick = () => {
                 undoFn();
                 buzz(8);
@@ -3234,7 +3233,7 @@
                     refreshing = false;
                     indicator.classList.remove('refreshing', 'visible');
                     indicator.style.transform = '';
-                    showToast('Aktualisiert ✓', null, 1500);
+                    showToast('Aktualisiert ‚úì', null, 1500);
                 });
             } else {
                 indicator.classList.remove('visible');
@@ -3244,7 +3243,7 @@
     }
 
     // ============================================================
-    // CONFETTI 🎉
+    // CONFETTI üéâ
     // ============================================================
     const confettiFiredFor = {};
     function maybeFireConfetti(key) {
@@ -3320,12 +3319,12 @@
         document.getElementById('install-banner').classList.remove('show');
         document.getElementById('install-btn').style.display = 'none';
         deferredInstallPrompt = null;
-        showToast('App installiert ✨ Schau auf dem Home-Screen.', null, 4000);
+        showToast('App installiert ‚ú® Schau auf dem Home-Screen.', null, 4000);
     });
 
     function triggerInstall() {
         if (!deferredInstallPrompt) {
-            showToast('Tipp: über Browser-Menü „Zum Startbildschirm hinzufügen" wählen', null, 4000);
+            showToast('Tipp: √ºber Browser-Men√º ‚ÄûZum Startbildschirm hinzuf√ºgen" w√§hlen', null, 4000);
             return;
         }
         deferredInstallPrompt.prompt();
@@ -3349,13 +3348,13 @@
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('sw.js')
                 .then(reg => {
-                    // Auto-Update wenn neue Version verfügbar
+                    // Auto-Update wenn neue Version verf√ºgbar
                     reg.addEventListener('updatefound', () => {
                         const sw = reg.installing;
                         if (!sw) return;
                         sw.addEventListener('statechange', () => {
                             if (sw.state === 'installed' && navigator.serviceWorker.controller) {
-                                showToast('Neue Version verfügbar 🔄', () => location.reload(), 8000);
+                                showToast('Neue Version verf√ºgbar üîÑ', () => location.reload(), 8000);
                             }
                         });
                     });
@@ -3394,7 +3393,7 @@
     // ============================================================
     function openSettings() {
         document.getElementById('api-key-input').value = localStorage.getItem(API_KEY_STORAGE) || '';
-        document.getElementById('settings-user').value = currentUser || 'Michèle';
+        document.getElementById('settings-user').value = currentUser || 'Mich√®le';
         updateAiStatusBadge();
         document.getElementById('settings-overlay').classList.add('show');
     }
@@ -3412,11 +3411,11 @@
         if (user && user !== currentUser) {
             currentUser = user;
             localStorage.setItem(USER_KEY, user);
-            document.getElementById('greeting').textContent = 'Hallo ' + user + '! 👋';
+            document.getElementById('greeting').textContent = 'Hallo ' + user + '! üëã';
         }
         updateAiStatusBadge();
         closeSettings();
-        showToast('Gespeichert ✓', null, 1500);
+        showToast('Gespeichert ‚úì', null, 1500);
         renderCurrentTab();
     }
     function updateAiStatusBadge() {
@@ -3431,7 +3430,7 @@
     }
     function requireApiKey(action) {
         if (!getApiKey()) {
-            showToast('API-Key fehlt – ⚙️ oben rechts', () => openSettings(), 6000);
+            showToast('API-Key fehlt ‚Äì ‚öôÔ∏è oben rechts', () => openSettings(), 6000);
             return false;
         }
         return true;
@@ -3478,7 +3477,7 @@
     }
 
     // ============================================================
-    // VOICE QUICK-ADD (Web Speech API – nativ, kein API-Key nötig)
+    // VOICE QUICK-ADD (Web Speech API ‚Äì nativ, kein API-Key n√∂tig)
     // ============================================================
     let voiceRecognition = null;
     let voiceListening = false;
@@ -3487,7 +3486,7 @@
         const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
         const fab = document.getElementById('fab-mic');
         if (!SR || !fab) {
-            return; // Nicht unterstützt → FAB bleibt versteckt
+            return; // Nicht unterst√ºtzt ‚Üí FAB bleibt versteckt
         }
         fab.style.display = 'flex';
         voiceRecognition = new SR();
@@ -3504,7 +3503,7 @@
             }
             lastTranscript = text;
             const txtEl = document.getElementById('voice-text');
-            if (txtEl) txtEl.textContent = text || '…';
+            if (txtEl) txtEl.textContent = text || '‚Ä¶';
         };
         voiceRecognition.onerror = (e) => {
             console.warn('Voice error:', e.error);
@@ -3526,7 +3525,7 @@
 
     function toggleVoice() {
         if (!voiceRecognition) {
-            showToast('Spracherkennung nicht unterstützt', null, 3000);
+            showToast('Spracherkennung nicht unterst√ºtzt', null, 3000);
             return;
         }
         if (voiceListening) {
@@ -3540,7 +3539,7 @@
             voiceRecognition.start();
             voiceListening = true;
             document.getElementById('fab-mic').classList.add('listening');
-            document.getElementById('voice-text').textContent = '…';
+            document.getElementById('voice-text').textContent = '‚Ä¶';
             document.getElementById('voice-bubble').classList.add('show');
             buzz(20);
         } catch (e) {
@@ -3554,24 +3553,24 @@
     }
 
     function processVoiceText(text) {
-        // Entscheide basierend auf aktivem Tab + Keywords, wo das Item hingehört.
+        // Entscheide basierend auf aktivem Tab + Keywords, wo das Item hingeh√∂rt.
         const lower = text.toLowerCase();
         let target = currentTab;
 
         // Keywords als Override
-        if (/\b(kauf|einkauf|liste|migros|coop|brot|milch|gemüse|früchte)\b/.test(lower)) target = 'shopping';
+        if (/\b(kauf|einkauf|liste|migros|coop|brot|milch|gem√ºse|fr√ºchte)\b/.test(lower)) target = 'shopping';
         else if (/\b(todo|aufgabe|erinnern|nicht vergess|muss noch)\b/.test(lower)) target = 'todos';
         else if (/\b(putzen|reinig|saugen|wischen)\b/.test(lower)) target = 'reinigung';
         else if (/\b(packen|kofferpacken)\b/.test(lower)) target = 'packliste';
         else if (target === 'menu' || target === 'dashboard') target = 'shopping'; // Default-Fallback
 
-        // Kommas/und-Trennung → mehrere Items
+        // Kommas/und-Trennung ‚Üí mehrere Items
         const items = text.split(/,| und | sowie /i).map(s => s.trim()).filter(s => s.length > 0);
 
         let added = 0;
         items.forEach(item => {
-            // Sätze "ich brauche / kauf mir" → bereinigen
-            let clean = item.replace(/^(ich (brauche|will|möchte)|kauf(?: mir)?|notier(?: mir)?|merk(?: dir)?|bitte|noch)\s+/i, '').trim();
+            // S√§tze "ich brauche / kauf mir" ‚Üí bereinigen
+            let clean = item.replace(/^(ich (brauche|will|m√∂chte)|kauf(?: mir)?|notier(?: mir)?|merk(?: dir)?|bitte|noch)\s+/i, '').trim();
             if (!clean) return;
             // Erstes Wort gross
             clean = clean.charAt(0).toUpperCase() + clean.slice(1);
@@ -3593,26 +3592,26 @@
             switchTab(target);
             buzz(15);
             const labels = { shopping: 'Einkauf', todos: 'Todos', reinigung: 'Reinigung', packliste: 'Packliste' };
-            showToast('✓ ' + added + ' Eintrag/Einträge in ' + (labels[target] || target), null, 2500);
+            showToast('‚úì ' + added + ' Eintrag/Eintr√§ge in ' + (labels[target] || target), null, 2500);
         } else {
-            showToast('Konnte nichts erkennen 🤔', null, 2500);
+            showToast('Konnte nichts erkennen ü§î', null, 2500);
         }
     }
 
     function guessCategory(text) {
         const t = text.toLowerCase();
-        if (/\b(rüebli|tomate|salat|gurke|spinat|zwiebel|knoblauch|kartoffel|peperoni|broccoli|blumenkohl|gemüse|aubergine|zucchini|kürbis|pilz|champignon)\b/.test(t)) return 'Gemüse';
-        if (/\b(apfel|äpfel|banane|orange|zitrone|beere|trauben|kirsch|pfirsich|melon|frucht|birne|mango|himbeer|erdbeer|heidelbeer)\b/.test(t)) return 'Früchte';
-        if (/\b(milch|butter|käse|joghurt|rahm|quark|sahne|ei|eier|frischkäse|mozzarella)\b/.test(t)) return 'Milchprodukte';
-        if (/\b(poulet|fleisch|wurst|schinken|speck|fisch|lachs|thon|hähn|huhn|rind|hack|cervelat)\b/.test(t)) return 'Fleisch & Fisch';
-        if (/\b(brot|gipfeli|brötli|zopf|baguette|toast|brötchen|knäcke)\b/.test(t)) return 'Brot & Gebäck';
-        if (/\b(saft|wasser|cola|sirup|wein|bier|tee|kaffee|getränk)\b/.test(t)) return 'Getränke';
-        if (/\b(seife|wasch|wc|toiletten|spüli|putz|reinig|spül|haushalt|alu|tasche|sack|abfall|müll)\b/.test(t)) return 'Haushalt';
+        if (/\b(r√ºebli|tomate|salat|gurke|spinat|zwiebel|knoblauch|kartoffel|peperoni|broccoli|blumenkohl|gem√ºse|aubergine|zucchini|k√ºrbis|pilz|champignon)\b/.test(t)) return 'Gem√ºse';
+        if (/\b(apfel|√§pfel|banane|orange|zitrone|beere|trauben|kirsch|pfirsich|melon|frucht|birne|mango|himbeer|erdbeer|heidelbeer)\b/.test(t)) return 'Fr√ºchte';
+        if (/\b(milch|butter|k√§se|joghurt|rahm|quark|sahne|ei|eier|frischk√§se|mozzarella)\b/.test(t)) return 'Milchprodukte';
+        if (/\b(poulet|fleisch|wurst|schinken|speck|fisch|lachs|thon|h√§hn|huhn|rind|hack|cervelat)\b/.test(t)) return 'Fleisch & Fisch';
+        if (/\b(brot|gipfeli|br√∂tli|zopf|baguette|toast|br√∂tchen|kn√§cke)\b/.test(t)) return 'Brot & Geb√§ck';
+        if (/\b(saft|wasser|cola|sirup|wein|bier|tee|kaffee|getr√§nk)\b/.test(t)) return 'Getr√§nke';
+        if (/\b(seife|wasch|wc|toiletten|sp√ºli|putz|reinig|sp√ºl|haushalt|alu|tasche|sack|abfall|m√ºll)\b/.test(t)) return 'Haushalt';
         return 'Sonstiges';
     }
 
     // ============================================================
-    // PHOTO → SHOPPING (Claude Vision)
+    // PHOTO ‚Üí SHOPPING (Claude Vision)
     // ============================================================
     function triggerPhoto() {
         if (!requireApiKey()) return;
@@ -3626,7 +3625,7 @@
         if (!requireApiKey()) return;
 
         const resultEl = document.getElementById('ocr-result');
-        resultEl.innerHTML = '<div class="ocr-panel"><div class="ocr-loading"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3.51-7.13"/><polyline points="21 4 21 12 13 12"/></svg>Foto wird ausgewertet…</div></div>';
+        resultEl.innerHTML = '<div class="ocr-panel"><div class="ocr-loading"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3.51-7.13"/><polyline points="21 4 21 12 13 12"/></svg>Foto wird ausgewertet‚Ä¶</div></div>';
 
         try {
             const base64 = await fileToBase64(file);
@@ -3634,12 +3633,12 @@
             const response = await callClaude({
                 model: 'claude-sonnet-4-6',
                 maxTokens: 2048,
-                system: 'Du analysierst Fotos von Einkaufslisten oder Kassenzetteln. Antworte AUSSCHLIESSLICH mit einem JSON-Array von Objekten {"text": "Artikelname", "category": "Gemüse|Früchte|Milchprodukte|Fleisch & Fisch|Brot & Gebäck|Getränke|Haushalt|Sonstiges"}. Schweizerdeutsche Begriffe verwenden wenn passend (Rüebli, Poulet, Gipfeli). Mengenangaben weglassen. Keine Erklärungen.',
+                system: 'Du analysierst Fotos von Einkaufslisten oder Kassenzetteln. Antworte AUSSCHLIESSLICH mit einem JSON-Array von Objekten {"text": "Artikelname", "category": "Gem√ºse|Fr√ºchte|Milchprodukte|Fleisch & Fisch|Brot & Geb√§ck|Getr√§nke|Haushalt|Sonstiges"}. Schweizerdeutsche Begriffe verwenden wenn passend (R√ºebli, Poulet, Gipfeli). Mengenangaben weglassen. Keine Erkl√§rungen.',
                 messages: [{
                     role: 'user',
                     content: [
                         { type: 'image', source: { type: 'base64', media_type: mediaType, data: base64 } },
-                        { type: 'text', text: 'Lies die Artikel aus diesem Bild und gib sie als JSON-Array zurück.' }
+                        { type: 'text', text: 'Lies die Artikel aus diesem Bild und gib sie als JSON-Array zur√ºck.' }
                     ]
                 }]
             });
@@ -3651,19 +3650,19 @@
             buzz(12);
         } catch (e) {
             console.error(e);
-            resultEl.innerHTML = '<div class="ocr-panel" style="border-color:var(--danger);"><div class="ocr-panel-title">⚠️ Fehler</div><div style="color:var(--danger);font-size:0.78rem;">' + escapeHtml(e.message) + '</div><div class="ocr-actions"><button class="ghost-btn" onclick="document.getElementById(\'ocr-result\').innerHTML=\'\'">Schliessen</button></div></div>';
+            resultEl.innerHTML = '<div class="ocr-panel" style="border-color:var(--danger);"><div class="ocr-panel-title">‚ö†Ô∏è Fehler</div><div style="color:var(--danger);font-size:0.78rem;">' + escapeHtml(e.message) + '</div><div class="ocr-actions"><button class="ghost-btn" onclick="document.getElementById(\'ocr-result\').innerHTML=\'\'">Schliessen</button></div></div>';
         }
     }
 
     function renderOcrResult(items) {
-        const cats = ['Gemüse','Früchte','Milchprodukte','Fleisch & Fisch','Brot & Gebäck','Getränke','Haushalt','Sonstiges'];
-        let html = '<div class="ocr-panel"><div class="ocr-panel-title"><span>📷 ' + items.length + ' erkannte Artikel</span><span style="font-size:0.65rem;color:var(--text-muted);">Anpassen + übernehmen</span></div>';
+        const cats = ['Gem√ºse','Fr√ºchte','Milchprodukte','Fleisch & Fisch','Brot & Geb√§ck','Getr√§nke','Haushalt','Sonstiges'];
+        let html = '<div class="ocr-panel"><div class="ocr-panel-title"><span>üì∑ ' + items.length + ' erkannte Artikel</span><span style="font-size:0.65rem;color:var(--text-muted);">Anpassen + √ºbernehmen</span></div>';
         items.forEach((item, i) => {
             const cat = cats.includes(item.category) ? item.category : 'Sonstiges';
             const catOpts = cats.map(c => '<option value="' + c + '"' + (c === cat ? ' selected' : '') + '>' + c + '</option>').join('');
             html += '<div class="ocr-item"><input type="checkbox" id="ocr-cb-' + i + '" checked style="width:18px;height:18px;accent-color:var(--primary-green);"><input type="text" id="ocr-text-' + i + '" value="' + escapeHtml(item.text || '') + '"><select id="ocr-cat-' + i + '">' + catOpts + '</select></div>';
         });
-        html += '<div class="ocr-actions"><button class="ghost-btn" onclick="document.getElementById(\'ocr-result\').innerHTML=\'\'">Verwerfen</button><button class="add-btn" onclick="applyOcrItems(' + items.length + ')">Übernehmen</button></div></div>';
+        html += '<div class="ocr-actions"><button class="ghost-btn" onclick="document.getElementById(\'ocr-result\').innerHTML=\'\'">Verwerfen</button><button class="add-btn" onclick="applyOcrItems(' + items.length + ')">√úbernehmen</button></div></div>';
         document.getElementById('ocr-result').innerHTML = html;
     }
 
@@ -3683,7 +3682,7 @@
             saveData();
             renderShopping();
             buzz(15);
-            showToast('✓ ' + added + ' Artikel hinzugefügt', null, 2500);
+            showToast('‚úì ' + added + ' Artikel hinzugef√ºgt', null, 2500);
         }
     }
 
@@ -3703,17 +3702,115 @@
     // ============================================================
     // MENU SUGGESTION (Claude Text)
     // ============================================================
+
+    // Familien-Lieblingsgerichte ‚Äì prim√§rer Pool f√ºr Wochenplan-Vorschl√§ge.
+    // Allgemein = ganzj√§hrig, dazu jeweils saisonale Erg√§nzungen.
+    const FAMILY_RECIPES = {
+        allgemein: [
+            'Gr√ºner Spargel mit Sauce Hollandaise und St. Galler Kartoffeln',
+            'Tomaten-Mozzarella-Salat mit frischem Brot',
+            'B√ºndner Gerstensuppe',
+            'Baked Feta Pasta',
+            'Pho Bo',
+            'Pizza Alex',
+            'Wurst vom Grill mit Salat',
+            'Risotto',
+            'Ungarisches Gulasch',
+            'Spaghetti Bolognese',
+            'Wienerli im Teig mit Salat',
+            'Ricotta-Gnocchi',
+            'Szegediner Gulasch',
+            'Flammkuchen',
+            'Croque Monsieur',
+            'Tiroler Speckkn√∂del',
+            'Gef√ºllte Omelette mit Champignons & Hackfleisch',
+            'Blumenkohl-Steak mit Bohnenp√ºree & Chimichurri',
+            'Pouletgeschnetzeltes mit Salat',
+            'Fondue',
+            'Selbstgemachte Pasta',
+            'Lasagne',
+            'Asiatische Nudeln mit Rindfleisch & Gem√ºse',
+            'Ofengem√ºse mit Fleisch',
+            'Borschtsch',
+            'Ofengem√ºse mit Fisch',
+            'Raclette',
+            'Hackt√§tschli mit Reis und Champignonsauce',
+            'Fleischk√§se mit Salat',
+            'Ricotta aus dem Backofen mit Salat',
+            'Lasagne mit K√ºrbis & Ziegenk√§se',
+            'Kartoffel-Lauch-Suppe',
+            'Gebackener Camembert mit Salat'
+        ],
+        fruehling: [
+            'B√§rlauchrisotto mit Parmesan',
+            'Pasta mit gr√ºnen Erbsen, Minze und Ricotta',
+            'Ofen-Lachs mit gr√ºnem Spargel',
+            'Spinat-Quiche mit Fr√ºhlingszwiebeln',
+            'B√§rlauchpasta mit ger√∂steten Pinienkernen',
+            'Lauwarmer Linsensalat mit gebratenem Spargel',
+            'Spargelrisotto mit Zitronen-Cr√®me-fra√Æche',
+            'Rhabarber-Apero-W√§he pikant mit Salat',
+            'Spinat-Cannelloni mit Ricotta',
+            'Fr√ºhlings-Frittata mit jungem Spinat'
+        ],
+        sommer: [
+            'Melonen-Feta-Salat mit Minze und Limettendressing',
+            'Linsensalat mit Rucola, roten Zwiebeln und Zitrusdressing',
+            'Frittata mit Sommerkr√§utern',
+            'Couscous-Salat mit Kichererbsen, Gurke und Zitrone',
+            'Shakshuka mit frischem Brot',
+            'Thai-Nudel-Bowl mit Erdnuss-Dressing',
+            'Lachs-Wraps mit Frischk√§se und Rucola',
+            'Asia-Nudeln mit Sesam und Gem√ºse'
+        ],
+        herbst: [
+            'K√ºrbissuppe mit K√ºrbiskern√∂l',
+            'K√ºrbisrisotto mit Salbei',
+            'Pilzrisotto mit Steinpilzen',
+            'Pasta mit Steinpilzen und Petersilie',
+            'Rote-Bete-Risotto mit Ziegenk√§se',
+            'Ger√∂stete K√ºrbisspalten mit Halloumi und Granatapfel',
+            'Linseneintopf mit Wurst',
+            'Ofen-S√ºsskartoffeln mit Hummus und Granatapfel',
+            'K√ºrbis-K√§se-Tarte mit Salat',
+            'Ofenpoulet mit Wurzelgem√ºse'
+        ],
+        winter: [
+            '√Ñlplermagronen mit Apfelmus',
+            'K√§seschnitten mit Spiegelei und Salat',
+            'Wirsing-Hackfleisch-Pfanne',
+            'Schweinsbraten mit Rotkraut und Kn√∂del',
+            'Rotkraut-Dattel-Salat mit Feta und Granatapfel',
+            'Linsen-Dal mit Naan-Brot',
+            'Pastinaken-Cremesuppe mit Brot',
+            'Bratwurst mit Zwiebelsauce und R√∂sti',
+            'Kartoffelgratin mit Wintergem√ºse',
+            'K√ºrbis-Curry mit Kichererbsen'
+        ]
+    };
+
+    function currentSeason(date) {
+        const m = (date || new Date()).getMonth();
+        if (m >= 2 && m <= 4) return { key: 'fruehling', label: 'Fr√ºhling' };
+        if (m >= 5 && m <= 7) return { key: 'sommer', label: 'Sommer' };
+        if (m >= 8 && m <= 10) return { key: 'herbst', label: 'Herbst' };
+        return { key: 'winter', label: 'Winter' };
+    }
+
     async function suggestMenu() {
         if (!requireApiKey()) return;
         const resultEl = document.getElementById('suggest-result');
-        resultEl.innerHTML = '<div class="suggest-result"><div class="ocr-loading"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3.51-7.13"/><polyline points="21 4 21 12 13 12"/></svg>Vorschlag wird generiert…</div></div>';
+        resultEl.innerHTML = '<div class="suggest-result"><div class="ocr-loading"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3.51-7.13"/><polyline points="21 4 21 12 13 12"/></svg>Vorschlag wird generiert‚Ä¶</div></div>';
 
         try {
             const weekKey = getWeekKey(selectedWeek);
             const existing = appData.menu[weekKey] || {};
-            const months = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+            const months = ['Januar','Februar','M√§rz','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
             const now = new Date();
-            const monthName = months[now.getMonth()];
+            const targetDate = new Date(now);
+            targetDate.setDate(targetDate.getDate() + selectedWeek * 7);
+            const monthName = months[targetDate.getMonth()];
+            const season = currentSeason(targetDate);
             const days = ['Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag','Sonntag'];
 
             // Sammle die letzten paar Wochen als Inspirationsquelle
@@ -3727,14 +3824,34 @@
                 });
             });
 
-            const targetWeekLabel = selectedWeek === 0 ? 'diese Woche' : 'nächste Woche';
+            const targetWeekLabel = selectedWeek === 0 ? 'diese Woche' : 'n√§chste Woche';
+            const allgemeinList = FAMILY_RECIPES.allgemein.map(r => '- ' + r).join('\n');
+            const seasonList = (FAMILY_RECIPES[season.key] || []).map(r => '- ' + r).join('\n');
 
-            const system = 'Du bist eine Schweizer Familien-Köchin. Schlage einen Wochenmenuplan vor mit traditionellen Schweizer Gerichten, schweizerdeutschen Begriffen (Zmittag, Znacht, Rüebli, Poulet, Gschnetzelts, Älplermagronen, Birchermüesli, Gschwellti, etc). Variation, kindergeeignet, saisonal. Antworte AUSSCHLIESSLICH als JSON-Objekt mit folgendem Format: {"Montag": {"zmittag": "…", "znacht": "…"}, "Dienstag": {…}, …}. Bestehende Einträge respektieren – nicht überschreiben.';
+            const system = 'Du bist eine Schweizer Familien-K√∂chin f√ºr Familie Heinecke (Mich√®le, Alex, Mila ~2.5J, Lene ~7Mt). Du planst Wochenmenus mit Schweizer Familienk√ºche und schweizerdeutschen Begriffen (Zmittag, Znacht, R√ºebli, Poulet, Gschnetzelts, √Ñlplermagronen, Bircherm√ºesli, Gschwellti, W√§he, K√§seschnitten, etc).\n\n' +
+                'FAMILIEN-RAHMEN:\n' +
+                '- 2√ó Vegi pro Woche beim Znacht (Di‚ÄìSo)\n' +
+                '- Keine Allergien ‚Äì ABER keine ROHEN Karotten/R√ºebli (gekocht/geraffelt-gekocht ist OK)\n' +
+                '- Aufwand Mo‚ÄìFr: max. 30 Min Kochzeit\n' +
+                '- Sa/So darf l√§nger dauern, gerne aufw√§ndigere Gerichte\n' +
+                '- Mila (2.5J) und Lene (7Mt) essen alles ‚Äì nicht k√ºnstlich ¬´kinder√ºblich¬ª einschr√§nken\n\n' +
+                'FESTE REGELN:\n' +
+                '1. MONTAG ZNACHT ist IMMER w√∂rtlich "Alex Special" (Alex kocht spontan ‚Äì kein konkretes Gericht vorschlagen).\n' +
+                '2. ZMITTAG (Mo‚ÄìFr) als MIX √ºber die Woche:\n' +
+                '   - Manche Tage: "Reste vom [Vortag]" ‚Äì referenziere konkret das Znacht des Vortags (z.B. "Reste von der Lasagne")\n' +
+                '   - Andere Tage: einfaches Schnellgericht (Spaghetti Pesto, W√§he, K√§seschnitten, R√∂sti mit Spiegelei, Bircherm√ºesli, Sandwiches, Suppe & Brot, Gschwellti mit K√§se, Omelette)\n' +
+                '   - Sa/So darf Zmittag aufw√§ndiger sein.\n' +
+                '3. ZNACHT (Di‚ÄìSo): ZIEHE PRIM√ÑR aus dem Familien-Lieblingspool unten. Mind. 4 von 6 Znacht-Gerichten kommen DIREKT aus dem Pool. 1‚Äì2√ó pro Woche darfst du eine NEUE Inspiration aus swissmilk.ch / fooby.ch / migusto.migros.ch erg√§nzen (alltagstauglich, kindergerecht, in <45 Min kochbar).\n\n' +
+                'FAMILIEN-LIEBLINGSGERICHTE (Pool ‚Äì hier zuerst greifen):\n\n' +
+                'ALLGEMEIN (ganzj√§hrig):\n' + allgemeinList + '\n\n' +
+                'SAISON ' + season.label.toUpperCase() + ' (passt jetzt besonders gut):\n' + seasonList + '\n\n' +
+                'Antworte AUSSCHLIESSLICH als JSON-Objekt: {"Montag": {"zmittag": "‚Ä¶", "znacht": "Alex Special"}, "Dienstag": {‚Ä¶}, ‚Ä¶}. Bestehende Eintr√§ge respektieren ‚Äì nicht √ºberschreiben.';
 
-            const userMsg = 'Plane das Menü für ' + targetWeekLabel + ' (Monat: ' + monthName + ').\n\n' +
-                'Bereits geplant (NICHT überschreiben, leere Werte ergänzen):\n' +
+            const userMsg = 'Plane das Men√º f√ºr ' + targetWeekLabel + ' (Monat: ' + monthName + ', Saison: ' + season.label + ').\n\n' +
+                'Bereits geplant (NICHT √ºberschreiben, leere Werte erg√§nzen):\n' +
                 JSON.stringify(existing, null, 2) +
-                (recentMenus.length > 0 ? '\n\nLetzte Wochen (zur Inspiration, NICHT wiederholen):\n' + recentMenus.slice(-15).join(', ') : '');
+                (recentMenus.length > 0 ? '\n\nLetzte Wochen (zur Inspiration, NICHT direkt wiederholen):\n' + recentMenus.slice(-15).join(', ') : '') +
+                '\n\nDenk dran: Mo Znacht = "Alex Special" (w√∂rtlich). Zmittag = Mix aus Resten + Schnellgerichten. Znacht prim√§r aus dem Familien-Lieblingspool, max. 1‚Äì2 neue Inspirationen aus swissmilk/fooby/migusto. 2√ó Vegi pro Woche. Keine rohen R√ºebli.';
 
             const response = await callClaude({
                 model: 'claude-haiku-4-5-20251001',
@@ -3743,17 +3860,20 @@
                 messages: [{ role: 'user', content: userMsg }]
             });
             const plan = extractJson(response);
+            // Hard rule: Mo Znacht ist immer "Alex Special"
+            if (!plan.Montag) plan.Montag = { zmittag: '', znacht: '' };
+            plan.Montag.znacht = 'Alex Special';
             renderSuggestResult(plan, weekKey);
             buzz(12);
         } catch (e) {
             console.error(e);
-            resultEl.innerHTML = '<div class="suggest-result" style="border-color:var(--danger);"><div class="suggest-day-name" style="color:var(--danger);">⚠️ Fehler</div><div style="color:var(--danger);font-size:0.78rem;">' + escapeHtml(e.message) + '</div><div class="ocr-actions"><button class="ghost-btn" onclick="document.getElementById(\'suggest-result\').innerHTML=\'\'">Schliessen</button></div></div>';
+            resultEl.innerHTML = '<div class="suggest-result" style="border-color:var(--danger);"><div class="suggest-day-name" style="color:var(--danger);">‚ö†Ô∏è Fehler</div><div style="color:var(--danger);font-size:0.78rem;">' + escapeHtml(e.message) + '</div><div class="ocr-actions"><button class="ghost-btn" onclick="document.getElementById(\'suggest-result\').innerHTML=\'\'">Schliessen</button></div></div>';
         }
     }
 
     function renderSuggestResult(plan, weekKey) {
         const days = ['Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag','Sonntag'];
-        let html = '<div class="suggest-result"><div class="ocr-panel-title"><span>✨ Wochenplan-Vorschlag</span><span style="font-size:0.65rem;color:var(--text-muted);">Tippe einzeln zum Übernehmen</span></div>';
+        let html = '<div class="suggest-result"><div class="ocr-panel-title"><span>‚ú® Wochenplan-Vorschlag</span><span style="font-size:0.65rem;color:var(--text-muted);">Tippe einzeln zum √úbernehmen</span></div>';
         days.forEach(day => {
             const meal = plan[day] || {};
             const existing = (appData.menu[weekKey] && appData.menu[weekKey][day]) || {};
@@ -3766,14 +3886,14 @@
                     html += '<div class="suggest-meal"><span class="suggest-meal-label">' + label + ' (schon geplant):</span> ' + escapeHtml(isExisting) + '</div>';
                 } else if (proposal) {
                     const propEsc = proposal.replace(/'/g, "\\'");
-                    html += '<div class="suggest-meal" onclick="applySuggestion(\'' + day + '\',\'' + slot + '\',\'' + propEsc + '\',this)" style="cursor:pointer;padding:6px 8px;border-radius:8px;background:var(--card);transition:background 0.2s;"><span class="suggest-meal-label">' + label + ':</span> ' + escapeHtml(proposal) + ' <span style="color:var(--primary-green);font-weight:700;">＋</span></div>';
+                    html += '<div class="suggest-meal" onclick="applySuggestion(\'' + day + '\',\'' + slot + '\',\'' + propEsc + '\',this)" style="cursor:pointer;padding:6px 8px;border-radius:8px;background:var(--card);transition:background 0.2s;"><span class="suggest-meal-label">' + label + ':</span> ' + escapeHtml(proposal) + ' <span style="color:var(--primary-green);font-weight:700;">Ôºã</span></div>';
                 } else {
-                    html += '<div class="suggest-meal"><span class="suggest-meal-label">' + label + ':</span> –</div>';
+                    html += '<div class="suggest-meal"><span class="suggest-meal-label">' + label + ':</span> ‚Äì</div>';
                 }
             });
             html += '</div>';
         });
-        html += '<div class="ocr-actions"><button class="ghost-btn" onclick="document.getElementById(\'suggest-result\').innerHTML=\'\'">Schliessen</button><button class="add-btn" onclick="applyAllSuggestions()" id="apply-all-btn" data-plan=\'' + JSON.stringify(plan).replace(/'/g, '&#39;') + '\'>Alle übernehmen</button></div></div>';
+        html += '<div class="ocr-actions"><button class="ghost-btn" onclick="document.getElementById(\'suggest-result\').innerHTML=\'\'">Schliessen</button><button class="add-btn" onclick="applyAllSuggestions()" id="apply-all-btn" data-plan=\'' + JSON.stringify(plan).replace(/'/g, '&#39;') + '\'>Alle √ºbernehmen</button></div></div>';
         document.getElementById('suggest-result').innerHTML = html;
     }
 
@@ -3787,7 +3907,7 @@
         if (el) {
             el.style.background = 'var(--success-bg)';
             el.style.color = 'var(--success)';
-            el.innerHTML = el.innerHTML.replace('＋', '✓');
+            el.innerHTML = el.innerHTML.replace('Ôºã', '‚úì');
             el.onclick = null;
         }
         buzz(8);
@@ -3815,7 +3935,7 @@
         document.getElementById('suggest-result').innerHTML = '';
         renderMenu();
         buzz(20);
-        showToast('✨ ' + added + ' Mahlzeiten übernommen', null, 2500);
+        showToast('‚ú® ' + added + ' Mahlzeiten √ºbernommen', null, 2500);
     }
 
     // ============================================================
