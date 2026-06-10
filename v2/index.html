@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="de" data-theme="light">
 <head>
@@ -4102,7 +4103,7 @@
                   '   - KEINE Sättigungsbeilage aus Pasta, Reis, Kartoffeln, Brot, Knödel, Spätzli, Couscous, Polenta oder Mais am Abend.\n' +
                   '   - Sättigung stattdessen über Gemüse, Salat, Blumenkohlreis, Zucchininudeln, Hülsenfrüchte (in Massen), Ei, Käse, Fleisch oder Fisch.\n' +
                   '   - Greife vorrangig auf POOL C (Low-Carb-Znacht). Max. 1 darfst du im selben Stil selbst ERFINDEN (≤45 Min, kindergerecht).\n' +
-                  '   - WICHTIG: Diese Low-Carb-Regel gilt NUR fürs Znacht. Der Zmittag (Mo–Fr) bleibt normal und darf Kohlenhydrate enthalten.\n'
+                  '   - Auch der ZMITTAG ist grundsätzlich low-carb (siehe Regel 2) – max. 1–2 Kohlenhydrat-Zmittag pro Woche.\n'
                 : '3. ZNACHT (Di–So) – QUELLEN-MIX: 6 Znacht-Slots zu füllen, davon:\n' +
                   '   - Mind. 3 aus FAMILIEN-LIEBLINGSGERICHTEN (Pool A: Allgemein + Saison)\n' +
                   '   - 1–2 aus KURATIERTEN KLASSIKERN swissmilk/fooby/migusto (Pool B unten)\n' +
@@ -4120,9 +4121,10 @@
                 '- Mila (2.5J) und Lene (7Mt) essen alles – nicht künstlich «kinderüblich» einschränken\n\n' +
                 'FESTE REGELN:\n' +
                 '1. MONTAG ZNACHT ist IMMER wörtlich "Alex Special" (Alex kocht spontan – kein konkretes Gericht vorschlagen).\n' +
-                '2. ZMITTAG (Mo–Fr) als MIX über die Woche:\n' +
-                '   - Manche Tage: "Reste vom [Vortag]" – referenziere konkret das Znacht des Vortags (z.B. "Reste von der Lasagne")\n' +
-                '   - Andere Tage: einfaches Schnellgericht (Spaghetti Pesto, Wähe, Käseschnitten, Rösti mit Spiegelei, Birchermüesli, Sandwiches, Suppe & Brot, Gschwellti mit Käse, Omelette)\n' +
+                '2. ZMITTAG (Mo–Fr) als MIX über die Woche – AUCH der Zmittag ist grundsätzlich LOW-CARB:\n' +
+                '   - Manche Tage: "Reste vom [Vortag]" – referenziere konkret das Znacht des Vortags (z.B. "Reste von der Zucchini-Lasagne")\n' +
+                '   - Andere Tage: einfaches Low-Carb-Schnellgericht (Omelette, Frittata, Salat mit Poulet/Thon/Ei, Gemüsesuppe, Hüttenkäse-Teller mit Gemüse, gebratener Halloumi mit Salat, Quark mit Beeren)\n' +
+                '   - Max. 1–2 Zmittag pro Woche dürfen Kohlenhydrate enthalten (z.B. Spaghetti Pesto, Wähe, Rösti, Sandwiches) – lieber weniger.\n' +
                 '   - Sa/So darf Zmittag aufwändiger sein.\n' +
                 znachtRule +
                 '4. KEINE GLEICHARTIGEN HAUPTGERICHTE INNERHALB DERSELBEN WOCHE: max. 1× Risotto, max. 1× Pasta-Gericht, max. 1× Gulasch/Eintopf, max. 1× Suppe als Znacht, max. 1× Pilz-basiertes Gericht. Auch verschiedene Risotto-Varianten (Pilzrisotto, Spargelrisotto, Bärlauchrisotto, …) zählen ALLE als Risotto – nur eines pro Woche!\n' +
@@ -4137,7 +4139,7 @@
                 'Bereits geplant (NICHT überschreiben, leere Werte ergänzen):\n' +
                 JSON.stringify(existing, null, 2) +
                 (recentMenus.length > 0 ? '\n\nLetzte Wochen (zur Inspiration, NICHT direkt wiederholen):\n' + recentMenus.slice(-15).join(', ') : '') +
-                '\n\nDenk dran: Mo Znacht = "Alex Special" (wörtlich). Zmittag = Mix aus Resten + Schnellgerichten. ' +
+                '\n\nDenk dran: Mo Znacht = "Alex Special" (wörtlich). Zmittag = Mix aus Resten + Low-Carb-Schnellgerichten (max. 1–2 Kohlenhydrat-Zmittag pro Woche). ' +
                 (lowCarbActive
                     ? 'LOW-CARB: Znacht (Di–So) ohne Pasta/Reis/Kartoffeln/Brot – vorrangig aus Pool C (max. 1 Ausnahme pro Woche, lieber keine). '
                     : '6 Znacht-Slots: ≥3 aus Pool A (Familie), 1–2 aus Pool B (Klassiker), max. 1 selbst erfunden. ') +
