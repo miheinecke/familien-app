@@ -8,7 +8,7 @@
 
     <!-- PWA -->
     <link rel="manifest" href="manifest.webmanifest">
-    <meta name="theme-color" content="#577385" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#57856F" media="(prefers-color-scheme: light)">
     <meta name="theme-color" content="#1a2421" media="(prefers-color-scheme: dark)">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -28,7 +28,7 @@
 
         /* ==================== DESIGN TOKENS – LIGHT ==================== */
         :root, [data-theme="light"] {
-            --primary-green: #577385;
+            --primary-green: #57856F;
             --button-green: #A1BFB0;
             --dark-green: #3D6350;
             --light-bg: #E8F0EB;
@@ -4079,9 +4079,9 @@
             const season = currentSeason(targetDate);
             const days = ['Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag','Sonntag'];
 
-            // Sammle die letzten paar Wochen als Inspirationsquelle
+            // Sammle die letzten Wochen als Anti-Wiederholungs-Liste
             const recentMenus = [];
-            Object.keys(appData.menu).sort().slice(-3).forEach(wk => {
+            Object.keys(appData.menu).sort().slice(-8).forEach(wk => {
                 const week = appData.menu[wk] || {};
                 days.forEach(d => {
                     const m = week[d] || {};
@@ -4096,13 +4096,23 @@
             const klassikerList = FAMILY_RECIPES.klassiker_ch.map(r => '- ' + r).join('\n');
             const lowCarbList = (FAMILY_RECIPES.low_carb || []).map(r => '- ' + r).join('\n');
 
+            // Saisonale Zutaten je Jahreszeit – steuert auch die Low-Carb-Znacht saisonal.
+            const SEASONAL_VEG = {
+                fruehling: 'grüner & weisser Spargel, Bärlauch, junger Spinat, Radiesli, Frühlingszwiebeln, Kefen, Nüsslisalat, Rhabarber',
+                sommer: 'Zucchini, Tomaten, Peperoni, Auberginen, Gurken, grüne Bohnen, Fenchel, frische Kräuter, Beeren, Mais',
+                herbst: 'Kürbis, Steinpilze & Champignons, Federkohl, Randen, Pastinaken, Wirz, Krautstiel, Trauben, Birnen',
+                winter: 'Wirsing, Rosenkohl, Lauch, Randen, Sellerie, Chicorée, Pastinaken, Schwarzwurzeln, Kabis, Rotkraut'
+            };
+            const seasonalVeg = SEASONAL_VEG[season.key] || '';
+
             // Low-Carb fürs Znacht: dauerhaft aktiv (Entscheid Michèle, Juni 2026).
             const lowCarbActive = true;
             const znachtRule = lowCarbActive
                 ? '3. ZNACHT (Di–So) – LOW-CARB: ALLE 6 Znacht sind low-carb/no-carb. Ausnahmsweise (max. 1× pro Woche, lieber 0×) darf ein Znacht eine Kohlenhydrat-Beilage haben – nur wenn es der Abwechslung klar dient.\n' +
                   '   - KEINE Sättigungsbeilage aus Pasta, Reis, Kartoffeln, Brot, Knödel, Spätzli, Couscous, Polenta oder Mais am Abend.\n' +
                   '   - Sättigung stattdessen über Gemüse, Salat, Blumenkohlreis, Zucchininudeln, Hülsenfrüchte (in Massen), Ei, Käse, Fleisch oder Fisch.\n' +
-                  '   - Greife vorrangig auf POOL C (Low-Carb-Znacht). Max. 1 darfst du im selben Stil selbst ERFINDEN (≤45 Min, kindergerecht).\n' +
+                  '   - SAISONAL: Baue bevorzugt die aktuellen Saison-Zutaten ein (' + seasonalVeg + ') – auch bei den Low-Carb-Gerichten.\n' +
+                  '   - ABWECHSLUNG: Mind. 2 der 6 Znacht sollen Gerichte sein, die NICHT in der Liste «Letzte Wochen» stehen. 1–2 davon darfst du im Stil von fooby/migusto/swissmilk NEU erfinden (low-carb, saisonal, ≤45 Min, kindergerecht) – nicht bloss Pool C von oben nach unten abarbeiten.\n' +
                   '   - Auch der ZMITTAG ist grundsätzlich low-carb (siehe Regel 2) – max. 1–2 Kohlenhydrat-Zmittag pro Woche.\n'
                 : '3. ZNACHT (Di–So) – QUELLEN-MIX: 6 Znacht-Slots zu füllen, davon:\n' +
                   '   - Mind. 3 aus FAMILIEN-LIEBLINGSGERICHTEN (Pool A: Allgemein + Saison)\n' +
@@ -4132,13 +4142,14 @@
                 'POOL A – FAMILIEN-LIEBLINGSGERICHTE (hier am häufigsten greifen):\n\n' +
                 'ALLGEMEIN (ganzjährig):\n' + allgemeinList + '\n\n' +
                 'SAISON ' + season.label.toUpperCase() + ' (passt jetzt besonders gut):\n' + seasonList + '\n\n' +
+                'SAISONALE FRISCHE ZUTATEN ' + season.label.toUpperCase() + ' (bevorzugt einbauen – auch in Low-Carb-Gerichten): ' + seasonalVeg + '\n\n' +
                 'POOL B – KURATIERTE KLASSIKER aus swissmilk.ch / fooby.ch / migusto.migros.ch (1–2 pro Woche einbauen):\n' + klassikerList + poolC + '\n\n' +
                 'Antworte AUSSCHLIESSLICH als JSON-Objekt: {"Montag": {"zmittag": "…", "znacht": "Alex Special"}, "Dienstag": {…}, …}. Bestehende Einträge respektieren – nicht überschreiben.';
 
             const userMsg = 'Plane das Menü für ' + targetWeekLabel + ' (Monat: ' + monthName + ', Saison: ' + season.label + ').\n\n' +
                 'Bereits geplant (NICHT überschreiben, leere Werte ergänzen):\n' +
                 JSON.stringify(existing, null, 2) +
-                (recentMenus.length > 0 ? '\n\nLetzte Wochen (zur Inspiration, NICHT direkt wiederholen):\n' + recentMenus.slice(-15).join(', ') : '') +
+                (recentMenus.length > 0 ? '\n\nLetzte Wochen – diese Gerichte NICHT wiederverwenden (sorge für echte Abwechslung):\n' + recentMenus.slice(-40).join(', ') : '') +
                 '\n\nDenk dran: Mo Znacht = "Alex Special" (wörtlich). Zmittag = Mix aus Resten + Low-Carb-Schnellgerichten (max. 1–2 Kohlenhydrat-Zmittag pro Woche). ' +
                 (lowCarbActive
                     ? 'LOW-CARB: Znacht (Di–So) ohne Pasta/Reis/Kartoffeln/Brot – vorrangig aus Pool C (max. 1 Ausnahme pro Woche, lieber keine). '
@@ -4146,8 +4157,8 @@
                 'KEIN doppeltes Risotto/Pasta/Suppe. 2× Vegi pro Woche. Keine rohen Rüebli.';
 
             const response = await callClaude({
-                model: 'claude-haiku-4-5-20251001',
-                maxTokens: 1500,
+                model: 'claude-sonnet-4-6',
+                maxTokens: 2000,
                 system: system,
                 messages: [{ role: 'user', content: userMsg }]
             });
@@ -4178,7 +4189,9 @@
                     html += '<div class="suggest-meal"><span class="suggest-meal-label">' + label + ' (schon geplant):</span> ' + escapeHtml(isExisting) + '</div>';
                 } else if (proposal) {
                     const propEsc = proposal.replace(/'/g, "\\'");
-                    html += '<div class="suggest-meal" onclick="applySuggestion(\'' + day + '\',\'' + slot + '\',\'' + propEsc + '\',this)" style="cursor:pointer;padding:6px 8px;border-radius:8px;background:var(--card);transition:background 0.2s;"><span class="suggest-meal-label">' + label + ':</span> ' + escapeHtml(proposal) + ' <span style="color:var(--primary-green);font-weight:700;">＋</span></div>';
+                    const noLink = proposal === 'Alex Special' || /^Reste/i.test(proposal);
+                    const linkHtml = noLink ? '' : ' <a href="https://www.google.com/search?q=' + encodeURIComponent(proposal + ' Rezept (site:fooby.ch OR site:migusto.migros.ch OR site:swissmilk.ch)') + '" target="_blank" rel="noopener" onclick="event.stopPropagation()" title="Rezept auf Fooby / Migusto / Swissmilk suchen" style="text-decoration:none;opacity:0.55;margin-left:2px;">&#x1F50E;</a>';
+                    html += '<div class="suggest-meal" onclick="applySuggestion(\'' + day + '\',\'' + slot + '\',\'' + propEsc + '\',this)" style="cursor:pointer;padding:6px 8px;border-radius:8px;background:var(--card);transition:background 0.2s;"><span class="suggest-meal-label">' + label + ':</span> ' + escapeHtml(proposal) + linkHtml + ' <span style="color:var(--primary-green);font-weight:700;">＋</span></div>';
                 } else {
                     html += '<div class="suggest-meal"><span class="suggest-meal-label">' + label + ':</span> –</div>';
                 }
