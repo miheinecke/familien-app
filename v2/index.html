@@ -375,6 +375,16 @@
             padding: 4px 0;
         }
         .meal-name.empty { color: var(--text-muted); font-style: italic; }
+        .recipe-link {
+            display: inline-block;
+            margin-top: 3px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: var(--primary-green, #4a9d5b);
+            text-decoration: none;
+            padding: 2px 0;
+        }
+        .recipe-link:active { opacity: 0.6; }
         .meal-section { margin-bottom: 14px; }
         .meal-section:last-child { margin-bottom: 0; }
 
@@ -1760,6 +1770,10 @@
     // ============================================================
     const defaultData = {
         menu: {},
+        // Parallel zum Menü-Text: optionale Rezept-Links pro Mahlzeit.
+        // Struktur: menuLinks[weekKey][Tag] = { zmittag: 'https://…', znacht: 'https://…' }
+        // Bewusst getrennt von menu (Strings), damit v1 unverändert weiterläuft.
+        menuLinks: {},
         packliste: {
             activeTrip: 'camperreise',
             trips: {
@@ -2081,6 +2095,7 @@
             return;
         }
         if (!appData.menu || typeof appData.menu !== 'object') appData.menu = {};
+        if (!appData.menuLinks || typeof appData.menuLinks !== 'object') appData.menuLinks = {};
 
         if (!Array.isArray(appData.shopping)) {
             appData.shopping = appData.shopping && typeof appData.shopping === 'object'
@@ -2399,6 +2414,17 @@
         renderMenu();
     }
 
+    // Liefert die HTML für einen Rezept-Link, falls für diese Mahlzeit einer hinterlegt ist.
+    function mealLinkHtml(weekKey, day, slot) {
+        const link = appData.menuLinks && appData.menuLinks[weekKey] && appData.menuLinks[weekKey][day]
+            ? appData.menuLinks[weekKey][day][slot] : '';
+        if (!link || !/^https?:\/\//i.test(link)) return '';
+        let host = '';
+        try { host = new URL(link).hostname.replace(/^www\./, ''); } catch (e) { host = 'Rezept'; }
+        const label = host.indexOf('fooby') > -1 ? 'Fooby' : (host.indexOf('migusto') > -1 ? 'Migusto' : (host.indexOf('swissmilk') > -1 ? 'Swissmilk' : 'Rezept'));
+        return '<a class="recipe-link" href="' + escapeHtml(link) + '" target="_blank" rel="noopener" onclick="event.stopPropagation()">&#x1F517; ' + label + ' ansehen &rarr;</a>';
+    }
+
     function renderMenu() {
         const days = ['Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag','Sonntag'];
         const weekKey = getWeekKey(selectedWeek);
@@ -2420,10 +2446,12 @@
             contentHtml += '<div class="meal-card" style="display:' + (idx === initialIdx ? 'block' : 'none') + '" data-day="' + idx + '">' +
                 '<div class="meal-section">' +
                 '<div class="meal-label">Zmittag</div>' +
-                '<div class="meal-name ' + (meal.zmittag ? '' : 'empty') + '" onclick="editMeal(\'' + day + '\',\'zmittag\',' + selectedWeek + ')">' + escapeHtml(meal.zmittag || 'nicht geplant') + '</div></div>' +
+                '<div class="meal-name ' + (meal.zmittag ? '' : 'empty') + '" onclick="editMeal(\'' + day + '\',\'zmittag\',' + selectedWeek + ')">' + escapeHtml(meal.zmittag || 'nicht geplant') + '</div>' +
+                mealLinkHtml(weekKey, day, 'zmittag') + '</div>' +
                 '<div class="meal-section">' +
                 '<div class="meal-label">Znacht</div>' +
-                '<div class="meal-name ' + (meal.znacht ? '' : 'empty') + '" onclick="editMeal(\'' + day + '\',\'znacht\',' + selectedWeek + ')">' + escapeHtml(meal.znacht || 'nicht geplant') + '</div></div></div>';
+                '<div class="meal-name ' + (meal.znacht ? '' : 'empty') + '" onclick="editMeal(\'' + day + '\',\'znacht\',' + selectedWeek + ')">' + escapeHtml(meal.znacht || 'nicht geplant') + '</div>' +
+                mealLinkHtml(weekKey, day, 'znacht') + '</div></div>';
         });
         document.getElementById('menu-content').innerHTML = contentHtml;
     }
