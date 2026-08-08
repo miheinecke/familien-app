@@ -1687,6 +1687,7 @@
     let db = null;
     let dbRef = null;
     let firebaseReady = false;
+    let firstSyncHandled = false;
     let currentUser = localStorage.getItem(USER_KEY) || null;
     let currentTab = 'dashboard';
     let appData = null;
@@ -2222,6 +2223,12 @@
                 }
                 firebaseReady = true;
                 setSyncStatus('online');
+                // Nach dem ersten Cloud-Sync: prüfen, ob die nächste Woche leer ist,
+                // und ggf. automatisch ein Menü erstellen (einmal pro Sitzung).
+                if (!firstSyncHandled) {
+                    firstSyncHandled = true;
+                    setTimeout(autoGenerateNextWeek, 1500);
+                }
             });
             db.ref('.info/connected').on('value', snap => {
                 setSyncStatus(snap.val() === true ? 'online' : 'offline');
@@ -3468,7 +3475,7 @@
     // ============================================================
     // ANTHROPIC API CLIENT
     // ============================================================
-    async function callClaude({ system, messages, maxTokens = 1024, model }) {
+    async function callClaude({ system, messages, maxTokens = 1024, model, tools }) {
         const key = getApiKey();
         if (!key) throw new Error('Kein API-Key konfiguriert');
         const body = {
@@ -3477,6 +3484,8 @@
             messages: messages
         };
         if (system) body.system = system;
+        // Server-Tools wie web_search (läuft auf Anthropics Seite → kein CORS-Problem im Browser)
+        if (tools && tools.length) body.tools = tools;
         const res = await fetch('https://api.anthropic.com/v1/messages', {
             method: 'POST',
             headers: {
@@ -3492,7 +3501,12 @@
             throw new Error('API-Fehler ' + res.status + ': ' + errText.slice(0, 200));
         }
         const data = await res.json();
-        return data.content && data.content[0] && data.content[0].text || '';
+        // Bei Server-Tools (web_search) enthält content mehrere Blöcke – alle
+        // Text-Blöcke zusammenfügen (der finale Antworttext steht am Ende).
+        if (Array.isArray(data.content)) {
+            return data.content.filter(b => b && b.type === 'text').map(b => b.text).join('\n').trim();
+        }
+        return '';
     }
 
     function extractJson(text) {
@@ -4273,6 +4287,119 @@
 
     // ============================================================
     // STARTUP
+    // ============================================================
+    // AUTO-MENÜ: generiert beim App-Öffnen ein Menü für die nächste Woche,
+    // wenn diese noch leer ist. Nutzt Claude + Websuche (fooby.ch/migusto.migros.ch)
+    // für echte, abwechslungsreiche Rezepte mit Link. Läuft im Browser (offenes Netz),
+    // deshalb kein Firewall-Problem. Kosten: ~2 Rappen pro Woche.
+    // ============================================================
+    let autoGenRunning = false;
+
+    async function generateMenuForWeek(weekOffset) {
+        const months = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+        const days = ['Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag','Sonntag'];
+        const targetDate = new Date();
+        targetDate.setDate(targetDate.getDate() + weekOffset * 7);
+        const monthName = months[targetDate.getMonth()];
+        const season = currentSeason(targetDate);
+
+        // Gerichte der letzten 3 geplanten Wochen sammeln (nicht wiederholen)
+        const recent = [];
+        Object.keys(appData.menu).sort().slice(-3).forEach(wk => {
+            const w = appData.menu[wk] || {};
+            days.forEach(d => { const m = w[d] || {}; if (m.zmittag) recent.push(m.zmittag); if (m.znacht) recent.push(m.znacht); });
+        });
+
+        const staples = (FAMILY_RECIPES.allgemein || []).slice(0, 28).join(' · ');
+        const seasonList = (FAMILY_RECIPES[season.key] || []).slice(0, 18).join(' · ');
+        const lowCarb = (FAMILY_RECIPES.low_carb || []).slice(0, 18).join(' · ');
+
+        const system =
+            'Du bist die Familien-Köchin für Familie Heinecke (Michèle, Alex, Mila ~2.5J, Lene ~7Mt). Du planst ein Wochenmenü mit Schweizer Familienküche und schweizerdeutschen Begriffen (Zmittag, Znacht, Rüebli, Poulet, Gschnetzelts, Wähe).\n\n' +
+            'OBERSTES ZIEL: ABWECHSLUNG. Die Familie ist von wiederholten Menüs gelangweilt. Wiederhole KEIN Gericht aus den letzten Wochen und variiere die Proteine (Poulet, Rind, Kalb, Schwein, Fisch, Vegi) über die Woche.\n\n' +
+            'FESTE REGELN:\n' +
+            '1. MONTAG ZNACHT ist IMMER wörtlich "Alex Special".\n' +
+            '2. LOW-CARB Znacht (Di–So): keine Sättigungsbeilage aus Pasta/Reis/Kartoffeln/Brot/Knödel/Spätzli/Couscous/Polenta/Mais. Sättigung über Gemüse, Salat, Blumenkohlreis, Zucchininudeln, Ei, Käse, Fleisch, Fisch, Hülsenfrüchte (Massen). Max. 1 Ausnahme.\n' +
+            '3. ZMITTAG Mo–Fr = Mix: teils "Reste vom [Vortag]" (konkret aufs Vortags-Znacht beziehen), teils Low-Carb-Schnellgericht (Omelette, Frittata, Salat mit Poulet/Thon/Ei, Gemüsesuppe, Hüttenkäse-Teller, Halloumi). Sa/So darf aufwändiger sein.\n' +
+            '4. 2× VEGI pro Woche beim Znacht. KEINE rohen Rüebli. Mo–Fr max. 30 Min, Sa/So darf länger.\n' +
+            '5. Keine gleichartigen Hauptgerichte doppelt (max. 1× Risotto, 1× Pasta, 1× Suppe-Znacht, 1× Eintopf, 1× Pilzgericht).\n\n' +
+            'FRISCHE IDEEN (Kern-Auftrag): Nutze das web_search-Tool, um MINDESTENS 3 der Znacht-Slots (Di–So) mit frischen, saisonalen, low-carb-tauglichen Rezepten von fooby.ch oder migusto.migros.ch zu füllen. Verwende NUR konkrete Rezept-URLs (Muster migusto.migros.ch/de/rezepte/... oder fooby.ch/de/rezepte/...), KEINE Übersichtsseiten. Für diese Gerichte gehört die echte URL in "links".\n' +
+            'Die übrigen Slots aus diesen Familien-Favoriten (variiert, nichts kürzlich Gegessenes):\n' +
+            'ALLGEMEIN: ' + staples + '\n' +
+            'SAISON ' + season.label.toUpperCase() + ': ' + seasonList + '\n' +
+            'LOW-CARB-ZNACHT: ' + lowCarb + '\n\n' +
+            'Antworte AUSSCHLIESSLICH mit einem JSON-Objekt in genau dieser Form (keine Erklärung):\n' +
+            '{"menu":{"Montag":{"zmittag":"…","znacht":"Alex Special"},"Dienstag":{"zmittag":"…","znacht":"…"},"Mittwoch":{…},"Donnerstag":{…},"Freitag":{…},"Samstag":{…},"Sonntag":{…}},"links":{"Dienstag":{"znacht":"https://…"},"Donnerstag":{"znacht":"https://…"}}}';
+
+        const userMsg = 'Plane ein abwechslungsreiches Wochenmenü für den Monat ' + monthName + ' (Saison ' + season.label + ').' +
+            (recent.length ? '\n\nDiese Gerichte gab es zuletzt – NICHT wiederholen:\n' + recent.slice(-18).join(', ') : '') +
+            '\n\nDenk dran: Mo Znacht = "Alex Special", 2× Vegi, Low-Carb-Znacht, mind. 3 frische Fooby/Migusto-Rezepte mit echtem Link, maximale Abwechslung.';
+
+        const response = await callClaude({
+            model: 'claude-sonnet-4-6',
+            maxTokens: 3500,
+            system: system,
+            messages: [{ role: 'user', content: userMsg }],
+            tools: [{ type: 'web_search_20250305', name: 'web_search', max_uses: 6, allowed_domains: ['fooby.ch', 'migusto.migros.ch'] }]
+        });
+
+        const parsed = extractJson(response);
+        const plan = parsed.menu || parsed;
+        const links = parsed.links || {};
+        if (!plan || !plan.Dienstag) throw new Error('Unerwartetes Menü-Format');
+        if (!plan.Montag) plan.Montag = { zmittag: '', znacht: '' };
+        plan.Montag.znacht = 'Alex Special';
+        return { plan: plan, links: links };
+    }
+
+    async function autoGenerateNextWeek() {
+        if (autoGenRunning) return;
+        if (!getApiKey()) return;                     // ohne Schlüssel still nichts tun
+        const weekKey = getWeekKey(1);                // nächste Woche
+        const existing = appData.menu[weekKey] || {};
+        const hasContent = Object.values(existing).some(m => m && (((m.zmittag || '').trim()) || ((m.znacht || '').trim())));
+        if (hasContent) return;                       // schon geplant → nichts tun
+        // Debounce: pro Woche nur 1 Versuch / 12h (verhindert Mehrfach-Kosten bei Reloads/Fehlern)
+        const debKey = 'autoGenAttempt_' + weekKey;
+        if (Date.now() - parseInt(localStorage.getItem(debKey) || '0', 10) < 12 * 3600 * 1000) return;
+        localStorage.setItem(debKey, String(Date.now()));
+
+        autoGenRunning = true;
+        showToast('✨ Menü für nächste Woche wird automatisch erstellt…', null, 4000);
+        try {
+            const days = ['Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag','Sonntag'];
+            const { plan, links } = await generateMenuForWeek(1);
+            if (!appData.menu[weekKey]) appData.menu[weekKey] = {};
+            if (!appData.menuLinks[weekKey]) appData.menuLinks[weekKey] = {};
+            days.forEach(day => {
+                const p = plan[day] || {};
+                if (!appData.menu[weekKey][day]) appData.menu[weekKey][day] = { zmittag: '', znacht: '' };
+                ['zmittag','znacht'].forEach(slot => {
+                    if (!(appData.menu[weekKey][day][slot] || '').trim() && (p[slot] || '').trim()) {
+                        appData.menu[weekKey][day][slot] = p[slot].trim();
+                    }
+                });
+                const l = (links && links[day]) || {};
+                ['zmittag','znacht'].forEach(slot => {
+                    if (l[slot] && /^https?:\/\//i.test(l[slot])) {
+                        if (!appData.menuLinks[weekKey][day]) appData.menuLinks[weekKey][day] = {};
+                        appData.menuLinks[weekKey][day][slot] = l[slot];
+                    }
+                });
+            });
+            appData.menu[weekKey].Montag = appData.menu[weekKey].Montag || { zmittag: '', znacht: '' };
+            appData.menu[weekKey].Montag.znacht = 'Alex Special';
+            saveData();
+            if (currentTab === 'menu') renderMenu();
+            showToast('✨ Neues Menü für nächste Woche ist da!', () => { selectedWeek = 1; switchTab('menu'); }, 6000);
+        } catch (e) {
+            console.warn('Auto-Menü fehlgeschlagen:', e);
+            // Kein Nerv-Popup; nächster Versuch nach Ablauf des Debounce-Fensters.
+        } finally {
+            autoGenRunning = false;
+        }
+    }
+
     // ============================================================
     function startApp() {
         loadData();
