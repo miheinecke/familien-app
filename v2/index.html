@@ -620,8 +620,9 @@
             box-shadow: var(--shadow-card);
         }
         .today-card h3 { font-family: 'Oswald', sans-serif; font-size: 1.1rem; margin-bottom: 10px; }
-        .today-meal { display: flex; justify-content: space-between; padding: 4px 0; font-size: 0.85rem; opacity: 0.95; }
-        .today-meal-label { font-weight: 700; opacity: 0.85; }
+        .today-meal { display: flex; justify-content: space-between; gap: 16px; padding: 4px 0; font-size: 0.85rem; opacity: 0.95; }
+        .today-meal-label { font-weight: 700; opacity: 0.85; flex-shrink: 0; }
+        .today-meal span:last-child { text-align: right; }
 
         /* ==================== WOCHENPLAN-BANNER ==================== */
         .plan-banner {
@@ -1516,12 +1517,6 @@
     <div class="section" id="section-menu">
         <h2 class="section-title">&#x1F37D;&#xFE0F; Wochenmenu</h2>
         <p style="font-size:0.7rem;color:var(--text-muted);margin-bottom:10px;">Tippe auf ein Gericht, um es zu ändern &#x270F;&#xFE0F;</p>
-        <div class="ai-action-bar">
-            <button class="ai-btn blue" onclick="suggestMenu()">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                Wochenplan vorschlagen
-            </button>
-        </div>
         <div id="suggest-result"></div>
         <div class="week-toggle" id="week-toggle">
             <button class="week-btn active" onclick="selectWeek('current')">Diese Woche</button>
