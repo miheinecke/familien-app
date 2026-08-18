@@ -623,6 +623,34 @@
         .today-meal { display: flex; justify-content: space-between; padding: 4px 0; font-size: 0.85rem; opacity: 0.95; }
         .today-meal-label { font-weight: 700; opacity: 0.85; }
 
+        /* ==================== WOCHENPLAN-BANNER ==================== */
+        .plan-banner {
+            display: none;
+            border-radius: 16px;
+            padding: 14px 16px;
+            margin-bottom: 14px;
+            box-shadow: var(--shadow-card);
+            position: relative;
+        }
+        .plan-banner.show { display: block; }
+        .plan-banner.ready { background: linear-gradient(135deg, var(--primary-green), var(--dark-green)); color: #ffffff; }
+        .plan-banner.missing { background: var(--warn-bg); color: var(--text-dark); border: 1px solid var(--warn); }
+        .plan-banner h4 { font-family: 'Oswald', sans-serif; font-size: 0.95rem; margin-bottom: 4px; padding-right: 24px; }
+        .plan-banner p { font-size: 0.78rem; line-height: 1.4; opacity: 0.92; margin-bottom: 10px; }
+        .plan-banner-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+        .plan-banner-btn {
+            border: none; border-radius: 10px; padding: 7px 12px;
+            font-size: 0.75rem; font-weight: 700; cursor: pointer;
+            font-family: inherit;
+            background: rgba(255,255,255,0.22); color: inherit;
+        }
+        .plan-banner-btn:active { transform: scale(0.96); }
+        .plan-banner.missing .plan-banner-btn { background: var(--warn); color: #ffffff; }
+        .plan-banner-close {
+            position: absolute; top: 6px; right: 8px; background: none; border: none;
+            color: inherit; font-size: 1.15rem; cursor: pointer; opacity: 0.7; padding: 4px 6px;
+        }
+
         /* ==================== WEEK PROGRESS RING ==================== */
         .week-ring-card {
             background: var(--card);
@@ -1440,6 +1468,9 @@
     <div class="section active" id="section-dashboard">
         <div id="dashboard-date" style="font-size:0.8rem;color:var(--text-muted);margin-bottom:4px;"></div>
         <h2 class="section-title" id="greeting">Hallo!</h2>
+
+        <!-- Wochenplan-Banner: Fr–So Hinweis, ob das Menü der nächsten Woche bereit ist -->
+        <div class="plan-banner" id="plan-banner"></div>
 
         <div class="today-card" id="today-menu-card" onclick="switchTab('menu')" style="cursor:pointer;"></div>
 
@@ -2368,7 +2399,69 @@
         document.getElementById('overview-packliste').textContent = packPct + '%';
         document.getElementById('overview-packliste-label').textContent = tripName + ' · ' + packChecked + ' / ' + packTotal + ' gepackt';
 
+        renderPlanBanner();
         fetchWeather();
+    }
+
+    // ============================================================
+    // WOCHENPLAN-BANNER
+    // Zeigt Fr–So auf dem Dashboard, ob das Menü der NÄCHSTEN Woche
+    // bereit ist (→ Einkaufsliste + Frame-Bild) oder noch fehlt.
+    // ============================================================
+    function renderPlanBanner() {
+        const el = document.getElementById('plan-banner');
+        if (!el) return;
+        const dow = new Date().getDay(); // 0=So, 5=Fr, 6=Sa
+        const inWindow = (dow === 5 || dow === 6 || dow === 0);
+        el.className = 'plan-banner';
+        el.innerHTML = '';
+        if (!inWindow) return;
+
+        const nextKey = getWeekKey(1);
+        const nextMenu = (appData.menu && appData.menu[nextKey]) || {};
+        let planned = 0;
+        ['Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag','Sonntag'].forEach(d => {
+            const m = nextMenu[d] || {};
+            if (m.zmittag && String(m.zmittag).trim()) planned++;
+            if (m.znacht && String(m.znacht).trim()) planned++;
+        });
+        const ready = planned >= 10;
+        const dismissKey = 'planBanner_' + nextKey + '_' + (ready ? 'ready' : 'missing');
+        try { if (localStorage.getItem(dismissKey)) return; } catch (e) {}
+
+        const p = nextKey.split('-');
+        const dateLabel = parseInt(p[2], 10) + '.' + parseInt(p[1], 10) + '.';
+        if (ready) {
+            el.className = 'plan-banner ready show';
+            el.innerHTML =
+                '<button class="plan-banner-close" onclick="dismissPlanBanner(\'' + dismissKey + '\')" aria-label="Schliessen">&times;</button>' +
+                '<h4>&#x1F37D;&#xFE0F; Neues Wochenmenü ist da!</h4>' +
+                '<p>Die Woche ab ' + dateLabel + ' ist geplant. Jetzt Einkaufsliste machen &amp; dein Frame-Bild zeichnen &#x1F3A8;</p>' +
+                '<div class="plan-banner-actions">' +
+                '<button class="plan-banner-btn" onclick="openNextWeekMenu()">Menü ansehen</button>' +
+                '<button class="plan-banner-btn" onclick="switchTab(\'shopping\')">&#x1F6D2; Einkaufsliste</button>' +
+                '</div>';
+        } else {
+            el.className = 'plan-banner missing show';
+            el.innerHTML =
+                '<button class="plan-banner-close" onclick="dismissPlanBanner(\'' + dismissKey + '\')" aria-label="Schliessen">&times;</button>' +
+                '<h4>&#x1F4DD; Nächste Woche ist noch nicht geplant</h4>' +
+                '<p>Für die Woche ab ' + dateLabel + ' fehlt das Menü noch (' + planned + '/14). Der Menü-Assistent läuft am Samstag – oder du planst direkt selbst.</p>' +
+                '<div class="plan-banner-actions">' +
+                '<button class="plan-banner-btn" onclick="openNextWeekMenu()">Jetzt planen</button>' +
+                '</div>';
+        }
+    }
+
+    function dismissPlanBanner(key) {
+        try { localStorage.setItem(key, '1'); } catch (e) {}
+        renderPlanBanner();
+        buzz(5);
+    }
+
+    function openNextWeekMenu() {
+        switchTab('menu');
+        selectWeek('next');
     }
 
     function fetchWeather() {
