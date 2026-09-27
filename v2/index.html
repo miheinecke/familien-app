@@ -1366,10 +1366,11 @@
         <div class="password-card">
             <div class="lock-icon">🔒</div>
             <h2>Familie Heinecke</h2>
-            <p>Bitte Kennwort eingeben</p>
-            <input type="password" class="password-input" id="password-input" placeholder="Kennwort..." autocomplete="current-password" onkeydown="if(event.key==='Enter') checkPassword()">
-            <div class="password-error" id="password-error">Falsches Kennwort – bitte nochmals versuchen</div>
-            <button class="password-btn" onclick="checkPassword()">Einloggen</button>
+            <p>Bitte anmelden – du bleibst auf diesem Gerät angemeldet.</p>
+            <input type="email" class="password-input" id="login-email" placeholder="E-Mail" autocomplete="username" inputmode="email" style="letter-spacing:0;" onkeydown="if(event.key==='Enter') document.getElementById('password-input').focus()">
+            <input type="password" class="password-input" id="password-input" placeholder="Passwort" autocomplete="current-password" onkeydown="if(event.key==='Enter') checkPassword()">
+            <div class="password-error" id="password-error">Anmeldung fehlgeschlagen</div>
+            <button class="password-btn" id="login-btn" onclick="checkPassword()">Anmelden</button>
         </div>
     </div>
 
@@ -1427,6 +1428,10 @@
                 <option value="Michèle">Michèle</option>
                 <option value="Alex">Alex</option>
             </select>
+
+            <label style="margin-top:18px;">Konto</label>
+            <p id="settings-auth" style="margin:4px 0 8px;font-size:0.8rem;">…</p>
+            <button class="ghost-btn" onclick="logoutFirebase()" style="border-color:var(--text-muted);">Abmelden</button>
 
             <div class="settings-row">
                 <button class="ghost-btn" onclick="closeSettings()" style="border-color:var(--text-muted);">Schliessen</button>
@@ -1680,6 +1685,7 @@
     <!-- ==================== FIREBASE SDK ==================== -->
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 
     <script>
     'use strict';
@@ -1690,7 +1696,6 @@
     const APP_VERSION = 'v2.0.0';
     const STORAGE_KEY = 'familieHeineckeAppV2';
     const USER_KEY = 'familieHeineckeUserV2';
-    const AUTH_KEY = 'familieHeineckeAuthV2';
     const THEME_KEY = 'familieHeineckeThemeV2';
     const SORT_KEY = 'familieHeineckeSortV2';      // saved manual sort orders
     const INSTALL_DISMISS_KEY = 'familieHeineckeInstallDismissedV2';
@@ -1734,33 +1739,70 @@
     // ============================================================
     // PASSWORD
     // ============================================================
-    function checkPassword() {
+    // Firebase-Login (E-Mail + Passwort). Die Datenbank-Regeln lassen nur
+    // freigeschaltete Familien-Konten lesen/schreiben – kein Login, kein Sync.
+    let appStarted = false;
+    let dbAttached = false;
+
+    function showLoginError(msg) {
         const input = document.getElementById('password-input');
-        const pw = input.value.trim();
-        if (pw === '1234') {
-            sessionStorage.setItem(AUTH_KEY, 'true');
-            document.getElementById('password-overlay').style.display = 'none';
-            startApp();
-        } else {
-            buzz([60, 40, 60]);
-            const errEl = document.getElementById('password-error');
-            errEl.style.display = 'block';
-            input.value = '';
-            input.focus();
-            const card = input.parentElement;
-            card.style.animation = 'shake 0.4s';
-            setTimeout(() => { card.style.animation = ''; }, 400);
-        }
+        const errEl = document.getElementById('password-error');
+        errEl.textContent = msg; errEl.style.display = 'block';
+        buzz([60, 40, 60]);
+        input.value = ''; input.focus();
+        const card = input.parentElement;
+        card.style.animation = 'shake 0.4s';
+        setTimeout(() => { card.style.animation = ''; }, 400);
     }
 
-    function checkAuth() {
-        if (sessionStorage.getItem(AUTH_KEY) === 'true') {
-            document.getElementById('password-overlay').style.display = 'none';
-            return true;
-        }
+    function checkPassword() {
+        const email = document.getElementById('login-email').value.trim();
+        const pw = document.getElementById('password-input').value;
+        if (!email || !pw) { showLoginError('E-Mail und Passwort eingeben'); return; }
+        const btn = document.getElementById('login-btn');
+        btn.disabled = true; btn.textContent = 'Anmelden…';
+        firebase.auth().signInWithEmailAndPassword(email, pw)
+            .catch(err => {
+                const code = (err && err.code) || '';
+                const msg = /network/.test(code) ? 'Keine Verbindung – bitte später nochmals'
+                          : /too-many/.test(code) ? 'Zu viele Versuche – kurz warten'
+                          : 'E-Mail oder Passwort stimmt nicht';
+                showLoginError(msg);
+            })
+            .finally(() => { btn.disabled = false; btn.textContent = 'Anmelden'; });
+    }
+
+    function showLogin() {
         document.getElementById('password-overlay').style.display = 'flex';
-        document.getElementById('password-input').focus();
-        return false;
+        document.getElementById('password-error').style.display = 'none';
+        setTimeout(() => document.getElementById('login-email').focus(), 50);
+    }
+
+    function hideLogin() {
+        document.getElementById('password-overlay').style.display = 'none';
+    }
+
+    function logoutFirebase() {
+        if (!confirm('Abmelden? Die Daten bleiben auf dem Gerät, aber ohne Anmeldung wird nichts mehr synchronisiert.')) return;
+        closeSettings();
+        firebase.auth().signOut().catch(err => console.warn('Abmelden fehlgeschlagen:', err));
+    }
+
+    function onAuthChanged(user) {
+        if (user) {
+            hideLogin();
+            if (!appStarted) { appStarted = true; startApp(); }
+            attachDb();
+        } else {
+            detachDb();
+            showLogin();
+        }
+        updateAuthSettingsUi(user);
+    }
+
+    function updateAuthSettingsUi(user) {
+        const el = document.getElementById('settings-auth');
+        if (el) el.textContent = user ? ('Angemeldet als ' + (user.email || '–')) : 'Nicht angemeldet';
     }
 
     // ============================================================
@@ -2237,7 +2279,27 @@
             firebase.initializeApp(FIREBASE_CONFIG);
             db = firebase.database();
             dbRef = db.ref(FIREBASE_REF);
+            firebase.auth().onAuthStateChanged(onAuthChanged);
+        } catch (e) {
+            console.warn('Firebase init fehlgeschlagen:', e);
+            // Ohne Firebase: App offline starten, damit lokale Daten nutzbar bleiben
+            hideLogin();
+            if (!appStarted) { appStarted = true; startApp(); }
+            setSyncStatus('offline', 'Sync-Fehler');
+        }
+    }
 
+    function detachDb() {
+        if (dbRef && dbAttached) { try { dbRef.off('value'); } catch (e) {} }
+        dbAttached = false;
+        firebaseReady = false;
+        setSyncStatus('offline', 'Nicht angemeldet');
+    }
+
+    function attachDb() {
+        if (!dbRef || dbAttached) return;
+        dbAttached = true;
+        try {
             dbRef.on('value', snapshot => {
                 const remoteData = snapshot.val();
                 if (remoteData) {
@@ -2254,12 +2316,16 @@
                     firstSyncHandled = true;
                     setTimeout(autoGenerateNextWeek, 1500);
                 }
+            }, err => {
+                console.warn('Firebase lesen verweigert:', err);
+                setSyncStatus('offline', 'Kein Zugriff');
             });
             db.ref('.info/connected').on('value', snap => {
+                if (!dbAttached) return;
                 setSyncStatus(snap.val() === true ? 'online' : 'offline');
             });
         } catch (e) {
-            console.warn('Firebase init fehlgeschlagen:', e);
+            console.warn('Firebase-Listener fehlgeschlagen:', e);
             setSyncStatus('offline', 'Sync-Fehler');
         }
     }
@@ -4491,7 +4557,6 @@
     function startApp() {
         loadData();
         checkUser();
-        initFirebase();
         switchTab('dashboard');
         setupPullToRefresh();
         initVoice();
@@ -4501,10 +4566,8 @@
     // Theme zuerst, damit kein FOUC
     initTheme();
 
-    // Auth-Check, dann App
-    if (checkAuth()) {
-        startApp();
-    }
+    // Firebase-Login entscheidet, ob die App startet (onAuthChanged → startApp)
+    initFirebase();
     </script>
 </body>
 </html>
