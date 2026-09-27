@@ -4410,7 +4410,7 @@
             '3. ZMITTAG Mo–Fr = Mix: teils "Reste vom [Vortag]" (konkret aufs Vortags-Znacht beziehen), teils Low-Carb-Schnellgericht (Omelette, Frittata, Salat mit Poulet/Thon/Ei, Gemüsesuppe, Hüttenkäse-Teller, Halloumi). Sa/So darf aufwändiger sein.\n' +
             '4. 2× VEGI pro Woche beim Znacht. KEINE rohen Rüebli. Mo–Fr max. 30 Min, Sa/So darf länger.\n' +
             '5. Keine gleichartigen Hauptgerichte doppelt (max. 1× Risotto, 1× Pasta, 1× Suppe-Znacht, 1× Eintopf, 1× Pilzgericht).\n\n' +
-            'FRISCHE IDEEN (Kern-Auftrag): Nutze das web_search-Tool, um MINDESTENS 3 der Znacht-Slots (Di–So) mit frischen, saisonalen, low-carb-tauglichen Rezepten von fooby.ch oder migusto.migros.ch zu füllen. Verwende NUR konkrete Rezept-URLs (Muster migusto.migros.ch/de/rezepte/... oder fooby.ch/de/rezepte/...), KEINE Übersichtsseiten. Für diese Gerichte gehört die echte URL in "links".\n' +
+            'FRISCHE IDEEN (Kern-Auftrag): Nutze das web_search-Tool, um MINDESTENS 3 der Znacht-Slots (Di–So) mit frischen, saisonalen, low-carb-tauglichen Rezepten von fooby.ch, migusto.migros.ch oder swissmilk.ch zu füllen – alle drei Quellen mischen. Verwende NUR konkrete Rezept-URLs (Muster migusto.migros.ch/de/rezepte/..., fooby.ch/de/rezepte/... oder www.swissmilk.ch/de/rezepte-kochideen/rezepte/<ID>/<slug>/), KEINE Übersichtsseiten. Für diese Gerichte gehört die echte URL in "links".\n' +
             'Die übrigen Slots aus diesen Familien-Favoriten (variiert, nichts kürzlich Gegessenes):\n' +
             'ALLGEMEIN: ' + staples + '\n' +
             'SAISON ' + season.label.toUpperCase() + ': ' + seasonList + '\n' +
@@ -4427,7 +4427,7 @@
             maxTokens: 3500,
             system: system,
             messages: [{ role: 'user', content: userMsg }],
-            tools: [{ type: 'web_search_20250305', name: 'web_search', max_uses: 6, allowed_domains: ['fooby.ch', 'migusto.migros.ch'] }]
+            tools: [{ type: 'web_search_20250305', name: 'web_search', max_uses: 6, allowed_domains: ['fooby.ch', 'migusto.migros.ch', 'swissmilk.ch'] }]
         });
 
         const parsed = extractJson(response);
